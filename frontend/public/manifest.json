@@ -1,0 +1,18 @@
+{
+  "name": "Coffee Inventory",
+  "short_name": "CoffeeInv",
+  "description": "Coffee Inventory Management System",
+  "theme_color": "#1e3a5f",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

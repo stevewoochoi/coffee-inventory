@@ -1,0 +1,71 @@
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { AdminLayout } from '@/components/AdminLayout';
+import { StoreLayout } from '@/components/StoreLayout';
+import LoginPage from '@/pages/LoginPage';
+import ItemsPage from '@/pages/admin/ItemsPage';
+import PackagingsPage from '@/pages/admin/PackagingsPage';
+import SuppliersPage from '@/pages/admin/SuppliersPage';
+import InventoryPage from '@/pages/store/InventoryPage';
+import ReceivingPage from '@/pages/store/ReceivingPage';
+import WastePage from '@/pages/store/WastePage';
+import OrderingPage from '@/pages/store/OrderingPage';
+import NewOrderPage from '@/pages/store/NewOrderPage';
+import OrderingAdminPage from '@/pages/admin/OrderingAdminPage';
+import AdminExpiryPage from '@/pages/admin/ExpiryPage';
+import StoreExpiryPage from '@/pages/store/ExpiryPage';
+import PhysicalCountPage from '@/pages/store/PhysicalCountPage';
+import PhysicalCountDetailPage from '@/pages/store/PhysicalCountDetailPage';
+import StoreDashboardPage from '@/pages/store/DashboardPage';
+import AdminDashboardPage from '@/pages/admin/DashboardPage';
+import ReportsPage from '@/pages/store/ReportsPage';
+
+function App() {
+  const { initialize } = useAuthStore();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'BRAND_ADMIN']} />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/items" element={<ItemsPage />} />
+            <Route path="/admin/packagings" element={<PackagingsPage />} />
+            <Route path="/admin/suppliers" element={<SuppliersPage />} />
+            <Route path="/admin/ordering" element={<OrderingAdminPage />} />
+            <Route path="/admin/expiry" element={<AdminExpiryPage />} />
+          </Route>
+        </Route>
+
+        <Route element={<ProtectedRoute />}>
+          <Route element={<StoreLayout />}>
+            <Route path="/store" element={<Navigate to="/store/dashboard" replace />} />
+            <Route path="/store/dashboard" element={<StoreDashboardPage />} />
+            <Route path="/store/inventory" element={<InventoryPage />} />
+            <Route path="/store/receiving" element={<ReceivingPage />} />
+            <Route path="/store/waste" element={<WastePage />} />
+            <Route path="/store/ordering" element={<OrderingPage />} />
+            <Route path="/store/ordering/new" element={<NewOrderPage />} />
+            <Route path="/store/expiry" element={<StoreExpiryPage />} />
+            <Route path="/store/reports" element={<ReportsPage />} />
+            <Route path="/store/physical-count" element={<PhysicalCountPage />} />
+            <Route path="/store/physical-count/:id" element={<PhysicalCountDetailPage />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

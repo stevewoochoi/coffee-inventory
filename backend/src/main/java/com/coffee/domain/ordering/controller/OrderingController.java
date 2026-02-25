@@ -1,0 +1,72 @@
+package com.coffee.domain.ordering.controller;
+
+import com.coffee.common.response.ApiResponse;
+import com.coffee.domain.ordering.dto.OrderPlanDto;
+import com.coffee.domain.ordering.dto.OrderSuggestionDto;
+import com.coffee.domain.ordering.service.OrderPdfService;
+import com.coffee.domain.ordering.service.OrderSuggestionService;
+import com.coffee.domain.ordering.service.OrderingService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/ordering")
+@RequiredArgsConstructor
+public class OrderingController {
+
+    private final OrderingService orderingService;
+    private final OrderSuggestionService suggestionService;
+    private final OrderPdfService orderPdfService;
+
+    @GetMapping("/plans")
+    public ResponseEntity<ApiResponse<List<OrderPlanDto.Response>>> findByStoreId(
+            @RequestParam Long storeId) {
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.findByStoreId(storeId)));
+    }
+
+    @GetMapping("/plans/{id}")
+    public ResponseEntity<ApiResponse<OrderPlanDto.Response>> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.findById(id)));
+    }
+
+    @PostMapping("/plans")
+    public ResponseEntity<ApiResponse<OrderPlanDto.Response>> create(
+            @Valid @RequestBody OrderPlanDto.CreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok(orderingService.create(request), "Order plan created"));
+    }
+
+    @PutMapping("/plans/{id}/confirm")
+    public ResponseEntity<ApiResponse<OrderPlanDto.Response>> confirm(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.confirm(id), "Order confirmed"));
+    }
+
+    @PostMapping("/plans/{id}/dispatch")
+    public ResponseEntity<ApiResponse<OrderPlanDto.Response>> dispatch(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.dispatch(id), "Order dispatched"));
+    }
+
+    @GetMapping("/suggestion")
+    public ResponseEntity<ApiResponse<OrderSuggestionDto.Response>> suggestion(
+            @RequestParam Long storeId,
+            @RequestParam Long supplierId) {
+        return ResponseEntity.ok(ApiResponse.ok(suggestionService.suggest(storeId, supplierId)));
+    }
+
+    @GetMapping("/plans/{id}/pdf")
+    public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
+        byte[] pdfBytes = orderPdfService.generatePdfForPlan(id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "order-" + id + ".pdf");
+        headers.setContentLength(pdfBytes.length);
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    }
+}

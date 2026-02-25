@@ -1,0 +1,8 @@
+.env
+*.log
+target/
+node_modules/
+.DS_Store
+*.class
+*.jar
+!app.jar

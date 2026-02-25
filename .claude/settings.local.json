@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(touch:*)",
+      "Bash(npm create:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npx shadcn@latest:*)",
+      "Bash(npx vite:*)",
+      "Bash(cd /home/ubuntu/coffee-inventory/backend && mvn compile -q 2>&1)"
+    ]
+  }
+}

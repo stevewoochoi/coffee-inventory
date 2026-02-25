@@ -1,0 +1,68 @@
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { subscribeToPush } from '@/api/push';
+import { useAuthStore } from '@/store/authStore';
+
+export default function NotificationBanner() {
+  const { user } = useAuthStore();
+  const [visible, setVisible] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done'>('idle');
+
+  useEffect(() => {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+    if (Notification.permission === 'default') {
+      const dismissed = sessionStorage.getItem('push-banner-dismissed');
+      if (!dismissed) {
+        setVisible(true);
+      }
+    }
+  }, []);
+
+  if (!visible) return null;
+
+  const handleEnable = async () => {
+    setStatus('loading');
+    const success = await subscribeToPush(user?.userId ?? 0);
+    if (success) {
+      setStatus('done');
+      setTimeout(() => setVisible(false), 1500);
+    } else {
+      setStatus('idle');
+      setVisible(false);
+    }
+  };
+
+  const handleDismiss = () => {
+    sessionStorage.setItem('push-banner-dismissed', '1');
+    setVisible(false);
+  };
+
+  return (
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 flex items-center justify-between gap-3">
+      <p className="text-sm text-blue-800">
+        {status === 'done'
+          ? 'Notifications enabled!'
+          : 'Enable push notifications for low stock and expiry alerts?'}
+      </p>
+      {status !== 'done' && (
+        <div className="flex gap-2 shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleDismiss}
+          >
+            Later
+          </Button>
+          <Button
+            size="sm"
+            className="bg-blue-800 hover:bg-blue-900"
+            onClick={handleEnable}
+            disabled={status === 'loading'}
+          >
+            {status === 'loading' ? 'Enabling...' : 'Enable'}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
