@@ -10,7 +10,14 @@ import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login, isLoading, error } = useAuthStore();
+  const { login, isLoading, error: rawError } = useAuthStore();
+
+  const ERROR_MESSAGES: Record<string, string> = {
+    ACCOUNT_PENDING: t('auth.accountPending'),
+    ACCOUNT_REJECTED: t('auth.accountRejected'),
+    ACCOUNT_SUSPENDED: t('auth.accountSuspended'),
+  };
+  const error = rawError ? (ERROR_MESSAGES[rawError] || rawError) : null;
   const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

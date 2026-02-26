@@ -34,11 +34,11 @@ public class AuthService {
         if (user.getAccountStatus() != null && user.getAccountStatus() != AccountStatus.ACTIVE) {
             switch (user.getAccountStatus()) {
                 case PENDING_APPROVAL:
-                    throw new BusinessException("관리자 승인 대기 중입니다", HttpStatus.FORBIDDEN, "ACCOUNT_PENDING");
+                    throw new BusinessException("Account is pending approval", HttpStatus.FORBIDDEN, "ACCOUNT_PENDING");
                 case REJECTED:
-                    throw new BusinessException("가입이 거절되었습니다", HttpStatus.FORBIDDEN, "ACCOUNT_REJECTED");
+                    throw new BusinessException("Account registration was rejected", HttpStatus.FORBIDDEN, "ACCOUNT_REJECTED");
                 case SUSPENDED:
-                    throw new BusinessException("계정이 정지되었습니다", HttpStatus.FORBIDDEN, "ACCOUNT_SUSPENDED");
+                    throw new BusinessException("Account is suspended", HttpStatus.FORBIDDEN, "ACCOUNT_SUSPENDED");
                 default:
                     break;
             }
@@ -62,12 +62,12 @@ public class AuthService {
     public RegisterResponse register(RegisterRequest request) {
         // Password confirmation check
         if (!request.getPassword().equals(request.getPasswordConfirm())) {
-            throw new BusinessException("비밀번호가 일치하지 않습니다", HttpStatus.BAD_REQUEST, "PASSWORD_MISMATCH");
+            throw new BusinessException("Passwords do not match", HttpStatus.BAD_REQUEST, "PASSWORD_MISMATCH");
         }
 
         // Email duplicate check
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BusinessException("이미 사용 중인 이메일입니다", HttpStatus.CONFLICT, "EMAIL_DUPLICATE");
+            throw new BusinessException("Email is already in use", HttpStatus.CONFLICT, "EMAIL_DUPLICATE");
         }
 
         User user = User.builder()

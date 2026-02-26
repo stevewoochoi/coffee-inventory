@@ -53,7 +53,7 @@ public class AdminUserController {
                 id, request,
                 currentUser.getId(), Role.valueOf(currentUser.getRole()), currentUser.getBrandId());
 
-        return ResponseEntity.ok(ApiResponse.ok(response, "사용자가 승인되었습니다"));
+        return ResponseEntity.ok(ApiResponse.ok(response, "User approved"));
     }
 
     @PutMapping("/{id}/reject")
@@ -63,6 +63,6 @@ public class AdminUserController {
             @AuthenticationPrincipal CustomUserDetails currentUser) {
 
         UserDto.Response response = adminUserService.rejectUser(id, request, currentUser.getId());
-        return ResponseEntity.ok(ApiResponse.ok(response, "사용자가 거절되었습니다"));
+        return ResponseEntity.ok(ApiResponse.ok(response, "User rejected"));
     }
 }

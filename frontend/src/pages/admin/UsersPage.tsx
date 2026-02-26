@@ -42,6 +42,7 @@ export default function UsersPage() {
   const [totalElements, setTotalElements] = useState(0);
   const [currentTab, setCurrentTab] = useState<string>('PENDING_APPROVAL');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
@@ -61,12 +62,21 @@ export default function UsersPage() {
   const [rejectReason, setRejectReason] = useState('');
   const [rejecting, setRejecting] = useState(false);
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await adminUserApi.getUsers({
         status: currentTab || undefined,
-        search: search || undefined,
+        search: debouncedSearch || undefined,
         page,
         size: 20,
       });
@@ -77,7 +87,7 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentTab, search, page, t]);
+  }, [currentTab, debouncedSearch, page, t]);
 
   const fetchPendingCount = useCallback(async () => {
     try {
@@ -209,7 +219,7 @@ export default function UsersPage() {
         <Input
           placeholder={t('users.searchPlaceholder')}
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+          onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
       </div>

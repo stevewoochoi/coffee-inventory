@@ -91,7 +91,10 @@
       "weak": "弱い",
       "medium": "普通",
       "strong": "強い"
-    }
+    },
+    "accountPending": "管理者の承認待ちです。",
+    "accountRejected": "登録が拒否されました。",
+    "accountSuspended": "アカウントが停止されています。"
   },
   "dashboard": {
     "storeTitle": "店舗ダッシュボード",

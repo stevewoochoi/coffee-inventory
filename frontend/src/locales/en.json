@@ -91,7 +91,10 @@
       "weak": "Weak",
       "medium": "Medium",
       "strong": "Strong"
-    }
+    },
+    "accountPending": "Your account is pending administrator approval.",
+    "accountRejected": "Your registration has been rejected.",
+    "accountSuspended": "Your account has been suspended."
   },
   "dashboard": {
     "storeTitle": "Store Dashboard",

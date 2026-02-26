@@ -27,7 +27,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<RegisterResponse>> register(@Valid @RequestBody RegisterRequest request) {
         RegisterResponse response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok(response, "가입 신청이 완료되었습니다. 관리자 승인 후 로그인 가능합니다."));
+                .body(ApiResponse.ok(response, "Registration submitted. You can log in after administrator approval."));
     }
 
     @GetMapping("/check-email")

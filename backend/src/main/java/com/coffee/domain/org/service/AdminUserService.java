@@ -71,14 +71,14 @@ public class AdminUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
         if (user.getAccountStatus() != AccountStatus.PENDING_APPROVAL) {
-            throw new BusinessException("이 사용자는 승인 대기 상태가 아닙니다", HttpStatus.BAD_REQUEST, "INVALID_STATUS");
+            throw new BusinessException("User is not in pending approval status", HttpStatus.BAD_REQUEST, "INVALID_STATUS");
         }
 
         Role targetRole;
         try {
             targetRole = Role.valueOf(request.getRole());
         } catch (IllegalArgumentException e) {
-            throw new BusinessException("유효하지 않은 역할입니다: " + request.getRole(), HttpStatus.BAD_REQUEST, "INVALID_ROLE");
+            throw new BusinessException("Invalid role: " + request.getRole(), HttpStatus.BAD_REQUEST, "INVALID_ROLE");
         }
 
         // Permission check
@@ -92,7 +92,7 @@ public class AdminUserService {
         // Set brand/company for BRAND_ADMIN
         if (targetRole == Role.BRAND_ADMIN || targetRole == Role.STORE_MANAGER) {
             if (request.getBrandId() == null) {
-                throw new BusinessException("브랜드 ID가 필요합니다", HttpStatus.BAD_REQUEST, "BRAND_REQUIRED");
+                throw new BusinessException("Brand ID is required", HttpStatus.BAD_REQUEST, "BRAND_REQUIRED");
             }
             Brand brand = brandRepository.findById(request.getBrandId())
                     .orElseThrow(() -> new ResourceNotFoundException("Brand", request.getBrandId()));
@@ -103,7 +103,7 @@ public class AdminUserService {
         // Create user_store mappings for STORE_MANAGER
         if (targetRole == Role.STORE_MANAGER) {
             if (request.getStoreIds() == null || request.getStoreIds().isEmpty()) {
-                throw new BusinessException("매장 ID가 필요합니다", HttpStatus.BAD_REQUEST, "STORE_REQUIRED");
+                throw new BusinessException("Store IDs are required", HttpStatus.BAD_REQUEST, "STORE_REQUIRED");
             }
 
             // Set the first store as the main storeId on user
@@ -115,7 +115,7 @@ public class AdminUserService {
                         .orElseThrow(() -> new ResourceNotFoundException("Store", storeId));
                 // Validate store belongs to the brand
                 if (!store.getBrandId().equals(request.getBrandId())) {
-                    throw new BusinessException("매장이 해당 브랜드에 속하지 않습니다: " + storeId,
+                    throw new BusinessException("Store does not belong to the selected brand: " + storeId,
                             HttpStatus.BAD_REQUEST, "STORE_BRAND_MISMATCH");
                 }
                 UserStore userStore = UserStore.builder()
@@ -137,7 +137,7 @@ public class AdminUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
         if (user.getAccountStatus() != AccountStatus.PENDING_APPROVAL) {
-            throw new BusinessException("이 사용자는 승인 대기 상태가 아닙니다", HttpStatus.BAD_REQUEST, "INVALID_STATUS");
+            throw new BusinessException("User is not in pending approval status", HttpStatus.BAD_REQUEST, "INVALID_STATUS");
         }
 
         user.setAccountStatus(AccountStatus.REJECTED);
@@ -157,17 +157,17 @@ public class AdminUserService {
         if (approverRole == Role.BRAND_ADMIN) {
             // BRAND_ADMIN can assign BRAND_ADMIN or STORE_MANAGER within their brand
             if (targetRole == Role.SUPER_ADMIN) {
-                throw new BusinessException("BRAND_ADMIN은 SUPER_ADMIN 역할을 부여할 수 없습니다",
+                throw new BusinessException("Brand admin cannot assign super admin role",
                         HttpStatus.FORBIDDEN, "INSUFFICIENT_PERMISSION");
             }
             if (targetBrandId != null && !targetBrandId.equals(approverBrandId)) {
-                throw new BusinessException("자신의 브랜드 내에서만 역할을 부여할 수 있습니다",
+                throw new BusinessException("Can only assign roles within your own brand",
                         HttpStatus.FORBIDDEN, "BRAND_MISMATCH");
             }
             return;
         }
 
-        throw new BusinessException("역할을 부여할 권한이 없습니다", HttpStatus.FORBIDDEN, "INSUFFICIENT_PERMISSION");
+        throw new BusinessException("Insufficient permission to assign roles", HttpStatus.FORBIDDEN, "INSUFFICIENT_PERMISSION");
     }
 
     private UserDto.Response toResponse(User user) {

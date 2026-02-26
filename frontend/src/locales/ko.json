@@ -91,7 +91,10 @@
       "weak": "약함",
       "medium": "보통",
       "strong": "강함"
-    }
+    },
+    "accountPending": "관리자 승인 대기 중입니다.",
+    "accountRejected": "가입이 거절되었습니다.",
+    "accountSuspended": "계정이 정지되었습니다."
   },
   "dashboard": {
     "storeTitle": "매장 대시보드",
