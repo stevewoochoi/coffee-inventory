@@ -12,6 +12,7 @@ import ItemsPage from '@/pages/admin/ItemsPage';
 import PackagingsPage from '@/pages/admin/PackagingsPage';
 import SuppliersPage from '@/pages/admin/SuppliersPage';
 import ThemeSettingsPage from '@/pages/admin/ThemeSettingsPage';
+import UsersPage from '@/pages/admin/UsersPage';
 import InventoryPage from '@/pages/store/InventoryPage';
 import ReceivingPage from '@/pages/store/ReceivingPage';
 import WastePage from '@/pages/store/WastePage';
@@ -52,6 +53,7 @@ function App() {
             <Route path="/admin/ordering" element={<OrderingAdminPage />} />
             <Route path="/admin/expiry" element={<AdminExpiryPage />} />
             <Route path="/admin/settings/theme" element={<ThemeSettingsPage />} />
+            <Route path="/admin/settings/users" element={<UsersPage />} />
           </Route>
         </Route>
 

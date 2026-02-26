@@ -356,6 +356,43 @@
     "ko": "한국어",
     "ja": "日本語"
   },
+  "users": {
+    "title": "ユーザー管理",
+    "loadFailed": "ユーザー一覧の読み込みに失敗しました",
+    "noUsers": "ユーザーが見つかりません",
+    "searchPlaceholder": "メールアドレスまたは名前で検索",
+    "approve": "承認",
+    "reject": "拒否",
+    "approved": "ユーザーが承認されました",
+    "rejected": "ユーザーが拒否されました",
+    "approveFailed": "承認に失敗しました",
+    "rejectFailed": "拒否に失敗しました",
+    "approveTitle": "ユーザー承認",
+    "rejectTitle": "ユーザー拒否",
+    "rejectReasonLabel": "拒否理由",
+    "rejectReasonPlaceholder": "拒否理由を入力してください",
+    "brand": "ブランド",
+    "stores": "店舗",
+    "selectBrand": "ブランドを選択してください",
+    "selected": "件選択",
+    "noStores": "店舗がありません",
+    "primary": "主担当",
+    "primaryHint": "最初に選択した店舗が主担当店舗になります",
+    "status": {
+      "PENDING_APPROVAL": "承認待ち",
+      "ACTIVE": "有効",
+      "REJECTED": "拒否",
+      "SUSPENDED": "停止"
+    },
+    "col": {
+      "name": "名前",
+      "email": "メールアドレス",
+      "role": "役割",
+      "stores": "担当店舗",
+      "status": "ステータス",
+      "registeredAt": "登録日"
+    }
+  },
   "settings": {
     "themeTitle": "テーマ設定"
   },

@@ -356,6 +356,43 @@
     "ko": "Korean",
     "ja": "Japanese"
   },
+  "users": {
+    "title": "User Management",
+    "loadFailed": "Failed to load users",
+    "noUsers": "No users found",
+    "searchPlaceholder": "Search by email or name",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approved": "User approved",
+    "rejected": "User rejected",
+    "approveFailed": "Failed to approve user",
+    "rejectFailed": "Failed to reject user",
+    "approveTitle": "Approve User",
+    "rejectTitle": "Reject User",
+    "rejectReasonLabel": "Reason",
+    "rejectReasonPlaceholder": "Enter rejection reason",
+    "brand": "Brand",
+    "stores": "Stores",
+    "selectBrand": "Select a brand",
+    "selected": " selected",
+    "noStores": "No stores available",
+    "primary": "Primary",
+    "primaryHint": "The first selected store becomes the primary store",
+    "status": {
+      "PENDING_APPROVAL": "Pending",
+      "ACTIVE": "Active",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended"
+    },
+    "col": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "stores": "Stores",
+      "status": "Status",
+      "registeredAt": "Registered"
+    }
+  },
   "settings": {
     "themeTitle": "Theme Settings"
   },

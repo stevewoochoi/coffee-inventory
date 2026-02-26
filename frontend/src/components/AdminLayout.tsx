@@ -11,6 +11,7 @@ const navKeys = [
   { to: '/admin/suppliers', key: 'nav.suppliers' },
   { to: '/admin/ordering', key: 'nav.ordering' },
   { to: '/admin/expiry', key: 'nav.expiry' },
+  { to: '/admin/settings/users', key: 'nav.users' },
   { to: '/admin/settings/theme', key: 'nav.settings' },
 ];
 
