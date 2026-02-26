@@ -1,0 +1,198 @@
+export interface ThemePreset {
+  id: string;
+  name: string;
+  nameKey: string;
+  colors: Record<string, string>;
+  headerBg: string;     // Tailwind class for header
+  headerHover: string;  // Tailwind class for active nav
+  headerText: string;   // Tailwind class for header text
+  buttonBg: string;     // Tailwind class for primary buttons
+  buttonHover: string;  // Tailwind class for button hover
+  previewColors: string[]; // Preview swatch colors
+}
+
+export const themePresets: ThemePreset[] = [
+  {
+    id: 'modern-blue',
+    name: 'Modern Blue',
+    nameKey: 'theme.modernBlue',
+    colors: {
+      '--primary': '224 73% 40%',
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '217 91% 60%',
+      '--secondary-foreground': '0 0% 100%',
+      '--ring': '224 73% 40%',
+      '--background': '210 20% 98%',
+      '--foreground': '222 47% 11%',
+      '--card': '0 0% 100%',
+      '--card-foreground': '222 47% 11%',
+      '--muted': '210 40% 96%',
+      '--muted-foreground': '215 16% 47%',
+      '--accent': '210 40% 96%',
+      '--accent-foreground': '222 47% 11%',
+      '--border': '214 32% 91%',
+      '--input': '214 32% 91%',
+    },
+    headerBg: 'bg-blue-800',
+    headerHover: 'bg-blue-900',
+    headerText: 'text-blue-200',
+    buttonBg: 'bg-blue-800',
+    buttonHover: 'hover:bg-blue-900',
+    previewColors: ['#1E40AF', '#2563EB', '#3B82F6'],
+  },
+  {
+    id: 'coffee-classic',
+    name: 'Coffee Classic',
+    nameKey: 'theme.coffeeClassic',
+    colors: {
+      '--primary': '25 62% 30%',
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '25 75% 47%',
+      '--secondary-foreground': '0 0% 100%',
+      '--ring': '25 62% 30%',
+      '--background': '30 50% 97%',
+      '--foreground': '15 25% 15%',
+      '--card': '0 0% 100%',
+      '--card-foreground': '15 25% 15%',
+      '--muted': '30 30% 94%',
+      '--muted-foreground': '15 10% 45%',
+      '--accent': '30 30% 94%',
+      '--accent-foreground': '15 25% 15%',
+      '--border': '25 20% 88%',
+      '--input': '25 20% 88%',
+    },
+    headerBg: 'bg-amber-900',
+    headerHover: 'bg-amber-950',
+    headerText: 'text-amber-200',
+    buttonBg: 'bg-amber-900',
+    buttonHover: 'hover:bg-amber-950',
+    previewColors: ['#78350F', '#92400E', '#B45309'],
+  },
+  {
+    id: 'forest-green',
+    name: 'Forest Green',
+    nameKey: 'theme.forestGreen',
+    colors: {
+      '--primary': '152 60% 30%',
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '152 50% 45%',
+      '--secondary-foreground': '0 0% 100%',
+      '--ring': '152 60% 30%',
+      '--background': '140 20% 97%',
+      '--foreground': '150 30% 12%',
+      '--card': '0 0% 100%',
+      '--card-foreground': '150 30% 12%',
+      '--muted': '140 25% 94%',
+      '--muted-foreground': '150 10% 45%',
+      '--accent': '140 25% 94%',
+      '--accent-foreground': '150 30% 12%',
+      '--border': '140 20% 89%',
+      '--input': '140 20% 89%',
+    },
+    headerBg: 'bg-emerald-800',
+    headerHover: 'bg-emerald-900',
+    headerText: 'text-emerald-200',
+    buttonBg: 'bg-emerald-800',
+    buttonHover: 'hover:bg-emerald-900',
+    previewColors: ['#065F46', '#047857', '#059669'],
+  },
+  {
+    id: 'sunset-orange',
+    name: 'Sunset Orange',
+    nameKey: 'theme.sunsetOrange',
+    colors: {
+      '--primary': '15 80% 45%',
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '25 90% 55%',
+      '--secondary-foreground': '0 0% 100%',
+      '--ring': '15 80% 45%',
+      '--background': '25 40% 97%',
+      '--foreground': '15 30% 15%',
+      '--card': '0 0% 100%',
+      '--card-foreground': '15 30% 15%',
+      '--muted': '25 30% 94%',
+      '--muted-foreground': '15 10% 45%',
+      '--accent': '25 30% 94%',
+      '--accent-foreground': '15 30% 15%',
+      '--border': '20 20% 89%',
+      '--input': '20 20% 89%',
+    },
+    headerBg: 'bg-orange-700',
+    headerHover: 'bg-orange-800',
+    headerText: 'text-orange-200',
+    buttonBg: 'bg-orange-700',
+    buttonHover: 'hover:bg-orange-800',
+    previewColors: ['#C2410C', '#EA580C', '#F97316'],
+  },
+  {
+    id: 'minimal-gray',
+    name: 'Minimal Gray',
+    nameKey: 'theme.minimalGray',
+    colors: {
+      '--primary': '220 9% 30%',
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '220 9% 46%',
+      '--secondary-foreground': '0 0% 100%',
+      '--ring': '220 9% 30%',
+      '--background': '0 0% 98%',
+      '--foreground': '220 9% 12%',
+      '--card': '0 0% 100%',
+      '--card-foreground': '220 9% 12%',
+      '--muted': '220 5% 95%',
+      '--muted-foreground': '220 5% 46%',
+      '--accent': '220 5% 95%',
+      '--accent-foreground': '220 9% 12%',
+      '--border': '220 5% 90%',
+      '--input': '220 5% 90%',
+    },
+    headerBg: 'bg-gray-800',
+    headerHover: 'bg-gray-900',
+    headerText: 'text-gray-300',
+    buttonBg: 'bg-gray-800',
+    buttonHover: 'hover:bg-gray-900',
+    previewColors: ['#374151', '#4B5563', '#6B7280'],
+  },
+  {
+    id: 'dark-mode',
+    name: 'Dark Mode',
+    nameKey: 'theme.darkMode',
+    colors: {
+      '--primary': '224 73% 55%',
+      '--primary-foreground': '0 0% 100%',
+      '--secondary': '217 33% 17%',
+      '--secondary-foreground': '0 0% 98%',
+      '--ring': '224 73% 55%',
+      '--background': '222 47% 6%',
+      '--foreground': '0 0% 95%',
+      '--card': '222 40% 10%',
+      '--card-foreground': '0 0% 95%',
+      '--popover': '222 40% 10%',
+      '--popover-foreground': '0 0% 95%',
+      '--muted': '222 30% 14%',
+      '--muted-foreground': '215 16% 60%',
+      '--accent': '222 30% 14%',
+      '--accent-foreground': '0 0% 95%',
+      '--destructive': '0 62% 40%',
+      '--destructive-foreground': '0 0% 98%',
+      '--border': '222 20% 18%',
+      '--input': '222 20% 18%',
+    },
+    headerBg: 'bg-gray-900',
+    headerHover: 'bg-black',
+    headerText: 'text-gray-400',
+    buttonBg: 'bg-blue-600',
+    buttonHover: 'hover:bg-blue-700',
+    previewColors: ['#111827', '#1F2937', '#3B82F6'],
+  },
+];
+
+export function getThemeById(id: string): ThemePreset {
+  return themePresets.find(t => t.id === id) || themePresets[0];
+}
+
+export function applyTheme(theme: ThemePreset) {
+  const root = document.documentElement;
+  Object.entries(theme.colors).forEach(([key, value]) => {
+    root.style.setProperty(key, value);
+  });
+}

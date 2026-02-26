@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -19,7 +22,9 @@ import {
 type ReportTab = 'consumption' | 'waste' | 'loss-rate' | 'order-cost';
 
 export default function ReportsPage() {
-  const storeId = 1;
+  const { user } = useAuthStore();
+  const storeId = user?.storeId ?? 1;
+  const { t } = useTranslation();
   const today = new Date();
   const monthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
   const firstDay = `${monthStr}-01`;
@@ -62,34 +67,34 @@ export default function ReportsPage() {
         }
       }
     } catch {
-      // handle error
+      toast.error(t('reports.loadFailed'));
     } finally {
       setLoading(false);
     }
   }
 
-  const tabs: { key: ReportTab; label: string }[] = [
-    { key: 'consumption', label: 'Consumption' },
-    { key: 'waste', label: 'Waste' },
-    { key: 'loss-rate', label: 'Loss Rate' },
-    { key: 'order-cost', label: 'Order Cost' },
+  const tabs: { key: ReportTab; labelKey: string }[] = [
+    { key: 'consumption', labelKey: 'reports.consumption' },
+    { key: 'waste', labelKey: 'reports.wastTab' },
+    { key: 'loss-rate', labelKey: 'reports.lossRate' },
+    { key: 'order-cost', labelKey: 'reports.orderCost' },
   ];
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">Reports</h2>
+      <h2 className="text-xl font-bold">{t('reports.title')}</h2>
 
       {/* Tab buttons */}
       <div className="flex gap-2 overflow-x-auto">
-        {tabs.map((t) => (
+        {tabs.map((item) => (
           <Button
-            key={t.key}
+            key={item.key}
             size="lg"
-            variant={tab === t.key ? 'default' : 'outline'}
-            className={tab === t.key ? 'bg-blue-800 hover:bg-blue-900' : ''}
-            onClick={() => setTab(t.key)}
+            variant={tab === item.key ? 'default' : 'outline'}
+            className={tab === item.key ? 'bg-blue-800 hover:bg-blue-900' : ''}
+            onClick={() => setTab(item.key)}
           >
-            {t.label}
+            {t(item.labelKey)}
           </Button>
         ))}
       </div>
@@ -98,7 +103,7 @@ export default function ReportsPage() {
       <div className="flex flex-wrap items-end gap-3">
         {tab === 'order-cost' ? (
           <label className="flex flex-col text-sm font-medium text-gray-700">
-            Month
+            {t('common.month')}
             <input
               type="month"
               value={month}
@@ -109,7 +114,7 @@ export default function ReportsPage() {
         ) : tab !== 'loss-rate' ? (
           <>
             <label className="flex flex-col text-sm font-medium text-gray-700">
-              From
+              {t('common.from')}
               <input
                 type="date"
                 value={from}
@@ -118,7 +123,7 @@ export default function ReportsPage() {
               />
             </label>
             <label className="flex flex-col text-sm font-medium text-gray-700">
-              To
+              {t('common.to')}
               <input
                 type="date"
                 value={to}
@@ -134,7 +139,7 @@ export default function ReportsPage() {
           onClick={loadReport}
           disabled={loading}
         >
-          {loading ? 'Loading...' : 'Load Report'}
+          {loading ? t('common.loading') : t('common.loadReport')}
         </Button>
       </div>
 
@@ -142,106 +147,178 @@ export default function ReportsPage() {
       {tab === 'consumption' && consumption && (
         <div className="space-y-2">
           <p className="text-sm text-gray-500">
-            Total consumption: <span className="font-bold text-gray-900">{consumption.totalQty}</span>
+            {t('reports.totalConsumption')} <span className="font-bold text-gray-900">{consumption.totalQty}</span>
           </p>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Item</TableHead>
-                <TableHead className="text-right">Qty</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {consumption.items.map((item) => (
-                <TableRow key={item.itemId}>
-                  <TableCell>{item.itemName}</TableCell>
-                  <TableCell className="text-right">{item.totalQty}</TableCell>
+          {/* Desktop */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('ordering.item')}</TableHead>
+                  <TableHead className="text-right">{t('expiry.qty')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {consumption.items.map((item) => (
+                  <TableRow key={item.itemId}>
+                    <TableCell>{item.itemName}</TableCell>
+                    <TableCell className="text-right">{item.totalQty}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          {/* Mobile */}
+          <div className="md:hidden space-y-2">
+            {consumption.items.map((item) => (
+              <div key={item.itemId} className="bg-white rounded-lg border p-3 flex items-center justify-between">
+                <span className="font-medium">{item.itemName}</span>
+                <span className="font-bold">{item.totalQty}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {tab === 'waste' && waste && (
         <div className="space-y-2">
           <p className="text-sm text-gray-500">
-            Total waste: <span className="font-bold text-gray-900">{waste.totalQty}</span>
+            {t('reports.totalWaste')} <span className="font-bold text-gray-900">{waste.totalQty}</span>
           </p>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Item</TableHead>
-                <TableHead className="text-right">Qty</TableHead>
-                <TableHead>Top Reason</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {waste.items.map((item) => (
-                <TableRow key={item.itemId}>
-                  <TableCell>{item.itemName}</TableCell>
-                  <TableCell className="text-right">{item.totalQty}</TableCell>
-                  <TableCell>{item.topReason || '-'}</TableCell>
+          {/* Desktop */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('ordering.item')}</TableHead>
+                  <TableHead className="text-right">{t('expiry.qty')}</TableHead>
+                  <TableHead>{t('reports.topReason')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {waste.items.map((item) => (
+                  <TableRow key={item.itemId}>
+                    <TableCell>{item.itemName}</TableCell>
+                    <TableCell className="text-right">{item.totalQty}</TableCell>
+                    <TableCell>{item.topReason || '-'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          {/* Mobile */}
+          <div className="md:hidden space-y-2">
+            {waste.items.map((item) => (
+              <div key={item.itemId} className="bg-white rounded-lg border p-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{item.itemName}</span>
+                  <span className="font-bold">{item.totalQty}</span>
+                </div>
+                {item.topReason && (
+                  <div className="text-sm text-gray-500 mt-1">{item.topReason}</div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {tab === 'loss-rate' && lossRate && (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Item</TableHead>
-              <TableHead className="text-right">Received</TableHead>
-              <TableHead className="text-right">Wasted</TableHead>
-              <TableHead className="text-right">Loss Rate</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        <>
+          {/* Desktop */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('ordering.item')}</TableHead>
+                  <TableHead className="text-right">{t('reports.received')}</TableHead>
+                  <TableHead className="text-right">{t('reports.wasted')}</TableHead>
+                  <TableHead className="text-right">{t('reports.lossRateCol')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {lossRate.items.map((item) => (
+                  <TableRow key={item.itemId}>
+                    <TableCell>{item.itemName}</TableCell>
+                    <TableCell className="text-right">{item.receivedQty}</TableCell>
+                    <TableCell className="text-right">{item.wastedQty}</TableCell>
+                    <TableCell className="text-right">
+                      {(item.lossRate * 100).toFixed(1)}%
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          {/* Mobile */}
+          <div className="md:hidden space-y-2">
             {lossRate.items.map((item) => (
-              <TableRow key={item.itemId}>
-                <TableCell>{item.itemName}</TableCell>
-                <TableCell className="text-right">{item.receivedQty}</TableCell>
-                <TableCell className="text-right">{item.wastedQty}</TableCell>
-                <TableCell className="text-right">
-                  {(item.lossRate * 100).toFixed(1)}%
-                </TableCell>
-              </TableRow>
+              <div key={item.itemId} className="bg-white rounded-lg border p-3">
+                <div className="font-medium mb-2">{item.itemName}</div>
+                <div className="grid grid-cols-3 gap-2 text-sm">
+                  <div>
+                    <div className="text-gray-400">{t('reports.received')}</div>
+                    <div className="font-medium">{item.receivedQty}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-400">{t('reports.wasted')}</div>
+                    <div className="font-medium">{item.wastedQty}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-400">{t('reports.lossRateCol')}</div>
+                    <div className="font-bold text-red-600">{(item.lossRate * 100).toFixed(1)}%</div>
+                  </div>
+                </div>
+              </div>
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        </>
       )}
 
       {tab === 'order-cost' && orderCost && (
         <div className="space-y-2">
           <div className="flex gap-4 text-sm text-gray-500">
-            <span>Orders: <span className="font-bold text-gray-900">{orderCost.totalOrders}</span></span>
-            <span>Total Cost: <span className="font-bold text-gray-900">¥{orderCost.totalCost.toLocaleString()}</span></span>
+            <span>{t('reports.orders')} <span className="font-bold text-gray-900">{orderCost.totalOrders}</span></span>
+            <span>{t('reports.totalCost')} <span className="font-bold text-gray-900">¥{orderCost.totalCost.toLocaleString()}</span></span>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Item</TableHead>
-                <TableHead>Pack</TableHead>
-                <TableHead className="text-right">Qty</TableHead>
-                <TableHead className="text-right">Unit Price</TableHead>
-                <TableHead className="text-right">Cost</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orderCost.lines.map((line, i) => (
-                <TableRow key={i}>
-                  <TableCell>{line.itemName}</TableCell>
-                  <TableCell>{line.packName}</TableCell>
-                  <TableCell className="text-right">{line.totalPackQty}</TableCell>
-                  <TableCell className="text-right">¥{line.unitPrice.toLocaleString()}</TableCell>
-                  <TableCell className="text-right font-medium">¥{line.lineCost.toLocaleString()}</TableCell>
+          {/* Desktop */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('ordering.item')}</TableHead>
+                  <TableHead>{t('ordering.pack')}</TableHead>
+                  <TableHead className="text-right">{t('expiry.qty')}</TableHead>
+                  <TableHead className="text-right">{t('reports.unitPrice')}</TableHead>
+                  <TableHead className="text-right">{t('reports.cost')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {orderCost.lines.map((line, i) => (
+                  <TableRow key={i}>
+                    <TableCell>{line.itemName}</TableCell>
+                    <TableCell>{line.packName}</TableCell>
+                    <TableCell className="text-right">{line.totalPackQty}</TableCell>
+                    <TableCell className="text-right">¥{line.unitPrice.toLocaleString()}</TableCell>
+                    <TableCell className="text-right font-medium">¥{line.lineCost.toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          {/* Mobile */}
+          <div className="md:hidden space-y-2">
+            {orderCost.lines.map((line, i) => (
+              <div key={i} className="bg-white rounded-lg border p-3">
+                <div className="font-medium">{line.itemName}</div>
+                <div className="text-sm text-gray-500 mb-2">{line.packName}</div>
+                <div className="flex items-center justify-between text-sm">
+                  <span>{t('expiry.qty')}: {line.totalPackQty}</span>
+                  <span className="font-bold">¥{line.lineCost.toLocaleString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

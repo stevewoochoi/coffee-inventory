@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
 import { masterApi, type Item, type ItemRequest } from '@/api/master';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,21 +23,24 @@ export default function ItemsPage() {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [editItem, setEditItem] = useState<Item | null>(null);
-  const [form, setForm] = useState<ItemRequest>({ brandId: 1, name: '', baseUnit: 'g' });
+  const { user } = useAuthStore();
+  const brandId = user?.brandId ?? 1;
+  const { t } = useTranslation();
+  const [form, setForm] = useState<ItemRequest>({ brandId, name: '', baseUnit: 'g' });
 
   const loadItems = useCallback(async () => {
     try {
       const res = await masterApi.getItems(undefined, page);
       setItems(res.data.data.content);
       setTotalPages(res.data.data.totalPages);
-    } catch { /* handled by interceptor */ }
-  }, [page]);
+    } catch { toast.error(t('items.loadFailed')); }
+  }, [page, t]);
 
   useEffect(() => { loadItems(); }, [loadItems]);
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ brandId: 1, name: '', baseUnit: 'g', category: '', lossRate: 0 });
+    setForm({ brandId, name: '', baseUnit: 'g', category: '', lossRate: 0 });
     setDialogOpen(true);
   };
 
@@ -61,7 +67,7 @@ export default function ItemsPage() {
       await masterApi.updateItemImage(selectedItem.id, fileUrl);
       setImageDialogOpen(false);
       loadItems();
-    } catch { /* error handled */ }
+    } catch { toast.error(t('items.imageUpdateFailed')); }
   };
 
   const handleSave = async () => {
@@ -71,40 +77,42 @@ export default function ItemsPage() {
       } else {
         await masterApi.createItem(form);
       }
+      toast.success(editItem ? t('items.updated') : t('items.created'));
       setDialogOpen(false);
       loadItems();
-    } catch { /* error handled */ }
+    } catch { toast.error(t('items.saveFailed')); }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('이 부재료를 비활성화하시겠습니까?')) return;
+    if (!confirm(t('items.deactivateConfirm'))) return;
     try {
       await masterApi.deleteItem(id);
       loadItems();
-    } catch { /* error handled */ }
+    } catch { toast.error(t('items.deleteFailed')); }
   };
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-900">부재료 관리</h2>
+        <h2 className="text-xl font-bold text-gray-900">{t('items.title')}</h2>
         <Button onClick={openCreate} className="bg-blue-800 hover:bg-blue-900">
-          + 부재료 등록
+          {t('items.addItem')}
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg border">
+      {/* Desktop: Table view */}
+      <div className="hidden md:block bg-white rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>이미지</TableHead>
-              <TableHead>이름</TableHead>
-              <TableHead>카테고리</TableHead>
-              <TableHead>기본 단위</TableHead>
-              <TableHead>로스율</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead className="text-right">관리</TableHead>
+              <TableHead>{t('common.id')}</TableHead>
+              <TableHead>{t('common.image')}</TableHead>
+              <TableHead>{t('common.name')}</TableHead>
+              <TableHead>{t('items.category')}</TableHead>
+              <TableHead>{t('items.baseUnit')}</TableHead>
+              <TableHead>{t('items.lossRate')}</TableHead>
+              <TableHead>{t('common.status')}</TableHead>
+              <TableHead className="text-right">{t('common.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -134,15 +142,15 @@ export default function ItemsPage() {
                 <TableCell>{(item.lossRate * 100).toFixed(1)}%</TableCell>
                 <TableCell>
                   <Badge variant={item.isActive ? 'default' : 'secondary'}>
-                    {item.isActive ? 'Active' : 'Inactive'}
+                    {item.isActive ? t('common.active') : t('common.inactive')}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
-                    수정
+                    {t('common.edit')}
                   </Button>
                   <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>
-                    삭제
+                    {t('common.delete')}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -150,7 +158,7 @@ export default function ItemsPage() {
             {items.length === 0 && (
               <TableRow>
                 <TableCell colSpan={8} className="text-center text-gray-500 py-8">
-                  등록된 부재료가 없습니다.
+                  {t('items.noItems')}
                 </TableCell>
               </TableRow>
             )}
@@ -158,14 +166,63 @@ export default function ItemsPage() {
         </Table>
       </div>
 
+      {/* Mobile: Card view */}
+      <div className="md:hidden space-y-3">
+        {items.map((item) => (
+          <div key={item.id} className="bg-white rounded-lg border p-4">
+            <div className="flex items-start gap-3 mb-3">
+              {item.imageUrl ? (
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="w-12 h-12 object-cover rounded cursor-pointer flex-shrink-0"
+                  onClick={() => openImageDialog(item)}
+                />
+              ) : (
+                <button
+                  className="w-12 h-12 rounded border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs hover:border-blue-400 flex-shrink-0"
+                  onClick={() => openImageDialog(item)}
+                >
+                  +
+                </button>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold truncate">{item.name}</span>
+                  <Badge variant={item.isActive ? 'default' : 'secondary'} className="flex-shrink-0">
+                    {item.isActive ? t('common.active') : t('common.inactive')}
+                  </Badge>
+                </div>
+                <div className="text-sm text-gray-500 mt-1">
+                  {item.category || '-'} · {item.baseUnit} · {(item.lossRate * 100).toFixed(1)}%
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="flex-1 min-h-[44px]" onClick={() => openEdit(item)}>
+                {t('common.edit')}
+              </Button>
+              <Button variant="destructive" size="sm" className="flex-1 min-h-[44px]" onClick={() => handleDelete(item.id)}>
+                {t('common.delete')}
+              </Button>
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && (
+          <div className="text-center text-gray-500 py-8 bg-white rounded-lg border">
+            {t('items.noItems')}
+          </div>
+        )}
+      </div>
+
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-4">
           <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-            이전
+            {t('common.previous')}
           </Button>
           <span className="py-1 px-3 text-sm text-gray-600">{page + 1} / {totalPages}</span>
           <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>
-            다음
+            {t('common.next')}
           </Button>
         </div>
       )}
@@ -174,32 +231,32 @@ export default function ItemsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editItem ? '부재료 수정' : '부재료 등록'}</DialogTitle>
+            <DialogTitle>{editItem ? t('items.editTitle') : t('items.addTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>이름</Label>
+              <Label>{t('common.name')}</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>카테고리</Label>
+              <Label>{t('items.category')}</Label>
               <Input value={form.category || ''} onChange={(e) => setForm({ ...form, category: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>기본 단위</Label>
+                <Label>{t('items.baseUnit')}</Label>
                 <Input value={form.baseUnit} onChange={(e) => setForm({ ...form, baseUnit: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>로스율</Label>
+                <Label>{t('items.lossRate')}</Label>
                 <Input type="number" step="0.01" value={form.lossRate || 0}
                   onChange={(e) => setForm({ ...form, lossRate: parseFloat(e.target.value) || 0 })} />
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>취소</Button>
-            <Button onClick={handleSave} className="bg-blue-800 hover:bg-blue-900">저장</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleSave} className="bg-blue-800 hover:bg-blue-900">{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -208,7 +265,7 @@ export default function ItemsPage() {
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedItem?.name} - 이미지 업로드</DialogTitle>
+            <DialogTitle>{selectedItem?.name} - {t('items.imageUpload')}</DialogTitle>
           </DialogHeader>
           <ImageUpload
             currentImageUrl={selectedItem?.imageUrl ?? undefined}

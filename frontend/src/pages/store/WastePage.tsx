@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
 import { inventoryApi, type WasteRecord } from '@/api/inventory';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,14 +17,16 @@ export default function WastePage() {
   const [wastes, setWastes] = useState<WasteRecord[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ itemId: '', qtyBaseUnit: '', reason: '' });
-  const storeId = 1; // TODO: from auth context
+  const { user } = useAuthStore();
+  const storeId = user?.storeId ?? 1;
+  const { t } = useTranslation();
 
   const loadWastes = useCallback(async () => {
     try {
       const res = await inventoryApi.getWastes(storeId);
       setWastes(res.data.data);
-    } catch { /* handled */ }
-  }, []);
+    } catch { toast.error(t('waste.loadFailed')); }
+  }, [storeId, t]);
 
   useEffect(() => { loadWastes(); }, [loadWastes]);
 
@@ -34,20 +39,22 @@ export default function WastePage() {
         reason: form.reason || undefined,
       });
       if (navigator.vibrate) navigator.vibrate(100);
+      toast.success(t('waste.recorded'));
       setDialogOpen(false);
       setForm({ itemId: '', qtyBaseUnit: '', reason: '' });
       loadWastes();
     } catch {
       if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+      toast.error(t('waste.recordFailed'));
     }
   };
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">Waste</h2>
+        <h2 className="text-xl font-bold">{t('waste.title')}</h2>
         <Button onClick={() => setDialogOpen(true)} className="h-12 px-6 bg-red-700 hover:bg-red-800">
-          + Record Waste
+          {t('waste.recordWaste')}
         </Button>
       </div>
 
@@ -55,17 +62,16 @@ export default function WastePage() {
         {wastes.map((w) => (
           <SwipeableCard
             key={w.id}
-            leftLabel="Delete"
+            leftLabel={t('common.delete')}
             leftColor="bg-red-500"
             onSwipeLeft={() => {
-              // Waste records are typically not deletable, but this shows the swipe pattern
               if (navigator.vibrate) navigator.vibrate(30);
             }}
           >
             <Card>
               <CardContent className="py-4 flex justify-between items-center">
                 <div>
-                  <span className="font-bold">Item #{w.itemId}</span>
+                  <span className="font-bold">{t('inventory.itemPrefix', { id: w.itemId })}</span>
                   <span className="text-gray-500 ml-3">{w.qtyBaseUnit} units</span>
                   {w.reason && <span className="text-gray-400 ml-2 text-sm">({w.reason})</span>}
                 </div>
@@ -77,34 +83,34 @@ export default function WastePage() {
           </SwipeableCard>
         ))}
         {wastes.length === 0 && (
-          <p className="text-center text-gray-500 py-12">No waste records</p>
+          <p className="text-center text-gray-500 py-12">{t('waste.noRecords')}</p>
         )}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Record Waste</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('waste.recordWasteTitle')}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Item ID</Label>
+              <Label>{t('waste.itemId')}</Label>
               <Input value={form.itemId} onChange={(e) => setForm({ ...form, itemId: e.target.value })}
                      className="h-12 text-lg" inputMode="numeric" />
             </div>
             <div className="space-y-2">
-              <Label>Quantity</Label>
+              <Label>{t('waste.quantity')}</Label>
               <Input type="number" value={form.qtyBaseUnit}
                      onChange={(e) => setForm({ ...form, qtyBaseUnit: e.target.value })}
                      className="h-12 text-lg" inputMode="decimal" />
             </div>
             <div className="space-y-2">
-              <Label>Reason</Label>
+              <Label>{t('waste.reason')}</Label>
               <Input value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                     placeholder="e.g. expired, dropped" className="h-12" />
+                     placeholder={t('waste.reasonPlaceholder')} className="h-12" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreate} className="bg-red-700 hover:bg-red-800">Record</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleCreate} className="bg-red-700 hover:bg-red-800">{t('common.record')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

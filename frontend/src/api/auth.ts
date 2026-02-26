@@ -11,6 +11,9 @@ export interface LoginResponse {
   role: string;
   userId: number;
   email: string;
+  storeId?: number;
+  brandId?: number;
+  companyId?: number;
 }
 
 export interface ApiResponse<T> {

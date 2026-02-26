@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login, isLoading, error } = useAuthStore();
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -36,14 +38,14 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-blue-800">
-            Coffee Inventory
+            {t('auth.appTitle')}
           </CardTitle>
-          <p className="text-sm text-gray-500 mt-1">재고관리 시스템에 로그인하세요</p>
+          <p className="text-sm text-gray-500 mt-1">{t('auth.loginSubtitle')}</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -55,11 +57,11 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">비밀번호</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="비밀번호를 입력하세요"
+                placeholder={t('auth.passwordPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -74,8 +76,19 @@ export default function LoginPage() {
               className="w-full bg-blue-800 hover:bg-blue-900"
               disabled={isLoading}
             >
-              {isLoading ? '로그인 중...' : '로그인'}
+              {isLoading ? t('auth.loggingIn') : t('auth.login')}
             </Button>
+            <div className="text-center">
+              <select
+                value={i18n.language?.substring(0, 2) || 'en'}
+                onChange={(e) => i18n.changeLanguage(e.target.value)}
+                className="text-sm text-gray-500 border rounded px-2 py-1"
+              >
+                <option value="en">English</option>
+                <option value="ko">한국어</option>
+                <option value="ja">日本語</option>
+              </select>
+            </div>
           </form>
         </CardContent>
       </Card>

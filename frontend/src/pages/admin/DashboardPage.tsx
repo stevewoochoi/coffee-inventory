@@ -1,25 +1,30 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
 import { dashboardApi, type BrandDashboard } from '@/api/dashboard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function AdminDashboardPage() {
   const [data, setData] = useState<BrandDashboard | null>(null);
   const [loading, setLoading] = useState(true);
-  const brandId = 1; // TODO: from auth context
+  const { user } = useAuthStore();
+  const brandId = user?.brandId ?? 1;
+  const { t } = useTranslation();
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       const res = await dashboardApi.getBrandDashboard(brandId);
       setData(res.data.data);
-    } catch { /* handled */ }
+    } catch { toast.error(t('dashboard.loadFailed')); }
     finally { setLoading(false); }
-  }, []);
+  }, [brandId, t]);
 
   useEffect(() => { load(); }, [load]);
 
   if (loading || !data) {
-    return <div className="text-center py-12 text-gray-500">Loading dashboard...</div>;
+    return <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>;
   }
 
   const chartData = data.storeSummaries.map(s => ({
@@ -30,10 +35,10 @@ export default function AdminDashboardPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-6">Brand Dashboard</h2>
+      <h2 className="text-xl font-bold mb-6">{t('dashboard.brandTitle')}</h2>
 
       <div className="bg-white rounded-lg border p-6 mb-6">
-        <h3 className="font-bold mb-4">Store Status Comparison</h3>
+        <h3 className="font-bold mb-4">{t('dashboard.storeComparison')}</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -41,8 +46,8 @@ export default function AdminDashboardPage() {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="lowStock" fill="#ef4444" name="Low Stock" />
-            <Bar dataKey="expiry" fill="#f59e0b" name="Expiry Alerts" />
+            <Bar dataKey="lowStock" fill="#ef4444" name={t('dashboard.lowStock')} />
+            <Bar dataKey="expiry" fill="#f59e0b" name={t('dashboard.expiryAlerts')} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -53,13 +58,13 @@ export default function AdminDashboardPage() {
             <h4 className="font-bold text-lg mb-3">{store.storeName}</h4>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-500">Low Stock</span>
+                <span className="text-gray-500">{t('dashboard.lowStock')}</span>
                 <span className={`font-bold ${store.lowStockCount > 0 ? 'text-red-600' : 'text-green-600'}`}>
                   {store.lowStockCount}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Expiry Alerts</span>
+                <span className="text-gray-500">{t('dashboard.expiryAlerts')}</span>
                 <span className={`font-bold ${store.expiryAlertCount > 0 ? 'text-yellow-600' : 'text-green-600'}`}>
                   {store.expiryAlertCount}
                 </span>

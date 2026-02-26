@@ -1,51 +1,68 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import NotificationBanner from '@/components/NotificationBanner';
 
-const navItems = [
-  { to: '/store/dashboard', label: 'Dashboard' },
-  { to: '/store/inventory', label: 'Inventory' },
-  { to: '/store/receiving', label: 'Receiving' },
-  { to: '/store/waste', label: 'Waste' },
-  { to: '/store/ordering', label: 'Ordering' },
-  { to: '/store/expiry', label: 'Expiry' },
-  { to: '/store/physical-count', label: 'Count' },
-  { to: '/store/reports', label: 'Reports' },
+const navKeys = [
+  { to: '/store/dashboard', key: 'nav.dashboard' },
+  { to: '/store/inventory', key: 'nav.inventory' },
+  { to: '/store/receiving', key: 'nav.receiving' },
+  { to: '/store/waste', key: 'nav.waste' },
+  { to: '/store/ordering', key: 'nav.ordering' },
+  { to: '/store/expiry', key: 'nav.expiry' },
+  { to: '/store/physical-count', key: 'nav.count' },
+  { to: '/store/reports', key: 'nav.reports' },
 ];
 
 export function StoreLayout() {
   const { logout, user } = useAuthStore();
+  const { t, i18n } = useTranslation();
+  const { theme } = useThemeStore();
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
+    <div className="min-h-screen bg-[hsl(var(--background))] pb-16 md:pb-0">
       {/* Desktop header */}
-      <header className="bg-blue-800 text-white shadow">
+      <header className={`${theme.headerBg} text-white shadow`}>
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-lg font-bold">Coffee Store</h1>
+            <h1 className="text-lg font-bold">{t('auth.storeTitle')}</h1>
             <nav className="hidden md:flex gap-1">
-              {navItems.map((item) => (
+              {navKeys.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   className={({ isActive }) =>
                     `px-4 py-2 rounded-lg text-base font-medium transition-colors ${
-                      isActive ? 'bg-blue-900 text-white' : 'text-blue-200 hover:bg-blue-700'
+                      isActive ? `${theme.headerHover} text-white` : `${theme.headerText} hover:bg-white/10`
                     }`
                   }
                 >
-                  {item.label}
+                  {t(item.key)}
                 </NavLink>
               ))}
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-blue-200 hidden sm:inline">{user?.email}</span>
+            <select
+              value={i18n.language?.substring(0, 2) || 'en'}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="bg-white/10 text-white text-sm rounded px-2 py-1 border border-white/20 min-h-[44px]"
+            >
+              <option value="en">EN</option>
+              <option value="ko">KO</option>
+              <option value="ja">JA</option>
+            </select>
+            <span className={`text-sm ${theme.headerText} hidden sm:inline`}>{user?.email}</span>
             <button
               onClick={logout}
-              className="text-sm text-blue-200 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className={`text-sm ${theme.headerText} hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center`}
             >
-              Logout
+              {t('common.logout')}
             </button>
           </div>
         </div>
@@ -60,19 +77,19 @@ export function StoreLayout() {
       {/* Mobile bottom navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom">
         <div className="flex overflow-x-auto">
-          {navItems.map((item) => (
+          {navKeys.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
                 `flex-1 min-w-[60px] py-3 text-center text-xs font-medium transition-colors ${
                   isActive
-                    ? 'text-blue-800 border-t-2 border-blue-800 bg-blue-50'
+                    ? 'text-[hsl(var(--primary))] border-t-2 border-[hsl(var(--primary))] bg-[hsl(var(--accent))]'
                     : 'text-gray-500 hover:text-gray-700'
                 }`
               }
             >
-              {item.label}
+              {t(item.key)}
             </NavLink>
           ))}
         </div>

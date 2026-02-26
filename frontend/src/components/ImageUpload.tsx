@@ -1,5 +1,6 @@
 import { useState, useRef, type ChangeEvent } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { uploadApi } from '@/api/upload';
 import { Button } from '@/components/ui/button';
 
@@ -16,18 +17,19 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const selectedFileRef = useRef<File | null>(null);
+  const { t } = useTranslation();
 
   function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setError('Please select an image file');
+      setError(t('imageUpload.invalidType'));
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be under 5MB');
+      setError(t('imageUpload.tooLarge'));
       return;
     }
 
@@ -50,11 +52,9 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
     setError(null);
 
     try {
-      // 1. Get presigned URL from our backend
       const res = await uploadApi.getPresignedUrl(file.name, file.type);
       const { uploadUrl, fileUrl } = res.data.data;
 
-      // 2. Upload directly to the presigned URL
       await axios.put(uploadUrl, file, {
         headers: { 'Content-Type': file.type },
         onUploadProgress: (progressEvent) => {
@@ -64,11 +64,10 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
         },
       });
 
-      // 3. Notify parent of successful upload
       onUploadComplete?.(fileUrl);
       selectedFileRef.current = null;
     } catch {
-      setError('Upload failed. Please try again.');
+      setError(t('imageUpload.uploadFailed'));
     } finally {
       setUploading(false);
     }
@@ -76,7 +75,6 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
 
   return (
     <div className={`space-y-3 ${className}`}>
-      {/* Clickable area */}
       <div
         className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors min-h-[120px] flex items-center justify-center"
         onClick={() => fileInputRef.current?.click()}
@@ -89,8 +87,8 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
           />
         ) : (
           <div className="text-gray-400">
-            <p className="text-sm">Click to select an image</p>
-            <p className="text-xs mt-1">JPG, PNG up to 5MB</p>
+            <p className="text-sm">{t('imageUpload.selectImage')}</p>
+            <p className="text-xs mt-1">{t('imageUpload.fileHint')}</p>
           </div>
         )}
       </div>
@@ -103,7 +101,6 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
         onChange={handleFileSelect}
       />
 
-      {/* Progress bar */}
       {uploading && (
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
@@ -113,22 +110,20 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
         </div>
       )}
 
-      {/* Error */}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      {/* Upload button */}
       {selectedFileRef.current && !uploading && (
         <Button
           size="sm"
           className="w-full bg-blue-800 hover:bg-blue-900"
           onClick={handleUpload}
         >
-          Upload Image
+          {t('imageUpload.uploadBtn')}
         </Button>
       )}
 
       {uploading && (
-        <p className="text-sm text-gray-500 text-center">{progress}% uploaded...</p>
+        <p className="text-sm text-gray-500 text-center">{t('imageUpload.uploading', { percent: progress })}</p>
       )}
     </div>
   );

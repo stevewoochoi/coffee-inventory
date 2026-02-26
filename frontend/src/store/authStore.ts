@@ -58,6 +58,9 @@ export const useAuthStore = create<AuthState>((set) => ({
               role: payload.role,
               userId: Number(payload.sub),
               email: payload.email,
+              storeId: payload.storeId ? Number(payload.storeId) : undefined,
+              brandId: payload.brandId ? Number(payload.brandId) : undefined,
+              companyId: payload.companyId ? Number(payload.companyId) : undefined,
             },
             isAuthenticated: true,
           });

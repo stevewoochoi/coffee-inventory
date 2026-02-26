@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
+import { useThemeStore } from '@/store/themeStore';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AdminLayout } from '@/components/AdminLayout';
 import { StoreLayout } from '@/components/StoreLayout';
@@ -8,6 +10,7 @@ import LoginPage from '@/pages/LoginPage';
 import ItemsPage from '@/pages/admin/ItemsPage';
 import PackagingsPage from '@/pages/admin/PackagingsPage';
 import SuppliersPage from '@/pages/admin/SuppliersPage';
+import ThemeSettingsPage from '@/pages/admin/ThemeSettingsPage';
 import InventoryPage from '@/pages/store/InventoryPage';
 import ReceivingPage from '@/pages/store/ReceivingPage';
 import WastePage from '@/pages/store/WastePage';
@@ -24,13 +27,16 @@ import ReportsPage from '@/pages/store/ReportsPage';
 
 function App() {
   const { initialize } = useAuthStore();
+  const { initTheme } = useThemeStore();
 
   useEffect(() => {
     initialize();
-  }, [initialize]);
+    initTheme();
+  }, [initialize, initTheme]);
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" richColors closeButton />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
 
@@ -43,6 +49,7 @@ function App() {
             <Route path="/admin/suppliers" element={<SuppliersPage />} />
             <Route path="/admin/ordering" element={<OrderingAdminPage />} />
             <Route path="/admin/expiry" element={<AdminExpiryPage />} />
+            <Route path="/admin/settings/theme" element={<ThemeSettingsPage />} />
           </Route>
         </Route>
 

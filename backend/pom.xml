@@ -81,6 +81,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- AWS SDK v2 - S3 -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.25.60</version>
+        </dependency>
+
         <!-- Apache PDFBox -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>

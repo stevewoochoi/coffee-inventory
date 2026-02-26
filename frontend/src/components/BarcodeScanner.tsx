@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/library';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 
 interface BarcodeScannerProps {
@@ -11,6 +13,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
   const videoRef = useRef<HTMLVideoElement>(null);
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const reader = new BrowserMultiFormatReader();
@@ -22,7 +25,6 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
         videoRef.current!,
         (result, err) => {
           if (result) {
-            // Haptic feedback on scan success
             if (navigator.vibrate) {
               navigator.vibrate(100);
             }
@@ -33,10 +35,9 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           }
         }
       )
-      .catch((e) => {
-        setError('Camera access denied or not available');
-        console.error('Scanner error:', e);
-        // Haptic feedback on failure
+      .catch(() => {
+        setError(t('barcode.cameraDenied'));
+        toast.error(t('barcode.accessDenied'));
         if (navigator.vibrate) {
           navigator.vibrate([50, 50, 50]);
         }
@@ -45,14 +46,14 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
     return () => {
       reader.reset();
     };
-  }, [onScan]);
+  }, [onScan, t]);
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
       <div className="flex items-center justify-between p-4 bg-black/80">
-        <span className="text-white font-medium">Scan Barcode</span>
+        <span className="text-white font-medium">{t('barcode.title')}</span>
         <Button variant="outline" size="sm" onClick={onClose} className="text-white border-white">
-          Close
+          {t('common.close')}
         </Button>
       </div>
 
@@ -60,7 +61,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
         <div className="flex-1 flex items-center justify-center text-white text-center p-4">
           <div>
             <p className="text-lg mb-2">{error}</p>
-            <p className="text-sm text-gray-400">Please allow camera access and try again</p>
+            <p className="text-sm text-gray-400">{t('barcode.cameraHint')}</p>
           </div>
         </div>
       ) : (
@@ -82,7 +83,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           </div>
           <div className="absolute bottom-8 left-0 right-0 text-center">
             <p className="text-white text-sm bg-black/50 inline-block px-4 py-2 rounded-full">
-              Point camera at barcode
+              {t('barcode.instruction')}
             </p>
           </div>
         </div>

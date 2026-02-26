@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme transition animation */
+:root {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 /* Mobile touch-friendly improvements */
 @layer base {
   /* Ensure minimum touch target size */

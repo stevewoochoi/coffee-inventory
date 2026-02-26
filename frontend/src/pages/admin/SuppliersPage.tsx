@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
 import { masterApi, type Supplier, type SupplierRequest } from '@/api/master';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,28 +12,30 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editSupplier, setEditSupplier] = useState<Supplier | null>(null);
+  const { user } = useAuthStore();
+  const brandId = user?.brandId ?? 1;
+  const { t } = useTranslation();
   const [form, setForm] = useState<SupplierRequest>({
-    brandId: 1, name: '', email: '', orderMethod: 'EMAIL',
+    brandId, name: '', email: '', orderMethod: 'EMAIL',
   });
 
   const loadSuppliers = useCallback(async () => {
     try {
       const res = await masterApi.getSuppliers();
       setSuppliers(res.data.data);
-    } catch { /* handled */ }
-  }, []);
+    } catch { toast.error(t('suppliers.loadFailed')); }
+  }, [t]);
 
   useEffect(() => { loadSuppliers(); }, [loadSuppliers]);
 
   const openCreate = () => {
     setEditSupplier(null);
-    setForm({ brandId: 1, name: '', email: '', orderMethod: 'EMAIL' });
+    setForm({ brandId, name: '', email: '', orderMethod: 'EMAIL' });
     setDialogOpen(true);
   };
 
@@ -52,37 +57,39 @@ export default function SuppliersPage() {
       } else {
         await masterApi.createSupplier(form);
       }
+      toast.success(editSupplier ? t('suppliers.updated') : t('suppliers.created'));
       setDialogOpen(false);
       loadSuppliers();
-    } catch { /* handled */ }
+    } catch { toast.error(t('suppliers.saveFailed')); }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('이 공급사를 삭제하시겠습니까?')) return;
+    if (!confirm(t('suppliers.deleteConfirm'))) return;
     try {
       await masterApi.deleteSupplier(id);
       loadSuppliers();
-    } catch { /* handled */ }
+    } catch { toast.error(t('suppliers.deleteFailed')); }
   };
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-900">공급사 관리</h2>
+        <h2 className="text-xl font-bold text-gray-900">{t('suppliers.title')}</h2>
         <Button onClick={openCreate} className="bg-blue-800 hover:bg-blue-900">
-          + 공급사 등록
+          {t('suppliers.addSupplier')}
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg border">
+      {/* Desktop: Table view */}
+      <div className="hidden md:block bg-white rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>이름</TableHead>
-              <TableHead>이메일</TableHead>
-              <TableHead>발주 방법</TableHead>
-              <TableHead className="text-right">관리</TableHead>
+              <TableHead>{t('common.id')}</TableHead>
+              <TableHead>{t('common.name')}</TableHead>
+              <TableHead>{t('suppliers.email')}</TableHead>
+              <TableHead>{t('suppliers.orderMethod')}</TableHead>
+              <TableHead className="text-right">{t('common.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -91,15 +98,13 @@ export default function SuppliersPage() {
                 <TableCell>{s.id}</TableCell>
                 <TableCell className="font-medium">{s.name}</TableCell>
                 <TableCell>{s.email || '-'}</TableCell>
-                <TableCell>
-                  <Badge variant="outline">{s.orderMethod}</Badge>
-                </TableCell>
+                <TableCell>{s.orderMethod}</TableCell>
                 <TableCell className="text-right space-x-2">
                   <Button variant="outline" size="sm" onClick={() => openEdit(s)}>
-                    수정
+                    {t('common.edit')}
                   </Button>
                   <Button variant="destructive" size="sm" onClick={() => handleDelete(s.id)}>
-                    삭제
+                    {t('common.delete')}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -107,7 +112,7 @@ export default function SuppliersPage() {
             {suppliers.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-gray-500 py-8">
-                  등록된 공급사가 없습니다.
+                  {t('suppliers.noSuppliers')}
                 </TableCell>
               </TableRow>
             )}
@@ -115,23 +120,49 @@ export default function SuppliersPage() {
         </Table>
       </div>
 
+      {/* Mobile: Card view */}
+      <div className="md:hidden space-y-3">
+        {suppliers.map((s) => (
+          <div key={s.id} className="bg-white rounded-lg border p-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-semibold">{s.name}</span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{s.orderMethod}</span>
+            </div>
+            <div className="text-sm text-gray-500 mb-3">{s.email || '-'}</div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="flex-1 min-h-[44px]" onClick={() => openEdit(s)}>
+                {t('common.edit')}
+              </Button>
+              <Button variant="destructive" size="sm" className="flex-1 min-h-[44px]" onClick={() => handleDelete(s.id)}>
+                {t('common.delete')}
+              </Button>
+            </div>
+          </div>
+        ))}
+        {suppliers.length === 0 && (
+          <div className="text-center text-gray-500 py-8 bg-white rounded-lg border">
+            {t('suppliers.noSuppliers')}
+          </div>
+        )}
+      </div>
+
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editSupplier ? '공급사 수정' : '공급사 등록'}</DialogTitle>
+            <DialogTitle>{editSupplier ? t('suppliers.editTitle') : t('suppliers.addTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>이름</Label>
+              <Label>{t('common.name')}</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>이메일</Label>
+              <Label>{t('suppliers.email')}</Label>
               <Input type="email" value={form.email || ''}
                 onChange={(e) => setForm({ ...form, email: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>발주 방법</Label>
+              <Label>{t('suppliers.orderMethod')}</Label>
               <select
                 value={form.orderMethod}
                 onChange={(e) => setForm({ ...form, orderMethod: e.target.value })}
@@ -144,8 +175,8 @@ export default function SuppliersPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>취소</Button>
-            <Button onClick={handleSave} className="bg-blue-800 hover:bg-blue-900">저장</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleSave} className="bg-blue-800 hover:bg-blue-900">{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

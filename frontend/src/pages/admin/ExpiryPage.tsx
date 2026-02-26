@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
 import { inventoryApi, type ExpiryAlert } from '@/api/inventory';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -21,8 +24,9 @@ function getStatusBadge(status: ExpiryAlert['alertStatus']) {
 export default function AdminExpiryPage() {
   const [alerts, setAlerts] = useState<ExpiryAlert[]>([]);
   const [loading, setLoading] = useState(true);
-  // TODO: fetch for all stores under the brand
-  const storeId = 1;
+  const { user } = useAuthStore();
+  const storeId = user?.storeId ?? 1;
+  const { t } = useTranslation();
 
   const load = useCallback(async () => {
     try {
@@ -30,11 +34,11 @@ export default function AdminExpiryPage() {
       const res = await inventoryApi.getExpiryAlerts(storeId);
       setAlerts(res.data.data);
     } catch {
-      /* handled */
+      toast.error(t('expiry.loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [storeId, t]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -45,51 +49,70 @@ export default function AdminExpiryPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-6">Expiry Alert Overview</h2>
+      <h2 className="text-xl font-bold mb-6">{t('expiry.overview')}</h2>
 
-      <div className="bg-white rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Status</TableHead>
-              <TableHead>Store</TableHead>
-              <TableHead>Item</TableHead>
-              <TableHead>Lot</TableHead>
-              <TableHead>Exp Date</TableHead>
-              <TableHead>Qty</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-gray-500">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : sortedAlerts.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-gray-500">
-                  No expiry alerts
-                </TableCell>
-              </TableRow>
-            ) : (
-              sortedAlerts.map((alert) => (
-                <TableRow
-                  key={alert.id}
-                  className={alert.alertStatus === 'EXPIRED' ? 'line-through text-gray-400' : ''}
-                >
-                  <TableCell>{getStatusBadge(alert.alertStatus)}</TableCell>
-                  <TableCell>Store #{alert.storeId}</TableCell>
-                  <TableCell className="font-medium">Item #{alert.itemId}</TableCell>
-                  <TableCell>{alert.lotNo || '-'}</TableCell>
-                  <TableCell>{alert.expDate}</TableCell>
-                  <TableCell>{alert.qtyBaseUnit}</TableCell>
+      {loading ? (
+        <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>
+      ) : sortedAlerts.length === 0 ? (
+        <div className="text-center py-12 text-gray-500 bg-white rounded-lg border">{t('expiry.noAlerts')}</div>
+      ) : (
+        <>
+          {/* Desktop: Table view */}
+          <div className="hidden md:block bg-white rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('common.status')}</TableHead>
+                  <TableHead>{t('ordering.store')}</TableHead>
+                  <TableHead>{t('ordering.item')}</TableHead>
+                  <TableHead>{t('expiry.lot')}</TableHead>
+                  <TableHead>{t('expiry.expDate')}</TableHead>
+                  <TableHead>{t('expiry.qty')}</TableHead>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {sortedAlerts.map((alert) => (
+                  <TableRow
+                    key={alert.id}
+                    className={alert.alertStatus === 'EXPIRED' ? 'line-through text-gray-400' : ''}
+                  >
+                    <TableCell>{getStatusBadge(alert.alertStatus)}</TableCell>
+                    <TableCell>{t('expiry.storePrefix', { id: alert.storeId })}</TableCell>
+                    <TableCell className="font-medium">{t('expiry.itemPrefix', { id: alert.itemId })}</TableCell>
+                    <TableCell>{alert.lotNo || '-'}</TableCell>
+                    <TableCell>{alert.expDate}</TableCell>
+                    <TableCell>{alert.qtyBaseUnit}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile: Card view */}
+          <div className="md:hidden space-y-2">
+            {sortedAlerts.map((alert) => (
+              <div
+                key={alert.id}
+                className={`bg-white rounded-lg border p-4 ${alert.alertStatus === 'EXPIRED' ? 'opacity-50' : ''}`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  {getStatusBadge(alert.alertStatus)}
+                  <span className="text-sm text-gray-500">{alert.expDate}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">{t('expiry.itemPrefix', { id: alert.itemId })}</div>
+                    <div className="text-sm text-gray-500">
+                      {t('expiry.storePrefix', { id: alert.storeId })} · {t('expiry.lot')}: {alert.lotNo || '-'}
+                    </div>
+                  </div>
+                  <span className="font-bold text-lg">{alert.qtyBaseUnit}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

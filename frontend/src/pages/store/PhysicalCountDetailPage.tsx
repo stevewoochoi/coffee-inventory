@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { physicalCountApi, type PhysicalCount, type PhysicalCountLine } from '@/api/physicalCount';
 
 function GapDisplay({ gap }: { gap: number | null }) {
@@ -12,6 +14,7 @@ function GapDisplay({ gap }: { gap: number | null }) {
 export default function PhysicalCountDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [count, setCount] = useState<PhysicalCount | null>(null);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
@@ -26,11 +29,11 @@ export default function PhysicalCountDetailPage() {
       const res = await physicalCountApi.getById(Number(id));
       setCount(res.data.data);
     } catch {
-      /* handled */
+      toast.error(t('physicalCount.loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -44,7 +47,7 @@ export default function PhysicalCountDetailPage() {
       setInputValue('');
       load();
     } catch {
-      /* handled */
+      toast.error(t('physicalCount.saveFailed'));
     }
   };
 
@@ -54,9 +57,10 @@ export default function PhysicalCountDetailPage() {
       setCompleting(true);
       await physicalCountApi.complete(count.id);
       setShowConfirm(false);
+      toast.success(t('physicalCount.countCompleted'));
       load();
     } catch {
-      /* handled */
+      toast.error(t('physicalCount.completeFailed'));
     } finally {
       setCompleting(false);
     }
@@ -66,11 +70,11 @@ export default function PhysicalCountDetailPage() {
   const isActive = count?.status === 'IN_PROGRESS';
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">Loading...</div>;
+    return <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>;
   }
 
   if (!count) {
-    return <div className="text-center py-12 text-gray-500">Count not found</div>;
+    return <div className="text-center py-12 text-gray-500">{t('physicalCount.notFound')}</div>;
   }
 
   return (
@@ -79,10 +83,10 @@ export default function PhysicalCountDetailPage() {
         <div>
           <button onClick={() => navigate('/store/physical-count')}
             className="text-blue-600 text-sm mb-1 hover:underline">
-            &larr; Back to list
+            &larr; {t('physicalCount.backToList')}
           </button>
           <h2 className="text-xl font-bold">
-            Physical Count #{count.id}
+            {t('physicalCount.detailTitle', { id: count.id })}
             <span className={`ml-3 px-2 py-0.5 text-xs font-bold rounded-full ${
               count.status === 'IN_PROGRESS' ? 'bg-blue-500 text-white' :
               count.status === 'COMPLETED' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'
@@ -90,7 +94,7 @@ export default function PhysicalCountDetailPage() {
               {count.status}
             </span>
           </h2>
-          <p className="text-sm text-gray-500">Date: {count.countDate}</p>
+          <p className="text-sm text-gray-500">{t('physicalCount.dateLabel')} {count.countDate}</p>
         </div>
         {isActive && (
           <button
@@ -98,7 +102,7 @@ export default function PhysicalCountDetailPage() {
             disabled={!allCounted}
             className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 text-lg"
           >
-            Complete Count
+            {t('physicalCount.completeCount')}
           </button>
         )}
       </div>
@@ -114,15 +118,15 @@ export default function PhysicalCountDetailPage() {
             <div key={line.id} className="bg-white rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="font-semibold text-lg">Item #{line.itemId}</div>
+                  <div className="font-semibold text-lg">{t('inventory.itemPrefix', { id: line.itemId })}</div>
                   <div className="text-sm text-gray-500 mt-1">
-                    System: <span className="font-medium text-gray-700">{line.systemQty}</span>
+                    {t('physicalCount.system')} <span className="font-medium text-gray-700">{line.systemQty}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4">
                   <div className="text-center min-w-[80px]">
-                    <div className="text-xs text-gray-500">Gap</div>
+                    <div className="text-xs text-gray-500">{t('physicalCount.gap')}</div>
                     <div className="text-lg"><GapDisplay gap={localGap} /></div>
                   </div>
 
@@ -145,13 +149,13 @@ export default function PhysicalCountDetailPage() {
                           onClick={() => handleSave(line)}
                           className="px-4 h-14 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
                         >
-                          Save
+                          {t('common.save')}
                         </button>
                         <button
                           onClick={() => { setEditingLine(null); setInputValue(''); }}
                           className="px-3 h-14 bg-gray-200 rounded-lg hover:bg-gray-300"
                         >
-                          Cancel
+                          {t('common.cancel')}
                         </button>
                       </div>
                     ) : (
@@ -166,12 +170,12 @@ export default function PhysicalCountDetailPage() {
                             : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                         }`}
                       >
-                        {line.actualQty !== null ? line.actualQty : 'Count'}
+                        {line.actualQty !== null ? line.actualQty : t('physicalCount.countBtn')}
                       </button>
                     )
                   ) : (
                     <div className="text-center min-w-[80px]">
-                      <div className="text-xs text-gray-500">Actual</div>
+                      <div className="text-xs text-gray-500">{t('physicalCount.actual')}</div>
                       <div className="text-lg font-medium">{line.actualQty ?? '-'}</div>
                     </div>
                   )}
@@ -189,19 +193,19 @@ export default function PhysicalCountDetailPage() {
       {showConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-bold mb-3">Complete Physical Count?</h3>
+            <h3 className="text-lg font-bold mb-3">{t('physicalCount.completeTitle')}</h3>
             <p className="text-gray-600 mb-2">
-              This will adjust inventory to match your counted quantities.
+              {t('physicalCount.completeMsg')}
             </p>
             <div className="bg-gray-50 rounded-lg p-3 mb-4 space-y-1">
               {count.lines.filter(l => l.gapQty !== null && l.gapQty !== 0).map((l) => (
                 <div key={l.id} className="flex justify-between text-sm">
-                  <span>Item #{l.itemId}</span>
+                  <span>{t('inventory.itemPrefix', { id: l.itemId })}</span>
                   <GapDisplay gap={l.gapQty} />
                 </div>
               ))}
               {count.lines.every(l => l.gapQty === 0) && (
-                <div className="text-sm text-gray-500 text-center">No adjustments needed</div>
+                <div className="text-sm text-gray-500 text-center">{t('physicalCount.noAdjustments')}</div>
               )}
             </div>
             <div className="flex gap-3">
@@ -209,14 +213,14 @@ export default function PhysicalCountDetailPage() {
                 onClick={() => setShowConfirm(false)}
                 className="flex-1 py-3 bg-gray-200 rounded-lg font-medium hover:bg-gray-300"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleComplete}
                 disabled={completing}
                 className="flex-1 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
               >
-                {completing ? 'Processing...' : 'Confirm'}
+                {completing ? t('common.processing') : t('common.confirm')}
               </button>
             </div>
           </div>
