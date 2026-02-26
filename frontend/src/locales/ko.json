@@ -201,7 +201,71 @@
     "downloadFailed": "PDF 다운로드에 실패했습니다",
     "suggestionFailed": "추천 조회에 실패했습니다",
     "orderCreated": "발주가 생성되었습니다",
-    "createFailed": "발주 생성에 실패했습니다"
+    "createFailed": "발주 생성에 실패했습니다",
+    "needs": {
+      "title": "발주 추천",
+      "urgent": "긴급",
+      "recommended": "권장",
+      "predicted": "예측",
+      "urgentDesc": "최소 재고 이하",
+      "recommendedDesc": "재고 부족 예상",
+      "predictedDesc": "3일 이내 소진 예상",
+      "currentStock": "현재 재고",
+      "minStock": "최소 재고",
+      "avgUsage": "일평균 사용량",
+      "daysLeft": "남은 일수",
+      "suggestedQty": "추천 수량",
+      "addToCart": "장바구니 추가",
+      "noNeeds": "발주 추천 없음",
+      "loadFailed": "추천을 불러오지 못했습니다"
+    },
+    "catalog": {
+      "title": "부재료 카탈로그",
+      "searchPlaceholder": "부재료 검색...",
+      "allCategories": "전체 카테고리",
+      "allSuppliers": "전체 공급사",
+      "qty": "수량",
+      "packaging": "포장단위"
+    },
+    "cart": {
+      "title": "장바구니",
+      "empty": "장바구니가 비어있습니다",
+      "subtotal": "소계",
+      "total": "합계",
+      "items": "{{count}}개 항목",
+      "saveDraft": "임시저장",
+      "confirmOrder": "발주 확정",
+      "clearCart": "장바구니 비우기",
+      "addedToCart": "장바구니에 추가되었습니다",
+      "orderConfirmed": "발주가 확정되었습니다",
+      "confirmFailed": "발주 확정에 실패했습니다"
+    },
+    "history": {
+      "title": "최근 발주",
+      "reorder": "재발주",
+      "reorderSuccess": "장바구니에 복사되었습니다",
+      "reorderFailed": "주문 복사에 실패했습니다",
+      "noHistory": "발주 이력 없음"
+    },
+    "reorder": {
+      "title": "빠른 재발주",
+      "copyToCart": "장바구니로 복사"
+    },
+    "status": {
+      "DRAFT": "작성중",
+      "CONFIRMED": "확정",
+      "DISPATCHED": "발송됨",
+      "CANCELLED": "취소",
+      "PARTIALLY_RECEIVED": "부분입고",
+      "DELIVERED": "입고완료",
+      "all": "전체"
+    },
+    "timeline": {
+      "created": "작성",
+      "confirmed": "확정",
+      "dispatched": "발송",
+      "received": "입고"
+    }
   },
   "expiry": {
     "title": "유통기한 경고",

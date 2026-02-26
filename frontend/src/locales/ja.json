@@ -201,7 +201,71 @@
     "downloadFailed": "PDFダウンロードに失敗しました",
     "suggestionFailed": "推奨の取得に失敗しました",
     "orderCreated": "発注が作成されました",
-    "createFailed": "発注の作成に失敗しました"
+    "createFailed": "発注の作成に失敗しました",
+    "needs": {
+      "title": "発注推奨",
+      "urgent": "緊急",
+      "recommended": "推奨",
+      "predicted": "予測",
+      "urgentDesc": "最低在庫以下",
+      "recommendedDesc": "在庫不足予想",
+      "predictedDesc": "3日以内に枯渇予想",
+      "currentStock": "現在在庫",
+      "minStock": "最低在庫",
+      "avgUsage": "日平均使用量",
+      "daysLeft": "残り日数",
+      "suggestedQty": "推奨数量",
+      "addToCart": "カートに追加",
+      "noNeeds": "発注推奨なし",
+      "loadFailed": "推奨の読み込みに失敗しました"
+    },
+    "catalog": {
+      "title": "副資材カタログ",
+      "searchPlaceholder": "副資材検索...",
+      "allCategories": "全カテゴリー",
+      "allSuppliers": "全取引先",
+      "qty": "数量",
+      "packaging": "包装単位"
+    },
+    "cart": {
+      "title": "カート",
+      "empty": "カートは空です",
+      "subtotal": "小計",
+      "total": "合計",
+      "items": "{{count}}件",
+      "saveDraft": "一時保存",
+      "confirmOrder": "発注確定",
+      "clearCart": "カートを空にする",
+      "addedToCart": "カートに追加しました",
+      "orderConfirmed": "発注が確定されました",
+      "confirmFailed": "発注の確定に失敗しました"
+    },
+    "history": {
+      "title": "最近の発注",
+      "reorder": "再発注",
+      "reorderSuccess": "カートにコピーしました",
+      "reorderFailed": "注文のコピーに失敗しました",
+      "noHistory": "発注履歴なし"
+    },
+    "reorder": {
+      "title": "クイック再発注",
+      "copyToCart": "カートにコピー"
+    },
+    "status": {
+      "DRAFT": "作成中",
+      "CONFIRMED": "確定",
+      "DISPATCHED": "送信済",
+      "CANCELLED": "キャンセル",
+      "PARTIALLY_RECEIVED": "一部入荷",
+      "DELIVERED": "入荷完了",
+      "all": "全て"
+    },
+    "timeline": {
+      "created": "作成",
+      "confirmed": "確定",
+      "dispatched": "送信",
+      "received": "入荷"
+    }
   },
   "expiry": {
     "title": "賞味期限警告",

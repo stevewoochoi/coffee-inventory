@@ -1,8 +1,10 @@
 package com.coffee.domain.ordering.controller;
 
 import com.coffee.common.response.ApiResponse;
+import com.coffee.domain.ordering.dto.OrderNeedsDto;
 import com.coffee.domain.ordering.dto.OrderPlanDto;
 import com.coffee.domain.ordering.dto.OrderSuggestionDto;
+import com.coffee.domain.ordering.service.OrderNeedsService;
 import com.coffee.domain.ordering.service.OrderPdfService;
 import com.coffee.domain.ordering.service.OrderSuggestionService;
 import com.coffee.domain.ordering.service.OrderingService;
@@ -23,6 +25,7 @@ public class OrderingController {
 
     private final OrderingService orderingService;
     private final OrderSuggestionService suggestionService;
+    private final OrderNeedsService orderNeedsService;
     private final OrderPdfService orderPdfService;
 
     @GetMapping("/plans")
@@ -51,6 +54,13 @@ public class OrderingController {
     @PostMapping("/plans/{id}/dispatch")
     public ResponseEntity<ApiResponse<OrderPlanDto.Response>> dispatch(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok(orderingService.dispatch(id), "Order dispatched"));
+    }
+
+    @GetMapping("/needs")
+    public ResponseEntity<ApiResponse<OrderNeedsDto.Response>> getOrderNeeds(
+            @RequestParam Long storeId,
+            @RequestParam(required = false) Long brandId) {
+        return ResponseEntity.ok(ApiResponse.ok(orderNeedsService.getOrderNeeds(storeId, brandId)));
     }
 
     @GetMapping("/suggestion")

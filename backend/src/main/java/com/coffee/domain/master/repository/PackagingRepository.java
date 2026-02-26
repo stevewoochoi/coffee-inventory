@@ -12,4 +12,8 @@ public interface PackagingRepository extends JpaRepository<Packaging, Long> {
     List<Packaging> findByItemIdAndStatus(Long itemId, PackagingStatus status);
 
     Optional<Packaging> findByIdAndStatus(Long id, PackagingStatus status);
+
+    List<Packaging> findByStatus(PackagingStatus status);
+
+    List<Packaging> findByItemIdInAndStatus(List<Long> itemIds, PackagingStatus status);
 }

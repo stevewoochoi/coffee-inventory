@@ -201,7 +201,71 @@
     "downloadFailed": "Failed to download PDF",
     "suggestionFailed": "Failed to load suggestions",
     "orderCreated": "Order created",
-    "createFailed": "Failed to create order"
+    "createFailed": "Failed to create order",
+    "needs": {
+      "title": "Order Recommendations",
+      "urgent": "Urgent",
+      "recommended": "Recommended",
+      "predicted": "Predicted",
+      "urgentDesc": "Stock below minimum",
+      "recommendedDesc": "Stock running low",
+      "predictedDesc": "Expected to run out within 3 days",
+      "currentStock": "Current Stock",
+      "minStock": "Min Stock",
+      "avgUsage": "Avg Daily Usage",
+      "daysLeft": "Days Left",
+      "suggestedQty": "Suggested Qty",
+      "addToCart": "Add to Cart",
+      "noNeeds": "No order recommendations",
+      "loadFailed": "Failed to load recommendations"
+    },
+    "catalog": {
+      "title": "Item Catalog",
+      "searchPlaceholder": "Search items...",
+      "allCategories": "All Categories",
+      "allSuppliers": "All Suppliers",
+      "qty": "Qty",
+      "packaging": "Packaging"
+    },
+    "cart": {
+      "title": "Cart",
+      "empty": "Cart is empty",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "items": "{{count}} items",
+      "saveDraft": "Save Draft",
+      "confirmOrder": "Confirm Order",
+      "clearCart": "Clear Cart",
+      "addedToCart": "Added to cart",
+      "orderConfirmed": "Order confirmed",
+      "confirmFailed": "Failed to confirm order"
+    },
+    "history": {
+      "title": "Recent Orders",
+      "reorder": "Reorder",
+      "reorderSuccess": "Copied to cart",
+      "reorderFailed": "Failed to copy order",
+      "noHistory": "No order history"
+    },
+    "reorder": {
+      "title": "Quick Reorder",
+      "copyToCart": "Copy to Cart"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "CONFIRMED": "Confirmed",
+      "DISPATCHED": "Dispatched",
+      "CANCELLED": "Cancelled",
+      "PARTIALLY_RECEIVED": "Partial Received",
+      "DELIVERED": "Delivered",
+      "all": "All"
+    },
+    "timeline": {
+      "created": "Created",
+      "confirmed": "Confirmed",
+      "dispatched": "Dispatched",
+      "received": "Received"
+    }
   },
   "expiry": {
     "title": "Expiry Alerts",
