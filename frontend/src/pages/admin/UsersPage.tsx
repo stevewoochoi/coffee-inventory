@@ -23,33 +23,18 @@ interface SelectOption {
 
 const STATUS_TABS = ['PENDING_APPROVAL', 'ACTIVE', 'REJECTED', 'SUSPENDED'] as const;
 
-function statusBadge(status: string) {
-  switch (status) {
-    case 'PENDING_APPROVAL':
-      return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">승인대기</Badge>;
-    case 'ACTIVE':
-      return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">활성</Badge>;
-    case 'REJECTED':
-      return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-300">거절</Badge>;
-    case 'SUSPENDED':
-      return <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-300">정지</Badge>;
-    default:
-      return <Badge variant="outline">{status}</Badge>;
-  }
-}
+const STATUS_STYLES: Record<string, string> = {
+  PENDING_APPROVAL: 'bg-yellow-50 text-yellow-700 border-yellow-300',
+  ACTIVE: 'bg-green-50 text-green-700 border-green-300',
+  REJECTED: 'bg-red-50 text-red-700 border-red-300',
+  SUSPENDED: 'bg-gray-50 text-gray-700 border-gray-300',
+};
 
-function roleBadge(role: string) {
-  switch (role) {
-    case 'SUPER_ADMIN':
-      return <Badge className="bg-purple-600">Super Admin</Badge>;
-    case 'BRAND_ADMIN':
-      return <Badge className="bg-blue-600">Brand Admin</Badge>;
-    case 'STORE_MANAGER':
-      return <Badge className="bg-teal-600">Store Manager</Badge>;
-    default:
-      return <Badge>{role}</Badge>;
-  }
-}
+const ROLE_STYLES: Record<string, string> = {
+  SUPER_ADMIN: 'bg-purple-600',
+  BRAND_ADMIN: 'bg-blue-600',
+  STORE_MANAGER: 'bg-teal-600',
+};
 
 export default function UsersPage() {
   const { t } = useTranslation();
@@ -253,7 +238,11 @@ export default function UsersPage() {
                 <tr key={user.id} className="border-b hover:bg-gray-50">
                   <td className="p-3 font-medium">{user.name || '-'}</td>
                   <td className="p-3 text-gray-600">{user.email}</td>
-                  <td className="p-3">{roleBadge(user.role)}</td>
+                  <td className="p-3">
+                    <Badge className={ROLE_STYLES[user.role] || ''}>
+                      {t(`users.role.${user.role}`)}
+                    </Badge>
+                  </td>
                   <td className="p-3">
                     {user.stores && user.stores.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
@@ -265,7 +254,11 @@ export default function UsersPage() {
                       </div>
                     ) : '-'}
                   </td>
-                  <td className="p-3">{statusBadge(user.accountStatus)}</td>
+                  <td className="p-3">
+                    <Badge variant="outline" className={STATUS_STYLES[user.accountStatus] || ''}>
+                      {t(`users.status.${user.accountStatus}`)}
+                    </Badge>
+                  </td>
                   <td className="p-3 text-gray-500 text-xs">
                     {user.registeredAt ? new Date(user.registeredAt).toLocaleDateString() : '-'}
                   </td>
@@ -332,9 +325,9 @@ export default function UsersPage() {
                 }}
                 className="w-full border rounded-md px-3 py-2 text-sm"
               >
-                <option value="STORE_MANAGER">Store Manager</option>
-                <option value="BRAND_ADMIN">Brand Admin</option>
-                <option value="SUPER_ADMIN">Super Admin</option>
+                <option value="STORE_MANAGER">{t('users.role.STORE_MANAGER')}</option>
+                <option value="BRAND_ADMIN">{t('users.role.BRAND_ADMIN')}</option>
+                <option value="SUPER_ADMIN">{t('users.role.SUPER_ADMIN')}</option>
               </select>
             </div>
 

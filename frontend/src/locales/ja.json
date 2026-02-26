@@ -384,6 +384,11 @@
       "REJECTED": "拒否",
       "SUSPENDED": "停止"
     },
+    "role": {
+      "SUPER_ADMIN": "最高管理者",
+      "BRAND_ADMIN": "ブランド管理者",
+      "STORE_MANAGER": "店舗管理者"
+    },
     "col": {
       "name": "名前",
       "email": "メールアドレス",

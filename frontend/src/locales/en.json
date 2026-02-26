@@ -384,6 +384,11 @@
       "REJECTED": "Rejected",
       "SUSPENDED": "Suspended"
     },
+    "role": {
+      "SUPER_ADMIN": "Super Admin",
+      "BRAND_ADMIN": "Brand Admin",
+      "STORE_MANAGER": "Store Manager"
+    },
     "col": {
       "name": "Name",
       "email": "Email",

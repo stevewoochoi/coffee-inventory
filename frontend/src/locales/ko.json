@@ -384,6 +384,11 @@
       "REJECTED": "거절",
       "SUSPENDED": "정지"
     },
+    "role": {
+      "SUPER_ADMIN": "최고 관리자",
+      "BRAND_ADMIN": "브랜드 관리자",
+      "STORE_MANAGER": "매장 관리자"
+    },
     "col": {
       "name": "이름",
       "email": "이메일",
