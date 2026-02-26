@@ -1,9 +1,12 @@
 package com.coffee.domain.ordering.controller;
 
 import com.coffee.common.response.ApiResponse;
+import com.coffee.config.CustomUserDetails;
+import com.coffee.domain.ordering.dto.OrderCartDto;
 import com.coffee.domain.ordering.dto.OrderNeedsDto;
 import com.coffee.domain.ordering.dto.OrderPlanDto;
 import com.coffee.domain.ordering.dto.OrderSuggestionDto;
+import com.coffee.domain.ordering.service.OrderCartService;
 import com.coffee.domain.ordering.service.OrderNeedsService;
 import com.coffee.domain.ordering.service.OrderPdfService;
 import com.coffee.domain.ordering.service.OrderSuggestionService;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +31,7 @@ public class OrderingController {
     private final OrderSuggestionService suggestionService;
     private final OrderNeedsService orderNeedsService;
     private final OrderPdfService orderPdfService;
+    private final OrderCartService orderCartService;
 
     @GetMapping("/plans")
     public ResponseEntity<ApiResponse<List<OrderPlanDto.Response>>> findByStoreId(
@@ -68,6 +73,24 @@ public class OrderingController {
             @RequestParam Long storeId,
             @RequestParam Long supplierId) {
         return ResponseEntity.ok(ApiResponse.ok(suggestionService.suggest(storeId, supplierId)));
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<ApiResponse<List<OrderPlanDto.HistoryResponse>>> getOrderHistory(
+            @RequestParam Long storeId,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.getOrderHistory(storeId, limit)));
+    }
+
+    @PostMapping("/reorder/{orderId}")
+    public ResponseEntity<ApiResponse<OrderCartDto.CartResponse>> reorder(
+            @PathVariable Long orderId,
+            @RequestParam Long storeId,
+            @AuthenticationPrincipal CustomUserDetails user) {
+        Long userId = user != null ? user.getId() : 1L;
+        return ResponseEntity.ok(ApiResponse.ok(
+                orderCartService.copyOrderToCart(storeId, userId, orderId),
+                "Order copied to cart"));
     }
 
     @GetMapping("/plans/{id}/pdf")

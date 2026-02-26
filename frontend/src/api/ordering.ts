@@ -102,6 +102,27 @@ export interface ConfirmResponse {
   orderCount: number;
 }
 
+// History types
+export interface HistoryLine {
+  packagingId: number;
+  packName: string;
+  itemId: number;
+  itemName: string;
+  packQty: number;
+  unitsPerPack: number;
+  price: number;
+}
+
+export interface OrderHistory {
+  id: number;
+  storeId: number;
+  supplierId: number;
+  supplierName: string;
+  status: string;
+  lines: HistoryLine[];
+  createdAt: string;
+}
+
 export const orderingApi = {
   getPlans: (storeId: number) =>
     client.get<ApiResponse<OrderPlan[]>>('/ordering/plans', { params: { storeId } }),
@@ -151,4 +172,11 @@ export const orderingApi = {
 
   confirmCart: (storeId: number, userId: number) =>
     client.post<ApiResponse<ConfirmResponse>>('/ordering/cart/confirm', null, { params: { storeId, userId } }),
+
+  // History & Reorder
+  getOrderHistory: (storeId: number, limit = 10) =>
+    client.get<ApiResponse<OrderHistory[]>>('/ordering/history', { params: { storeId, limit } }),
+
+  reorder: (orderId: number, storeId: number) =>
+    client.post<ApiResponse<CartResponse>>(`/ordering/reorder/${orderId}`, null, { params: { storeId } }),
 };

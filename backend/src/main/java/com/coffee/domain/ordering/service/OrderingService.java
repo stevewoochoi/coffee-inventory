@@ -2,6 +2,14 @@ package com.coffee.domain.ordering.service;
 
 import com.coffee.common.exception.BusinessException;
 import com.coffee.common.exception.ResourceNotFoundException;
+import com.coffee.domain.master.entity.Item;
+import com.coffee.domain.master.entity.Packaging;
+import com.coffee.domain.master.entity.Supplier;
+import com.coffee.domain.master.entity.SupplierItem;
+import com.coffee.domain.master.repository.ItemRepository;
+import com.coffee.domain.master.repository.PackagingRepository;
+import com.coffee.domain.master.repository.SupplierItemRepository;
+import com.coffee.domain.master.repository.SupplierRepository;
 import com.coffee.domain.ordering.dto.OrderPlanDto;
 import com.coffee.domain.ordering.entity.*;
 import com.coffee.domain.ordering.repository.OrderDispatchLogRepository;
@@ -12,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -22,6 +31,10 @@ public class OrderingService {
     private final OrderPlanRepository planRepository;
     private final OrderLineRepository lineRepository;
     private final OrderDispatchLogRepository dispatchLogRepository;
+    private final SupplierRepository supplierRepository;
+    private final PackagingRepository packagingRepository;
+    private final ItemRepository itemRepository;
+    private final SupplierItemRepository supplierItemRepository;
 
     public List<OrderPlanDto.Response> findByStoreId(Long storeId) {
         return planRepository.findByStoreIdOrderByCreatedAtDesc(storeId).stream()
@@ -81,6 +94,45 @@ public class OrderingService {
 
         plan.setStatus(OrderStatus.DISPATCHED);
         return toResponse(planRepository.save(plan));
+    }
+
+    public List<OrderPlanDto.HistoryResponse> getOrderHistory(Long storeId, int limit) {
+        List<OrderPlan> plans = planRepository.findByStoreIdOrderByCreatedAtDesc(storeId);
+        return plans.stream()
+                .limit(limit)
+                .map(plan -> {
+                    Supplier supplier = supplierRepository.findById(plan.getSupplierId()).orElse(null);
+                    List<OrderLine> lines = lineRepository.findByOrderPlanId(plan.getId());
+
+                    List<OrderPlanDto.HistoryLine> historyLines = lines.stream().map(line -> {
+                        Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
+                        Item item = pkg != null ? itemRepository.findById(pkg.getItemId()).orElse(null) : null;
+                        BigDecimal price = supplierItemRepository
+                                .findBySupplierIdAndPackagingId(plan.getSupplierId(), line.getPackagingId())
+                                .map(SupplierItem::getPrice)
+                                .orElse(BigDecimal.ZERO);
+
+                        return OrderPlanDto.HistoryLine.builder()
+                                .packagingId(line.getPackagingId())
+                                .packName(pkg != null ? pkg.getPackName() : "Unknown")
+                                .itemId(pkg != null ? pkg.getItemId() : null)
+                                .itemName(item != null ? item.getName() : "Unknown")
+                                .packQty(line.getPackQty())
+                                .unitsPerPack(pkg != null ? pkg.getUnitsPerPack() : BigDecimal.ZERO)
+                                .price(price)
+                                .build();
+                    }).toList();
+
+                    return OrderPlanDto.HistoryResponse.builder()
+                            .id(plan.getId())
+                            .storeId(plan.getStoreId())
+                            .supplierId(plan.getSupplierId())
+                            .supplierName(supplier != null ? supplier.getName() : "Unknown")
+                            .status(plan.getStatus().name())
+                            .lines(historyLines)
+                            .createdAt(plan.getCreatedAt())
+                            .build();
+                }).toList();
     }
 
     private OrderPlan getOrThrow(Long id) {
