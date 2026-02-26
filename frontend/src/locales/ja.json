@@ -111,7 +111,19 @@
     "quickOrder": "新規発注",
     "storeComparison": "店舗別状況比較",
     "lowStock": "在庫不足",
-    "loadFailed": "ダッシュボードの読み込みに失敗しました"
+    "outOfStock": "在庫切れ",
+    "normal": "正常",
+    "loadFailed": "ダッシュボードの読み込みに失敗しました",
+    "goodMorning": "おはようございます！",
+    "goodAfternoon": "こんにちは！",
+    "goodEvening": "こんばんは！",
+    "todayTasks": "今日のタスク",
+    "urgentOrders": "緊急発注",
+    "recommendedOrders": "推奨発注",
+    "pendingReceiving": "入荷待ち",
+    "stockOverview": "在庫概要",
+    "topConsumption": "TOP 5 消費品目",
+    "quickActions": "クイックアクション"
   },
   "inventory": {
     "title": "現在の在庫",

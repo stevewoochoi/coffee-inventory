@@ -111,7 +111,19 @@
     "quickOrder": "신규 발주",
     "storeComparison": "매장별 현황 비교",
     "lowStock": "부족 재고",
-    "loadFailed": "대시보드를 불러오지 못했습니다"
+    "outOfStock": "소진",
+    "normal": "정상",
+    "loadFailed": "대시보드를 불러오지 못했습니다",
+    "goodMorning": "좋은 아침입니다!",
+    "goodAfternoon": "좋은 오후입니다!",
+    "goodEvening": "좋은 저녁입니다!",
+    "todayTasks": "오늘 할 일",
+    "urgentOrders": "긴급 발주",
+    "recommendedOrders": "권장 발주",
+    "pendingReceiving": "입고 대기",
+    "stockOverview": "재고 현황",
+    "topConsumption": "TOP 5 소비 항목",
+    "quickActions": "빠른 액션"
   },
   "inventory": {
     "title": "현재 재고",

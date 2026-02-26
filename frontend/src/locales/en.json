@@ -111,7 +111,19 @@
     "quickOrder": "New Order",
     "storeComparison": "Store Status Comparison",
     "lowStock": "Low Stock",
-    "loadFailed": "Failed to load dashboard"
+    "outOfStock": "Out of Stock",
+    "normal": "Normal",
+    "loadFailed": "Failed to load dashboard",
+    "goodMorning": "Good Morning!",
+    "goodAfternoon": "Good Afternoon!",
+    "goodEvening": "Good Evening!",
+    "todayTasks": "Today's Tasks",
+    "urgentOrders": "Urgent Orders",
+    "recommendedOrders": "Recommended Orders",
+    "pendingReceiving": "Pending Receiving",
+    "stockOverview": "Stock Overview",
+    "topConsumption": "Top 5 Consumption",
+    "quickActions": "Quick Actions"
   },
   "inventory": {
     "title": "Current Inventory",

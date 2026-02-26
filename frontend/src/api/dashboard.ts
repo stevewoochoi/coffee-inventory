@@ -6,6 +6,20 @@ export interface DailyConsumption {
   totalQty: number;
 }
 
+export interface StockStatus {
+  totalItems: number;
+  normalCount: number;
+  lowStockCount: number;
+  outOfStockCount: number;
+}
+
+export interface TopConsumption {
+  itemId: number;
+  itemName: string;
+  totalQty: number;
+  baseUnit: string;
+}
+
 export interface StoreDashboard {
   todayReceiveCount: number;
   todayWasteQty: number;
@@ -13,6 +27,11 @@ export interface StoreDashboard {
   expiryAlertCount: number;
   dailyConsumption: DailyConsumption[];
   monthOrderCost: number;
+  urgentOrderCount: number;
+  recommendedOrderCount: number;
+  pendingReceivingCount: number;
+  stockStatus: StockStatus | null;
+  topConsumption: TopConsumption[];
 }
 
 export interface StoreSummary {

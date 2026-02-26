@@ -20,6 +20,32 @@ public class DashboardDto {
         private int expiryAlertCount;
         private List<DailyConsumption> dailyConsumption;
         private BigDecimal monthOrderCost;
+        // V5 fields
+        private int urgentOrderCount;
+        private int recommendedOrderCount;
+        private int pendingReceivingCount;
+        private StockStatus stockStatus;
+        private List<TopConsumption> topConsumption;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class StockStatus {
+        private int totalItems;
+        private int normalCount;
+        private int lowStockCount;
+        private int outOfStockCount;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class TopConsumption {
+        private Long itemId;
+        private String itemName;
+        private BigDecimal totalQty;
+        private String baseUnit;
     }
 
     @Getter

@@ -4,18 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { dashboardApi, type StoreDashboard } from '@/api/dashboard';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-function StatCard({ label, value, color, onClick }: {
-  label: string; value: string | number; color: string; onClick?: () => void;
+function TaskCard({ label, count, color, bgColor, onClick }: {
+  label: string; count: number; color: string; bgColor: string; onClick?: () => void;
 }) {
   return (
     <div
       onClick={onClick}
-      className={`rounded-lg border p-5 cursor-pointer hover:shadow-md transition-shadow ${color}`}
+      className={`rounded-xl border-2 p-4 cursor-pointer hover:shadow-lg transition-all ${bgColor} ${color}`}
     >
-      <div className="text-3xl font-bold">{value}</div>
-      <div className="text-sm mt-1 opacity-80">{label}</div>
+      <div className="text-3xl font-bold">{count}</div>
+      <div className="text-sm mt-1 font-medium">{label}</div>
     </div>
   );
 }
@@ -44,75 +44,157 @@ export default function StoreDashboardPage() {
   }
 
   const chartData = data.dailyConsumption.map(d => ({
-    date: d.date.substring(5), // MM-DD
-    qty: d.totalQty,
+    date: d.date.substring(5),
+    qty: Number(d.totalQty),
   }));
 
+  const stockStatus = data.stockStatus;
+  const totalStockItems = stockStatus ? stockStatus.totalItems : 0;
+  const normalPct = totalStockItems > 0 ? Math.round((stockStatus!.normalCount / totalStockItems) * 100) : 0;
+  const lowPct = totalStockItems > 0 ? Math.round((stockStatus!.lowStockCount / totalStockItems) * 100) : 0;
+  const outPct = totalStockItems > 0 ? Math.round((stockStatus!.outOfStockCount / totalStockItems) * 100) : 0;
+
+  const today = new Date();
+  const greeting = today.getHours() < 12 ? t('dashboard.goodMorning') : today.getHours() < 18 ? t('dashboard.goodAfternoon') : t('dashboard.goodEvening');
+
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-6">{t('dashboard.storeTitle')}</h2>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard
-          label={t('dashboard.todayReceives')}
-          value={data.todayReceiveCount}
-          color="bg-blue-50 text-blue-700 border-blue-200"
-          onClick={() => navigate('/store/receiving')}
-        />
-        <StatCard
-          label={t('dashboard.todayWaste')}
-          value={data.todayWasteQty}
-          color="bg-orange-50 text-orange-700 border-orange-200"
-          onClick={() => navigate('/store/waste')}
-        />
-        <StatCard
-          label={t('dashboard.lowStockItems')}
-          value={data.lowStockCount}
-          color={data.lowStockCount > 0
-            ? 'bg-red-50 text-red-700 border-red-200'
-            : 'bg-green-50 text-green-700 border-green-200'}
-          onClick={() => navigate('/store/inventory')}
-        />
-        <StatCard
-          label={t('dashboard.expiryAlerts')}
-          value={data.expiryAlertCount}
-          color={data.expiryAlertCount > 0
-            ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
-            : 'bg-green-50 text-green-700 border-green-200'}
-          onClick={() => navigate('/store/expiry')}
-        />
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-bold">{greeting}</h2>
+        <p className="text-gray-500 text-sm mt-1">
+          {today.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </p>
       </div>
 
-      <div className="bg-white rounded-lg border p-6 mb-8">
-        <h3 className="font-bold mb-4">{t('dashboard.consumptionTrend')}</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="qty" stroke="#3b82f6" strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
+      {/* Today's Tasks */}
+      <div>
+        <h3 className="text-lg font-semibold mb-3">{t('dashboard.todayTasks')}</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <TaskCard
+            label={t('dashboard.urgentOrders')}
+            count={data.urgentOrderCount}
+            color={data.urgentOrderCount > 0 ? 'text-red-700 border-red-300' : 'text-gray-500 border-gray-200'}
+            bgColor={data.urgentOrderCount > 0 ? 'bg-red-50' : 'bg-gray-50'}
+            onClick={() => navigate('/store/ordering/new')}
+          />
+          <TaskCard
+            label={t('dashboard.recommendedOrders')}
+            count={data.recommendedOrderCount}
+            color={data.recommendedOrderCount > 0 ? 'text-amber-700 border-amber-300' : 'text-gray-500 border-gray-200'}
+            bgColor={data.recommendedOrderCount > 0 ? 'bg-amber-50' : 'bg-gray-50'}
+            onClick={() => navigate('/store/ordering/new')}
+          />
+          <TaskCard
+            label={t('dashboard.pendingReceiving')}
+            count={data.pendingReceivingCount}
+            color={data.pendingReceivingCount > 0 ? 'text-blue-700 border-blue-300' : 'text-gray-500 border-gray-200'}
+            bgColor={data.pendingReceivingCount > 0 ? 'bg-blue-50' : 'bg-gray-50'}
+            onClick={() => navigate('/store/receiving')}
+          />
+          <TaskCard
+            label={t('dashboard.expiryAlerts')}
+            count={data.expiryAlertCount}
+            color={data.expiryAlertCount > 0 ? 'text-yellow-700 border-yellow-300' : 'text-gray-500 border-gray-200'}
+            bgColor={data.expiryAlertCount > 0 ? 'bg-yellow-50' : 'bg-gray-50'}
+            onClick={() => navigate('/store/expiry')}
+          />
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <button onClick={() => navigate('/store/receiving')}
-          className="p-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 text-center">
-          {t('dashboard.quickReceiving')}
-        </button>
-        <button onClick={() => navigate('/store/waste')}
-          className="p-4 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 text-center">
-          {t('dashboard.quickWaste')}
-        </button>
-        <button onClick={() => navigate('/store/physical-count')}
-          className="p-4 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 text-center">
-          {t('dashboard.quickCount')}
-        </button>
-        <button onClick={() => navigate('/store/ordering/new')}
-          className="p-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 text-center">
-          {t('dashboard.quickOrder')}
-        </button>
+      {/* Stock Status */}
+      {stockStatus && totalStockItems > 0 && (
+        <div className="bg-white rounded-xl border p-5">
+          <h3 className="font-semibold mb-3">{t('dashboard.stockOverview')}</h3>
+          <div className="h-4 rounded-full overflow-hidden flex bg-gray-100">
+            {normalPct > 0 && <div className="bg-green-500 transition-all" style={{ width: `${normalPct}%` }} />}
+            {lowPct > 0 && <div className="bg-amber-500 transition-all" style={{ width: `${lowPct}%` }} />}
+            {outPct > 0 && <div className="bg-red-500 transition-all" style={{ width: `${outPct}%` }} />}
+          </div>
+          <div className="flex gap-6 mt-3 text-sm">
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-green-500 inline-block" />
+              {t('dashboard.normal')} {stockStatus.normalCount}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" />
+              {t('dashboard.lowStock')} {stockStatus.lowStockCount}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-red-500 inline-block" />
+              {t('dashboard.outOfStock')} {stockStatus.outOfStockCount}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* 7-day consumption bar chart */}
+        <div className="bg-white rounded-xl border p-5">
+          <h3 className="font-semibold mb-4">{t('dashboard.consumptionTrend')}</h3>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" fontSize={12} />
+              <YAxis fontSize={12} />
+              <Tooltip />
+              <Bar dataKey="qty" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Top 5 consumption ranking */}
+        <div className="bg-white rounded-xl border p-5">
+          <h3 className="font-semibold mb-4">{t('dashboard.topConsumption')}</h3>
+          {data.topConsumption && data.topConsumption.length > 0 ? (
+            <div className="space-y-3">
+              {data.topConsumption.map((item, idx) => {
+                const maxQty = data.topConsumption[0]?.totalQty || 1;
+                const pct = Math.round((item.totalQty / maxQty) * 100);
+                return (
+                  <div key={item.itemId}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="font-medium">
+                        <span className="text-gray-400 mr-2">#{idx + 1}</span>
+                        {item.itemName}
+                      </span>
+                      <span className="text-gray-600">{Number(item.totalQty).toFixed(0)} {item.baseUnit}</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm">{t('common.noData')}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div>
+        <h3 className="text-lg font-semibold mb-3">{t('dashboard.quickActions')}</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <button onClick={() => navigate('/store/ordering/new')}
+            className="p-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 text-center min-h-[60px]">
+            {t('dashboard.quickOrder')}
+          </button>
+          <button onClick={() => navigate('/store/receiving')}
+            className="p-4 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 text-center min-h-[60px]">
+            {t('dashboard.quickReceiving')}
+          </button>
+          <button onClick={() => navigate('/store/physical-count')}
+            className="p-4 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 text-center min-h-[60px]">
+            {t('dashboard.quickCount')}
+          </button>
+          <button onClick={() => navigate('/store/waste')}
+            className="p-4 bg-orange-600 text-white rounded-xl font-medium hover:bg-orange-700 text-center min-h-[60px]">
+            {t('dashboard.quickWaste')}
+          </button>
+        </div>
       </div>
     </div>
   );
