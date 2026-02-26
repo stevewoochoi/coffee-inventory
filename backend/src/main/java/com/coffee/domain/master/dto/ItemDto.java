@@ -25,6 +25,8 @@ public class ItemDto {
         @Size(max = 50)
         private String category;
 
+        private Long categoryId;
+
         @NotBlank(message = "Base unit is required")
         @Size(max = 20)
         private String baseUnit;
@@ -47,6 +49,8 @@ public class ItemDto {
         private Long brandId;
         private String name;
         private String category;
+        private Long categoryId;
+        private String categoryName;
         private String baseUnit;
         private BigDecimal lossRate;
         private BigDecimal minStockQty;

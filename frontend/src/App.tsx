@@ -19,6 +19,7 @@ import WastePage from '@/pages/store/WastePage';
 import OrderingPage from '@/pages/store/OrderingPage';
 import NewOrderPage from '@/pages/store/NewOrderPage';
 import OrderingAdminPage from '@/pages/admin/OrderingAdminPage';
+import CategoriesPage from '@/pages/admin/CategoriesPage';
 import AdminExpiryPage from '@/pages/admin/ExpiryPage';
 import StoreExpiryPage from '@/pages/store/ExpiryPage';
 import PhysicalCountPage from '@/pages/store/PhysicalCountPage';
@@ -50,6 +51,7 @@ function App() {
             <Route path="/admin/items" element={<ItemsPage />} />
             <Route path="/admin/packagings" element={<PackagingsPage />} />
             <Route path="/admin/suppliers" element={<SuppliersPage />} />
+            <Route path="/admin/categories" element={<CategoriesPage />} />
             <Route path="/admin/ordering" element={<OrderingAdminPage />} />
             <Route path="/admin/expiry" element={<AdminExpiryPage />} />
             <Route path="/admin/settings/theme" element={<ThemeSettingsPage />} />

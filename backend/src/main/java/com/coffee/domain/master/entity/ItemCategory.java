@@ -3,17 +3,16 @@ package com.coffee.domain.master.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "item")
+@Table(name = "item_category")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Item {
+public class ItemCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,28 +24,13 @@ public class Item {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 50)
-    private String category;
-
-    @Column(name = "category_id")
-    private Long categoryId;
-
-    @Column(name = "base_unit", nullable = false, length = 20)
-    private String baseUnit;
-
-    @Column(name = "loss_rate", precision = 5, scale = 4)
+    @Column(name = "display_order")
     @Builder.Default
-    private BigDecimal lossRate = BigDecimal.ZERO;
-
-    @Column(name = "min_stock_qty", precision = 12, scale = 3)
-    private BigDecimal minStockQty;
+    private Integer displayOrder = 0;
 
     @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;
-
-    @Column(name = "image_url", length = 500)
-    private String imageUrl;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

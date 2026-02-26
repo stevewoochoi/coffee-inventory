@@ -9,6 +9,7 @@ const navKeys = [
   { to: '/admin/items', key: 'nav.items' },
   { to: '/admin/packagings', key: 'nav.packagings' },
   { to: '/admin/suppliers', key: 'nav.suppliers' },
+  { to: '/admin/categories', key: 'nav.categories' },
   { to: '/admin/ordering', key: 'nav.ordering' },
   { to: '/admin/expiry', key: 'nav.expiry' },
   { to: '/admin/settings/users', key: 'nav.users' },

@@ -56,7 +56,8 @@
     "packagings": "포장단위",
     "suppliers": "공급사",
     "settings": "설정",
-    "users": "사용자"
+    "users": "사용자",
+    "categories": "카테고리"
   },
   "auth": {
     "appTitle": "Coffee Inventory",
@@ -477,6 +478,22 @@
       "status": "상태",
       "registeredAt": "가입일"
     }
+  },
+  "categories": {
+    "title": "카테고리 관리",
+    "addCategory": "+ 카테고리 등록",
+    "addTitle": "카테고리 등록",
+    "editTitle": "카테고리 수정",
+    "namePlaceholder": "카테고리 이름",
+    "displayOrder": "표시 순서",
+    "noCategories": "등록된 카테고리가 없습니다.",
+    "loadFailed": "카테고리를 불러오지 못했습니다",
+    "created": "카테고리가 등록되었습니다",
+    "updated": "카테고리가 수정되었습니다",
+    "saveFailed": "카테고리 저장에 실패했습니다",
+    "deleted": "카테고리가 삭제되었습니다",
+    "deleteFailed": "카테고리 삭제에 실패했습니다",
+    "deleteConfirm": "이 카테고리를 삭제하시겠습니까?"
   },
   "settings": {
     "themeTitle": "테마 설정"

@@ -56,7 +56,8 @@
     "packagings": "Packagings",
     "suppliers": "Suppliers",
     "settings": "Settings",
-    "users": "Users"
+    "users": "Users",
+    "categories": "Categories"
   },
   "auth": {
     "appTitle": "Coffee Inventory",
@@ -477,6 +478,22 @@
       "status": "Status",
       "registeredAt": "Registered"
     }
+  },
+  "categories": {
+    "title": "Category Management",
+    "addCategory": "+ Add Category",
+    "addTitle": "Add Category",
+    "editTitle": "Edit Category",
+    "namePlaceholder": "Category name",
+    "displayOrder": "Display Order",
+    "noCategories": "No categories registered.",
+    "loadFailed": "Failed to load categories",
+    "created": "Category created",
+    "updated": "Category updated",
+    "saveFailed": "Failed to save category",
+    "deleted": "Category deleted",
+    "deleteFailed": "Failed to delete category",
+    "deleteConfirm": "Delete this category?"
   },
   "settings": {
     "themeTitle": "Theme Settings"

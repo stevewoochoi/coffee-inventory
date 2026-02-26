@@ -56,7 +56,8 @@
     "packagings": "包装単位",
     "suppliers": "取引先",
     "settings": "設定",
-    "users": "ユーザー"
+    "users": "ユーザー",
+    "categories": "カテゴリー"
   },
   "auth": {
     "appTitle": "Coffee Inventory",
@@ -477,6 +478,22 @@
       "status": "ステータス",
       "registeredAt": "登録日"
     }
+  },
+  "categories": {
+    "title": "カテゴリー管理",
+    "addCategory": "+ カテゴリー登録",
+    "addTitle": "カテゴリー登録",
+    "editTitle": "カテゴリー編集",
+    "namePlaceholder": "カテゴリー名",
+    "displayOrder": "表示順",
+    "noCategories": "登録されたカテゴリーがありません。",
+    "loadFailed": "カテゴリーの読み込みに失敗しました",
+    "created": "カテゴリーが登録されました",
+    "updated": "カテゴリーが更新されました",
+    "saveFailed": "カテゴリーの保存に失敗しました",
+    "deleted": "カテゴリーが削除されました",
+    "deleteFailed": "カテゴリーの削除に失敗しました",
+    "deleteConfirm": "このカテゴリーを削除しますか？"
   },
   "settings": {
     "themeTitle": "テーマ設定"
