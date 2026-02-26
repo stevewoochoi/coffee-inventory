@@ -67,7 +67,31 @@
     "passwordPlaceholder": "パスワードを入力してください",
     "loggingIn": "ログイン中...",
     "login": "ログイン",
-    "loginFailed": "ログインに失敗しました"
+    "loginFailed": "ログインに失敗しました",
+    "register": "会員登録",
+    "registering": "登録中...",
+    "registerSubtitle": "新しいアカウントを作成してください",
+    "registerComplete": "登録申請完了！",
+    "registerCompleteMsg": "登録申請が完了しました。管理者の承認後、ログインが可能です。",
+    "registerFailed": "会員登録に失敗しました",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "haveAccount": "既にアカウントをお持ちですか？",
+    "goToLogin": "ログインへ",
+    "name": "名前",
+    "namePlaceholder": "名前を入力してください",
+    "passwordConfirm": "パスワード確認",
+    "passwordConfirmPlaceholder": "パスワードをもう一度入力してください",
+    "passwordHint": "8文字以上、英字+数字+特殊文字を含む",
+    "passwordMismatch": "パスワードが一致しません",
+    "passwordMatch": "パスワードが一致します",
+    "checkingEmail": "メールアドレス確認中...",
+    "emailTaken": "このメールアドレスは既に使用されています",
+    "emailAvailable": "このメールアドレスは使用可能です",
+    "passwordStrength": {
+      "weak": "弱い",
+      "medium": "普通",
+      "strong": "強い"
+    }
   },
   "dashboard": {
     "storeTitle": "店舗ダッシュボード",

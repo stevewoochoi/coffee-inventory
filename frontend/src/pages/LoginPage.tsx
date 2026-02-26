@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -78,6 +79,15 @@ export default function LoginPage() {
             >
               {isLoading ? t('auth.loggingIn') : t('auth.login')}
             </Button>
+            <Separator />
+
+            <p className="text-center text-sm text-gray-500">
+              {t('auth.noAccount')}{' '}
+              <Link to="/register" className="text-blue-700 hover:underline font-medium">
+                {t('auth.register')}
+              </Link>
+            </p>
+
             <div className="text-center">
               <select
                 value={i18n.language?.substring(0, 2) || 'en'}

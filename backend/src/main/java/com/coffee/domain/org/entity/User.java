@@ -21,6 +21,9 @@ public class User {
     @Column(nullable = false, unique = true, length = 200)
     private String email;
 
+    @Column(length = 100)
+    private String name;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -41,11 +44,31 @@ public class User {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_status")
+    @Builder.Default
+    private AccountStatus accountStatus = AccountStatus.PENDING_APPROVAL;
+
+    @Column(name = "approved_by")
+    private Long approvedBy;
+
+    @Column(name = "approved_at")
+    private LocalDateTime approvedAt;
+
+    @Column(name = "rejected_reason")
+    private String rejectedReason;
+
+    @Column(name = "registered_at", updatable = false)
+    private LocalDateTime registeredAt;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.registeredAt == null) {
+            this.registeredAt = LocalDateTime.now();
+        }
     }
 }

@@ -67,7 +67,31 @@
     "passwordPlaceholder": "비밀번호를 입력하세요",
     "loggingIn": "로그인 중...",
     "login": "로그인",
-    "loginFailed": "로그인에 실패했습니다"
+    "loginFailed": "로그인에 실패했습니다",
+    "register": "회원가입",
+    "registering": "가입 중...",
+    "registerSubtitle": "새 계정을 만드세요",
+    "registerComplete": "가입 신청 완료!",
+    "registerCompleteMsg": "가입 신청이 완료되었습니다. 관리자 승인 후 로그인 가능합니다.",
+    "registerFailed": "회원가입에 실패했습니다",
+    "noAccount": "계정이 없으신가요?",
+    "haveAccount": "이미 계정이 있으신가요?",
+    "goToLogin": "로그인으로 이동",
+    "name": "이름",
+    "namePlaceholder": "이름을 입력하세요",
+    "passwordConfirm": "비밀번호 확인",
+    "passwordConfirmPlaceholder": "비밀번호를 다시 입력하세요",
+    "passwordHint": "8자 이상, 영문+숫자+특수문자 포함",
+    "passwordMismatch": "비밀번호가 일치하지 않습니다",
+    "passwordMatch": "비밀번호가 일치합니다",
+    "checkingEmail": "이메일 확인 중...",
+    "emailTaken": "이미 사용 중인 이메일입니다",
+    "emailAvailable": "사용 가능한 이메일입니다",
+    "passwordStrength": {
+      "weak": "약함",
+      "medium": "보통",
+      "strong": "강함"
+    }
   },
   "dashboard": {
     "storeTitle": "매장 대시보드",

@@ -7,6 +7,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AdminLayout } from '@/components/AdminLayout';
 import { StoreLayout } from '@/components/StoreLayout';
 import LoginPage from '@/pages/LoginPage';
+import RegisterPage from '@/pages/RegisterPage';
 import ItemsPage from '@/pages/admin/ItemsPage';
 import PackagingsPage from '@/pages/admin/PackagingsPage';
 import SuppliersPage from '@/pages/admin/SuppliersPage';
@@ -39,6 +40,7 @@ function App() {
       <Toaster position="top-right" richColors closeButton />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'BRAND_ADMIN']} />}>
           <Route element={<AdminLayout />}>
