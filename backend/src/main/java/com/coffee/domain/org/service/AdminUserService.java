@@ -147,6 +147,216 @@ public class AdminUserService {
         return toResponse(user);
     }
 
+    @Transactional
+    public UserDto.Response updateUser(Long userId, UserDto.UpdateRequest request,
+                                        Long currentUserId, Role currentRole, Long currentBrandId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        // Update name
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+
+        // Update account status
+        if (request.getAccountStatus() != null) {
+            try {
+                user.setAccountStatus(AccountStatus.valueOf(request.getAccountStatus()));
+            } catch (IllegalArgumentException e) {
+                throw new BusinessException("Invalid account status: " + request.getAccountStatus(),
+                        HttpStatus.BAD_REQUEST, "INVALID_STATUS");
+            }
+        }
+
+        // Update role
+        if (request.getRole() != null) {
+            Role targetRole;
+            try {
+                targetRole = Role.valueOf(request.getRole());
+            } catch (IllegalArgumentException e) {
+                throw new BusinessException("Invalid role: " + request.getRole(),
+                        HttpStatus.BAD_REQUEST, "INVALID_ROLE");
+            }
+            validateRoleAssignment(currentRole, targetRole, currentBrandId, request.getBrandId());
+            user.setRole(targetRole);
+        }
+
+        // Update brand
+        if (request.getBrandId() != null) {
+            Brand brand = brandRepository.findById(request.getBrandId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Brand", request.getBrandId()));
+            user.setBrandId(brand.getId());
+            user.setCompanyId(brand.getCompanyId());
+        }
+
+        // Update store mappings for STORE_MANAGER
+        Role effectiveRole = request.getRole() != null ? Role.valueOf(request.getRole()) : user.getRole();
+        if (effectiveRole == Role.STORE_MANAGER && request.getStoreIds() != null) {
+            Long effectiveBrandId = request.getBrandId() != null ? request.getBrandId() : user.getBrandId();
+
+            // Delete existing mappings
+            userStoreRepository.deleteByUserId(userId);
+
+            // Create new mappings
+            for (int i = 0; i < request.getStoreIds().size(); i++) {
+                Long storeId = request.getStoreIds().get(i);
+                Store store = storeRepository.findById(storeId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Store", storeId));
+                if (effectiveBrandId != null && !store.getBrandId().equals(effectiveBrandId)) {
+                    throw new BusinessException("Store does not belong to the selected brand: " + storeId,
+                            HttpStatus.BAD_REQUEST, "STORE_BRAND_MISMATCH");
+                }
+                userStoreRepository.save(UserStore.builder()
+                        .userId(userId)
+                        .storeId(storeId)
+                        .isPrimary(i == 0)
+                        .build());
+            }
+
+            // Set primary store on user
+            if (!request.getStoreIds().isEmpty()) {
+                user.setStoreId(request.getStoreIds().get(0));
+            }
+        }
+
+        userRepository.save(user);
+        return toResponse(user);
+    }
+
+    @Transactional
+    public UserDto.Response suspendUser(Long userId, Long currentUserId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        if (userId.equals(currentUserId)) {
+            throw new BusinessException("Cannot suspend your own account",
+                    HttpStatus.BAD_REQUEST, "SELF_SUSPEND");
+        }
+
+        user.setAccountStatus(AccountStatus.SUSPENDED);
+        userRepository.save(user);
+        return toResponse(user);
+    }
+
+    @Transactional
+    public void deleteUser(Long userId, Long currentUserId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        if (userId.equals(currentUserId)) {
+            throw new BusinessException("Cannot delete your own account",
+                    HttpStatus.BAD_REQUEST, "SELF_DELETE");
+        }
+
+        // Soft delete
+        user.setIsActive(false);
+        user.setAccountStatus(AccountStatus.SUSPENDED);
+        userRepository.save(user);
+
+        // Deactivate user_store mappings
+        userStoreRepository.deleteByUserId(userId);
+    }
+
+    // --- Store Manager Mapping ---
+
+    public List<UserDto.StoreManagerInfo> getStoreManagers(Long storeId) {
+        storeRepository.findById(storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Store", storeId));
+
+        List<UserStore> mappings = userStoreRepository.findByStoreId(storeId);
+        return mappings.stream()
+                .map(us -> {
+                    User user = userRepository.findById(us.getUserId()).orElse(null);
+                    if (user == null) return null;
+                    return UserDto.StoreManagerInfo.builder()
+                            .userId(user.getId())
+                            .userName(user.getName())
+                            .userEmail(user.getEmail())
+                            .isPrimary(us.getIsPrimary())
+                            .build();
+                })
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<UserDto.StoreManagerInfo> updateStoreManagers(Long storeId,
+                                                               UserDto.StoreManagersUpdateRequest request) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Store", storeId));
+
+        // Delete existing mappings for this store
+        List<UserStore> existing = userStoreRepository.findByStoreId(storeId);
+        userStoreRepository.deleteAll(existing);
+
+        // Create new mappings
+        for (UserDto.ManagerMapping mapping : request.getManagerIds()) {
+            User user = userRepository.findById(mapping.getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", mapping.getUserId()));
+            if (user.getRole() != Role.STORE_MANAGER) {
+                throw new BusinessException("User is not a store manager: " + mapping.getUserId(),
+                        HttpStatus.BAD_REQUEST, "NOT_STORE_MANAGER");
+            }
+            userStoreRepository.save(UserStore.builder()
+                    .userId(mapping.getUserId())
+                    .storeId(storeId)
+                    .isPrimary(Boolean.TRUE.equals(mapping.getIsPrimary()))
+                    .build());
+        }
+
+        return getStoreManagers(storeId);
+    }
+
+    @Transactional
+    public UserDto.Response updateUserStores(Long userId, UserDto.UserStoresUpdateRequest request,
+                                              Role currentRole, Long currentBrandId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        if (user.getRole() != Role.STORE_MANAGER) {
+            throw new BusinessException("User is not a store manager",
+                    HttpStatus.BAD_REQUEST, "NOT_STORE_MANAGER");
+        }
+
+        // Delete existing store mappings
+        userStoreRepository.deleteByUserId(userId);
+
+        // Create new mappings
+        Long primaryStoreId = null;
+        for (UserDto.StoreMapping mapping : request.getStoreIds()) {
+            Store store = storeRepository.findById(mapping.getStoreId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Store", mapping.getStoreId()));
+
+            // BRAND_ADMIN can only assign stores within their brand
+            if (currentRole == Role.BRAND_ADMIN && currentBrandId != null
+                    && !store.getBrandId().equals(currentBrandId)) {
+                throw new BusinessException("Store does not belong to your brand: " + mapping.getStoreId(),
+                        HttpStatus.FORBIDDEN, "BRAND_MISMATCH");
+            }
+
+            boolean isPrimary = Boolean.TRUE.equals(mapping.getIsPrimary());
+            if (isPrimary) {
+                primaryStoreId = mapping.getStoreId();
+            }
+
+            userStoreRepository.save(UserStore.builder()
+                    .userId(userId)
+                    .storeId(mapping.getStoreId())
+                    .isPrimary(isPrimary)
+                    .build());
+        }
+
+        // Update primary store on user
+        if (primaryStoreId != null) {
+            user.setStoreId(primaryStoreId);
+        } else if (!request.getStoreIds().isEmpty()) {
+            user.setStoreId(request.getStoreIds().get(0).getStoreId());
+        }
+
+        userRepository.save(user);
+        return toResponse(user);
+    }
+
     private void validateRoleAssignment(Role approverRole, Role targetRole,
                                          Long approverBrandId, Long targetBrandId) {
         if (approverRole == Role.SUPER_ADMIN) {

@@ -55,6 +55,55 @@ public class UserDto {
     }
 
     @Getter
+    @Setter
+    public static class UpdateRequest {
+        private String name;
+        private String role;
+        private Long brandId;
+        private List<Long> storeIds;
+        private String accountStatus;
+    }
+
+    @Getter
+    @Setter
+    public static class StoreManagersUpdateRequest {
+        @NotNull(message = "Manager IDs are required")
+        private List<ManagerMapping> managerIds;
+    }
+
+    @Getter
+    @Setter
+    public static class ManagerMapping {
+        @NotNull(message = "User ID is required")
+        private Long userId;
+        private Boolean isPrimary;
+    }
+
+    @Getter
+    @Setter
+    public static class UserStoresUpdateRequest {
+        @NotNull(message = "Store IDs are required")
+        private List<StoreMapping> storeIds;
+    }
+
+    @Getter
+    @Setter
+    public static class StoreMapping {
+        @NotNull(message = "Store ID is required")
+        private Long storeId;
+        private Boolean isPrimary;
+    }
+
+    @Getter
+    @Builder
+    public static class StoreManagerInfo {
+        private Long userId;
+        private String userName;
+        private String userEmail;
+        private Boolean isPrimary;
+    }
+
+    @Getter
     @Builder
     public static class ListResponse {
         private List<Response> content;

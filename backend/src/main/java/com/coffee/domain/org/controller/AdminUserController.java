@@ -65,4 +65,47 @@ public class AdminUserController {
         UserDto.Response response = adminUserService.rejectUser(id, request, currentUser.getId());
         return ResponseEntity.ok(ApiResponse.ok(response, "User rejected"));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserDto.Response>> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UserDto.UpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        UserDto.Response response = adminUserService.updateUser(
+                id, request,
+                currentUser.getId(), Role.valueOf(currentUser.getRole()), currentUser.getBrandId());
+
+        return ResponseEntity.ok(ApiResponse.ok(response, "User updated"));
+    }
+
+    @PutMapping("/{id}/suspend")
+    public ResponseEntity<ApiResponse<UserDto.Response>> suspendUser(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        UserDto.Response response = adminUserService.suspendUser(id, currentUser.getId());
+        return ResponseEntity.ok(ApiResponse.ok(response, "User suspended"));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        adminUserService.deleteUser(id, currentUser.getId());
+        return ResponseEntity.ok(ApiResponse.ok(null, "User deleted"));
+    }
+
+    @PutMapping("/{id}/stores")
+    public ResponseEntity<ApiResponse<UserDto.Response>> updateUserStores(
+            @PathVariable Long id,
+            @Valid @RequestBody UserDto.UserStoresUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails currentUser) {
+
+        UserDto.Response response = adminUserService.updateUserStores(
+                id, request, Role.valueOf(currentUser.getRole()), currentUser.getBrandId());
+
+        return ResponseEntity.ok(ApiResponse.ok(response, "User stores updated"));
+    }
 }
