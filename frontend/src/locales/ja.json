@@ -183,7 +183,21 @@
     "confirmed": "入荷が確定されました",
     "confirmFailed": "入荷の確定に失敗しました",
     "created": "入荷が作成されました",
-    "createFailed": "入荷の作成に失敗しました"
+    "createFailed": "入荷の作成に失敗しました",
+    "fromOrder": {
+      "title": "入荷待ち発注",
+      "noOrders": "入荷待ちの発注なし",
+      "ordered": "発注",
+      "received": "入荷",
+      "receive": "入荷",
+      "receiveOrder": "発注入荷",
+      "match": "一致",
+      "partial": "一部",
+      "confirmReceive": "入荷確認",
+      "success": "発注の入荷が完了しました",
+      "failed": "発注の入荷に失敗しました",
+      "loadFailed": "入荷待ち発注の読み込みに失敗しました"
+    }
   },
   "waste": {
     "title": "廃棄",

@@ -103,6 +103,23 @@ export interface AdjustResponse {
   delta: number;
 }
 
+// Order Receiving types
+export interface PendingOrderLine {
+  packagingId: number;
+  packName: string;
+  itemName: string;
+  orderedPackQty: number;
+}
+
+export interface PendingOrder {
+  orderPlanId: number;
+  supplierId: number;
+  supplierName: string;
+  status: string;
+  lines: PendingOrderLine[];
+  createdAt: string;
+}
+
 export const inventoryApi = {
   getSnapshot: (storeId: number) =>
     client.get<ApiResponse<InventorySnapshot[]>>('/inventory/snapshot', { params: { storeId } }),
@@ -149,4 +166,10 @@ export const inventoryApi = {
   // Adjust
   adjustStock: (data: { storeId: number; itemId: number; newQtyBaseUnit: number; memo?: string }) =>
     client.post<ApiResponse<AdjustResponse>>('/inventory/adjust', data),
+
+  // Order Receiving
+  getPendingOrders: (storeId: number) =>
+    client.get<ApiResponse<PendingOrder[]>>('/receiving/pending-orders', { params: { storeId } }),
+  receiveFromOrder: (orderPlanId: number, data: { lines: Array<{ packagingId: number; packQty: number; lotNo?: string; expDate?: string }> }) =>
+    client.post<ApiResponse<Delivery>>(`/receiving/from-order/${orderPlanId}`, data),
 };

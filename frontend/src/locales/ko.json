@@ -183,7 +183,21 @@
     "confirmed": "입고가 확정되었습니다",
     "confirmFailed": "입고 확정에 실패했습니다",
     "created": "입고가 생성되었습니다",
-    "createFailed": "입고 생성에 실패했습니다"
+    "createFailed": "입고 생성에 실패했습니다",
+    "fromOrder": {
+      "title": "입고 대기 발주",
+      "noOrders": "대기 중인 발주 없음",
+      "ordered": "발주",
+      "received": "입고",
+      "receive": "입고",
+      "receiveOrder": "발주 입고",
+      "match": "일치",
+      "partial": "부분",
+      "confirmReceive": "입고 확인",
+      "success": "발주 입고가 완료되었습니다",
+      "failed": "발주 입고에 실패했습니다",
+      "loadFailed": "대기 발주를 불러오지 못했습니다"
+    }
   },
   "waste": {
     "title": "폐기",

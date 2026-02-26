@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
-import { inventoryApi, type Delivery, type DeliveryScan } from '@/api/inventory';
+import { inventoryApi, type Delivery, type DeliveryScan, type PendingOrder } from '@/api/inventory';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,13 @@ import {
   type PendingScan,
 } from '@/lib/offlineSync';
 
+interface ReceiveLine {
+  packagingId: number;
+  packQty: number;
+  lotNo: string;
+  expDate: string;
+}
+
 export default function ReceivingPage() {
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null);
@@ -31,6 +38,13 @@ export default function ReceivingPage() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingScans, setPendingScans] = useState<PendingScan[]>([]);
+
+  // Order receiving state
+  const [pendingOrders, setPendingOrders] = useState<PendingOrder[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<PendingOrder | null>(null);
+  const [receiveLines, setReceiveLines] = useState<ReceiveLine[]>([]);
+  const [receiving, setReceiving] = useState(false);
+
   const { user } = useAuthStore();
   const storeId = user?.storeId ?? 1;
   const { t } = useTranslation();
@@ -59,7 +73,14 @@ export default function ReceivingPage() {
     } catch { toast.error(t('receiving.loadFailed')); }
   }, [storeId, t]);
 
-  useEffect(() => { loadDeliveries(); }, [loadDeliveries]);
+  const loadPendingOrders = useCallback(async () => {
+    try {
+      const res = await inventoryApi.getPendingOrders(storeId);
+      setPendingOrders(res.data.data);
+    } catch { toast.error(t('receiving.fromOrder.loadFailed')); }
+  }, [storeId, t]);
+
+  useEffect(() => { loadDeliveries(); loadPendingOrders(); }, [loadDeliveries, loadPendingOrders]);
 
   const openScanView = async (delivery: Delivery) => {
     setSelectedDelivery(delivery);
@@ -153,6 +174,144 @@ export default function ReceivingPage() {
     } catch { toast.error(t('receiving.createFailed')); }
   };
 
+  // Open order receiving view
+  const openOrderReceive = (order: PendingOrder) => {
+    setSelectedOrder(order);
+    setReceiveLines(order.lines.map(line => ({
+      packagingId: line.packagingId,
+      packQty: line.orderedPackQty,
+      lotNo: '',
+      expDate: '',
+    })));
+  };
+
+  const updateReceiveLine = (index: number, field: keyof ReceiveLine, value: string | number) => {
+    setReceiveLines(prev => prev.map((line, i) =>
+      i === index ? { ...line, [field]: value } : line
+    ));
+  };
+
+  const handleReceiveFromOrder = async () => {
+    if (!selectedOrder) return;
+    const validLines = receiveLines.filter(l => l.packQty > 0);
+    if (validLines.length === 0) return;
+
+    setReceiving(true);
+    try {
+      await inventoryApi.receiveFromOrder(selectedOrder.orderPlanId, {
+        lines: validLines.map(l => ({
+          packagingId: l.packagingId,
+          packQty: l.packQty,
+          ...(l.lotNo ? { lotNo: l.lotNo } : {}),
+          ...(l.expDate ? { expDate: l.expDate } : {}),
+        })),
+      });
+      if (navigator.vibrate) navigator.vibrate(200);
+      toast.success(t('receiving.fromOrder.success'));
+      setSelectedOrder(null);
+      loadDeliveries();
+      loadPendingOrders();
+    } catch {
+      toast.error(t('receiving.fromOrder.failed'));
+    } finally {
+      setReceiving(false);
+    }
+  };
+
+  // Order receive view
+  if (selectedOrder) {
+    return (
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="outline" size="lg" onClick={() => setSelectedOrder(null)}>
+            &larr;
+          </Button>
+          <h2 className="text-xl font-bold flex-1">{t('receiving.fromOrder.receiveOrder')}</h2>
+          <Badge>{selectedOrder.status}</Badge>
+        </div>
+
+        <Card className="mb-4">
+          <CardContent className="py-3">
+            <p className="text-sm text-gray-500">{t('ordering.supplier')}</p>
+            <p className="font-medium">{selectedOrder.supplierName}</p>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-3 mb-6">
+          {selectedOrder.lines.map((line, idx) => {
+            const receiveLine = receiveLines[idx];
+            const isMatch = receiveLine && receiveLine.packQty === line.orderedPackQty;
+            const isPartial = receiveLine && receiveLine.packQty > 0 && receiveLine.packQty < line.orderedPackQty;
+
+            return (
+              <Card key={line.packagingId} className={`border-2 ${isMatch ? 'border-green-300' : isPartial ? 'border-yellow-300' : 'border-gray-200'}`}>
+                <CardContent className="py-3 space-y-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium">{line.itemName}</p>
+                      <p className="text-sm text-gray-500">{line.packName}</p>
+                    </div>
+                    <div className="text-right">
+                      {isMatch && <Badge className="bg-green-100 text-green-800">{t('receiving.fromOrder.match')}</Badge>}
+                      {isPartial && <Badge className="bg-yellow-100 text-yellow-800">{t('receiving.fromOrder.partial')}</Badge>}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs text-gray-500">{t('receiving.fromOrder.ordered')}</Label>
+                      <div className="text-lg font-bold text-gray-600">{line.orderedPackQty}</div>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500">{t('receiving.fromOrder.received')}</Label>
+                      <Input
+                        type="number"
+                        value={receiveLine?.packQty ?? 0}
+                        onChange={(e) => updateReceiveLine(idx, 'packQty', Math.max(0, Number(e.target.value)))}
+                        className="h-10 text-lg font-bold"
+                        inputMode="numeric"
+                        min={0}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs text-gray-500">LOT No.</Label>
+                      <Input
+                        value={receiveLine?.lotNo ?? ''}
+                        onChange={(e) => updateReceiveLine(idx, 'lotNo', e.target.value)}
+                        className="h-9 text-sm"
+                        placeholder="Optional"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500">{t('expiry.expDate')}</Label>
+                      <Input
+                        type="date"
+                        value={receiveLine?.expDate ?? ''}
+                        onChange={(e) => updateReceiveLine(idx, 'expDate', e.target.value)}
+                        className="h-9 text-sm"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        <Button
+          onClick={handleReceiveFromOrder}
+          className="w-full h-14 text-lg bg-green-700 hover:bg-green-800"
+          disabled={receiving || receiveLines.every(l => l.packQty === 0)}
+        >
+          {receiving ? t('common.processing') : t('receiving.fromOrder.confirmReceive')}
+        </Button>
+      </div>
+    );
+  }
+
   // Delivery scan view
   if (selectedDelivery) {
     const deliveryPending = pendingScans.filter(
@@ -172,7 +331,7 @@ export default function ReceivingPage() {
 
         <div className="flex items-center gap-3 mb-4">
           <Button variant="outline" size="lg" onClick={() => setSelectedDelivery(null)}>
-            ←
+            &larr;
           </Button>
           <h2 className="text-xl font-bold flex-1">{t('receiving.deliveryPrefix', { id: selectedDelivery.id })}</h2>
           <Badge>{selectedDelivery.status}</Badge>
@@ -301,6 +460,37 @@ export default function ReceivingPage() {
         </div>
       )}
 
+      {/* Pending Orders Section */}
+      {pendingOrders.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">{t('receiving.fromOrder.title')}</h3>
+          <div className="space-y-2">
+            {pendingOrders.map((order) => (
+              <Card key={order.orderPlanId} className="border-blue-200 bg-blue-50 cursor-pointer" onClick={() => openOrderReceive(order)}>
+                <CardContent className="py-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <div>
+                      <span className="font-bold">#{order.orderPlanId}</span>
+                      <span className="text-gray-600 ml-2">{order.supplierName}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">{t(`ordering.status.${order.status}`)}</Badge>
+                      <Button size="sm" className="bg-blue-800 hover:bg-blue-900">
+                        {t('receiving.fromOrder.receive')}
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {order.lines.map(l => `${l.itemName} x${l.orderedPackQty}`).join(', ')}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Existing deliveries */}
       <div className="space-y-2">
         {deliveries.map((d) => (
           <SwipeableCard key={d.id} onSwipeRight={() => openScanView(d)} rightLabel="Open">
@@ -317,7 +507,7 @@ export default function ReceivingPage() {
             </Card>
           </SwipeableCard>
         ))}
-        {deliveries.length === 0 && (
+        {deliveries.length === 0 && pendingOrders.length === 0 && (
           <p className="text-center text-gray-500 py-12">{t('receiving.noDeliveries')}</p>
         )}
       </div>

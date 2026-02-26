@@ -183,7 +183,21 @@
     "confirmed": "Delivery confirmed",
     "confirmFailed": "Failed to confirm delivery",
     "created": "Delivery created",
-    "createFailed": "Failed to create delivery"
+    "createFailed": "Failed to create delivery",
+    "fromOrder": {
+      "title": "Pending Orders",
+      "noOrders": "No pending orders",
+      "ordered": "Ordered",
+      "received": "Received",
+      "receive": "Receive",
+      "receiveOrder": "Receive Order",
+      "match": "Match",
+      "partial": "Partial",
+      "confirmReceive": "Confirm Receive",
+      "success": "Order received successfully",
+      "failed": "Failed to receive order",
+      "loadFailed": "Failed to load pending orders"
+    }
   },
   "waste": {
     "title": "Waste",

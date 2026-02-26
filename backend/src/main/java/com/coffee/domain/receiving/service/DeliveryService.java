@@ -4,10 +4,20 @@ import com.coffee.common.exception.BusinessException;
 import com.coffee.common.exception.ResourceNotFoundException;
 import com.coffee.domain.inventory.entity.LedgerType;
 import com.coffee.domain.inventory.service.InventoryService;
+import com.coffee.domain.master.entity.Item;
 import com.coffee.domain.master.entity.Packaging;
+import com.coffee.domain.master.entity.Supplier;
+import com.coffee.domain.master.repository.ItemRepository;
 import com.coffee.domain.master.repository.PackagingRepository;
+import com.coffee.domain.master.repository.SupplierRepository;
+import com.coffee.domain.ordering.entity.OrderLine;
+import com.coffee.domain.ordering.entity.OrderPlan;
+import com.coffee.domain.ordering.entity.OrderStatus;
+import com.coffee.domain.ordering.repository.OrderLineRepository;
+import com.coffee.domain.ordering.repository.OrderPlanRepository;
 import com.coffee.domain.receiving.dto.DeliveryDto;
 import com.coffee.domain.receiving.dto.DeliveryScanDto;
+import com.coffee.domain.receiving.dto.OrderReceivingDto;
 import com.coffee.domain.receiving.entity.Delivery;
 import com.coffee.domain.receiving.entity.DeliveryScan;
 import com.coffee.domain.receiving.entity.DeliveryStatus;
@@ -20,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +41,10 @@ public class DeliveryService {
     private final DeliveryScanRepository scanRepository;
     private final PackagingRepository packagingRepository;
     private final InventoryService inventoryService;
+    private final OrderPlanRepository orderPlanRepository;
+    private final OrderLineRepository orderLineRepository;
+    private final SupplierRepository supplierRepository;
+    private final ItemRepository itemRepository;
 
     public List<DeliveryDto.Response> findByStoreId(Long storeId) {
         return deliveryRepository.findByStoreIdOrderByCreatedAtDesc(storeId).stream()
@@ -115,6 +130,98 @@ public class DeliveryService {
 
         delivery.setStatus(DeliveryStatus.COMPLETED);
         return toResponse(deliveryRepository.save(delivery));
+    }
+
+    public List<OrderReceivingDto.PendingOrderResponse> getPendingOrders(Long storeId) {
+        List<OrderPlan> plans = orderPlanRepository.findByStoreIdOrderByCreatedAtDesc(storeId).stream()
+                .filter(p -> p.getStatus() == OrderStatus.CONFIRMED || p.getStatus() == OrderStatus.DISPATCHED
+                        || p.getStatus() == OrderStatus.PARTIALLY_RECEIVED)
+                .toList();
+
+        return plans.stream().map(plan -> {
+            Supplier supplier = supplierRepository.findById(plan.getSupplierId()).orElse(null);
+            List<OrderLine> lines = orderLineRepository.findByOrderPlanId(plan.getId());
+            List<OrderReceivingDto.OrderLineDetail> lineDetails = lines.stream()
+                    .map(line -> {
+                        Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
+                        Item item = pkg != null ? itemRepository.findById(pkg.getItemId()).orElse(null) : null;
+                        return OrderReceivingDto.OrderLineDetail.builder()
+                                .packagingId(line.getPackagingId())
+                                .packName(pkg != null ? pkg.getPackName() : "Unknown")
+                                .itemName(item != null ? item.getName() : "Unknown")
+                                .orderedPackQty(line.getPackQty())
+                                .build();
+                    }).toList();
+
+            return OrderReceivingDto.PendingOrderResponse.builder()
+                    .orderPlanId(plan.getId())
+                    .supplierId(plan.getSupplierId())
+                    .supplierName(supplier != null ? supplier.getName() : "Unknown")
+                    .status(plan.getStatus().name())
+                    .lines(lineDetails)
+                    .createdAt(plan.getCreatedAt())
+                    .build();
+        }).toList();
+    }
+
+    @Transactional
+    public DeliveryDto.Response receiveFromOrder(Long orderPlanId, OrderReceivingDto.ReceiveRequest request, Long userId) {
+        OrderPlan plan = orderPlanRepository.findById(orderPlanId)
+                .orElseThrow(() -> new ResourceNotFoundException("OrderPlan", orderPlanId));
+
+        if (plan.getStatus() != OrderStatus.CONFIRMED && plan.getStatus() != OrderStatus.DISPATCHED
+                && plan.getStatus() != OrderStatus.PARTIALLY_RECEIVED) {
+            throw new BusinessException("Order is not in a receivable status", HttpStatus.BAD_REQUEST);
+        }
+
+        // Create delivery linked to order plan
+        Delivery delivery = Delivery.builder()
+                .storeId(plan.getStoreId())
+                .supplierId(plan.getSupplierId())
+                .orderPlanId(orderPlanId)
+                .status(DeliveryStatus.COMPLETED)
+                .build();
+        deliveryRepository.save(delivery);
+
+        // Process each receive line
+        for (OrderReceivingDto.ReceiveLine line : request.getLines()) {
+            Packaging packaging = packagingRepository.findById(line.getPackagingId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Packaging", line.getPackagingId()));
+
+            BigDecimal totalQty = packaging.getUnitsPerPack().multiply(new BigDecimal(line.getPackQty()));
+            inventoryService.recordStockChange(
+                    plan.getStoreId(),
+                    packaging.getItemId(),
+                    totalQty,
+                    LedgerType.RECEIVE,
+                    "ORDER_DELIVERY",
+                    delivery.getId(),
+                    "From order #" + orderPlanId,
+                    userId,
+                    line.getExpDate(),
+                    line.getLotNo()
+            );
+        }
+
+        // Compare received vs ordered to determine status
+        List<OrderLine> orderedLines = orderLineRepository.findByOrderPlanId(orderPlanId);
+        Map<Long, Integer> orderedQtyMap = new java.util.HashMap<>();
+        for (OrderLine ol : orderedLines) {
+            orderedQtyMap.merge(ol.getPackagingId(), ol.getPackQty(), Integer::sum);
+        }
+
+        Map<Long, Integer> receivedQtyMap = new java.util.HashMap<>();
+        for (OrderReceivingDto.ReceiveLine rl : request.getLines()) {
+            receivedQtyMap.merge(rl.getPackagingId(), rl.getPackQty(), Integer::sum);
+        }
+
+        boolean fullReceive = orderedQtyMap.entrySet().stream()
+                .allMatch(e -> receivedQtyMap.getOrDefault(e.getKey(), 0) >= e.getValue());
+
+        plan.setStatus(fullReceive ? OrderStatus.DELIVERED : OrderStatus.PARTIALLY_RECEIVED);
+        orderPlanRepository.save(plan);
+
+        return toResponse(delivery);
     }
 
     private Delivery getOrThrow(Long id) {

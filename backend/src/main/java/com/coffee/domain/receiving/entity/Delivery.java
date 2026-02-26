@@ -28,6 +28,9 @@ public class Delivery {
     @Column(name = "expected_at")
     private LocalDate expectedAt;
 
+    @Column(name = "order_plan_id")
+    private Long orderPlanId;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private DeliveryStatus status = DeliveryStatus.PENDING;
