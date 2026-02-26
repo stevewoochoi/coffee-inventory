@@ -69,6 +69,39 @@ export interface OrderNeedsResponse {
   predicted: NeedsItem[];
 }
 
+// Cart types
+export interface CartItemResponse {
+  id: number;
+  packagingId: number;
+  packName: string;
+  itemId: number;
+  itemName: string | null;
+  unitsPerPack: number;
+  packQty: number;
+  price: number;
+  lineTotal: number;
+}
+
+export interface CartSupplierGroup {
+  supplierId: number;
+  supplierName: string;
+  items: CartItemResponse[];
+  subtotal: number;
+}
+
+export interface CartResponse {
+  cartId: number | null;
+  storeId: number;
+  supplierGroups: CartSupplierGroup[];
+  grandTotal: number;
+  totalItems: number;
+}
+
+export interface ConfirmResponse {
+  orderPlanIds: number[];
+  orderCount: number;
+}
+
 export const orderingApi = {
   getPlans: (storeId: number) =>
     client.get<ApiResponse<OrderPlan[]>>('/ordering/plans', { params: { storeId } }),
@@ -99,4 +132,23 @@ export const orderingApi = {
     client.get<ApiResponse<OrderNeedsResponse>>('/ordering/needs', {
       params: { storeId, brandId },
     }),
+
+  // Cart API
+  getCart: (storeId: number, userId: number) =>
+    client.get<ApiResponse<CartResponse>>('/ordering/cart', { params: { storeId, userId } }),
+
+  addToCart: (storeId: number, userId: number, data: { packagingId: number; supplierId: number; packQty: number }) =>
+    client.post<ApiResponse<CartResponse>>('/ordering/cart/items', data, { params: { storeId, userId } }),
+
+  updateCartItem: (storeId: number, userId: number, itemId: number, data: { packQty: number }) =>
+    client.put<ApiResponse<CartResponse>>(`/ordering/cart/items/${itemId}`, data, { params: { storeId, userId } }),
+
+  removeCartItem: (storeId: number, userId: number, itemId: number) =>
+    client.delete<ApiResponse<CartResponse>>(`/ordering/cart/items/${itemId}`, { params: { storeId, userId } }),
+
+  clearCart: (storeId: number, userId: number) =>
+    client.delete<ApiResponse<CartResponse>>('/ordering/cart', { params: { storeId, userId } }),
+
+  confirmCart: (storeId: number, userId: number) =>
+    client.post<ApiResponse<ConfirmResponse>>('/ordering/cart/confirm', null, { params: { storeId, userId } }),
 };
