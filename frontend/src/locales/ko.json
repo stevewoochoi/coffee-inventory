@@ -135,7 +135,27 @@
     "itemPrefix": "부재료 #{{id}}",
     "lowBadge": "부족",
     "noData": "재고 데이터 없음",
-    "loadFailed": "재고를 불러오지 못했습니다"
+    "loadFailed": "재고를 불러오지 못했습니다",
+    "forecast": {
+      "daysLeft": "{{days}}일 남음",
+      "noUsage": "사용 내역 없음",
+      "avgUsage": "{{qty}}",
+      "sort": {
+        "name": "이름순",
+        "lowStock": "재고부족순",
+        "daysLeft": "소진임박순"
+      }
+    },
+    "adjust": {
+      "button": "재고 조정",
+      "title": "재고 조정",
+      "currentQty": "현재 수량",
+      "actualQty": "실제 수량",
+      "memo": "사유",
+      "memoPlaceholder": "예: 실사, 파손",
+      "success": "재고가 조정되었습니다",
+      "failed": "재고 조정에 실패했습니다"
+    }
   },
   "receiving": {
     "title": "입고",

@@ -135,7 +135,27 @@
     "itemPrefix": "Item #{{id}}",
     "lowBadge": "LOW",
     "noData": "No inventory data",
-    "loadFailed": "Failed to load inventory"
+    "loadFailed": "Failed to load inventory",
+    "forecast": {
+      "daysLeft": "{{days}} days left",
+      "noUsage": "No usage",
+      "avgUsage": "{{qty}}",
+      "sort": {
+        "name": "Name",
+        "lowStock": "Low Stock",
+        "daysLeft": "Days Left"
+      }
+    },
+    "adjust": {
+      "button": "Adjust Stock",
+      "title": "Stock Adjustment",
+      "currentQty": "Current Quantity",
+      "actualQty": "Actual Quantity",
+      "memo": "Memo",
+      "memoPlaceholder": "e.g., physical count, spill",
+      "success": "Stock adjusted successfully",
+      "failed": "Failed to adjust stock"
+    }
   },
   "receiving": {
     "title": "Receiving",

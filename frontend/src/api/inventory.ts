@@ -76,6 +76,33 @@ export interface WasteRecord {
   createdAt: string;
 }
 
+// Forecast types
+export interface ItemForecast {
+  itemId: number;
+  itemName: string;
+  category: string;
+  baseUnit: string;
+  currentStock: number;
+  minStock: number;
+  avgDailyUsage: number;
+  daysUntilEmpty: number;
+  fillPercentage: number;
+  trend: 'UP' | 'DOWN' | 'STABLE';
+}
+
+export interface ForecastResponse {
+  storeId: number;
+  items: ItemForecast[];
+}
+
+export interface AdjustResponse {
+  storeId: number;
+  itemId: number;
+  previousQty: number;
+  newQty: number;
+  delta: number;
+}
+
 export const inventoryApi = {
   getSnapshot: (storeId: number) =>
     client.get<ApiResponse<InventorySnapshot[]>>('/inventory/snapshot', { params: { storeId } }),
@@ -114,4 +141,12 @@ export const inventoryApi = {
   // Lot Snapshots
   getSnapshotLots: (storeId: number, itemId: number) =>
     client.get<ApiResponse<InventorySnapshot[]>>('/inventory/snapshot/lots', { params: { storeId, itemId } }),
+
+  // Forecast
+  getForecast: (storeId: number, brandId?: number) =>
+    client.get<ApiResponse<ForecastResponse>>('/inventory/forecast', { params: { storeId, brandId } }),
+
+  // Adjust
+  adjustStock: (data: { storeId: number; itemId: number; newQtyBaseUnit: number; memo?: string }) =>
+    client.post<ApiResponse<AdjustResponse>>('/inventory/adjust', data),
 };

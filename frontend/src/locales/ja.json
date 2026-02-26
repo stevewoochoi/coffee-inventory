@@ -135,7 +135,27 @@
     "itemPrefix": "副資材 #{{id}}",
     "lowBadge": "不足",
     "noData": "在庫データなし",
-    "loadFailed": "在庫の読み込みに失敗しました"
+    "loadFailed": "在庫の読み込みに失敗しました",
+    "forecast": {
+      "daysLeft": "残り{{days}}日",
+      "noUsage": "使用履歴なし",
+      "avgUsage": "{{qty}}",
+      "sort": {
+        "name": "名前順",
+        "lowStock": "在庫不足順",
+        "daysLeft": "枯渇順"
+      }
+    },
+    "adjust": {
+      "button": "在庫調整",
+      "title": "在庫調整",
+      "currentQty": "現在数量",
+      "actualQty": "実数量",
+      "memo": "理由",
+      "memoPlaceholder": "例：棚卸、破損",
+      "success": "在庫が調整されました",
+      "failed": "在庫の調整に失敗しました"
+    }
   },
   "receiving": {
     "title": "入荷",
