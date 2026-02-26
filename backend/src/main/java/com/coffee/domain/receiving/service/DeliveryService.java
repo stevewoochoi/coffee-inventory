@@ -219,6 +219,9 @@ public class DeliveryService {
                 .allMatch(e -> receivedQtyMap.getOrDefault(e.getKey(), 0) >= e.getValue());
 
         plan.setStatus(fullReceive ? OrderStatus.DELIVERED : OrderStatus.PARTIALLY_RECEIVED);
+        if (fullReceive) {
+            plan.setReceivedAt(java.time.LocalDateTime.now());
+        }
         orderPlanRepository.save(plan);
 
         return toResponse(delivery);

@@ -123,6 +123,21 @@ export interface OrderHistory {
   createdAt: string;
 }
 
+// Detailed response with timestamps
+export interface OrderDetailedResponse {
+  id: number;
+  storeId: number;
+  supplierId: number;
+  supplierName: string;
+  status: string;
+  recommendedByAi: boolean;
+  lines: HistoryLine[];
+  createdAt: string;
+  confirmedAt: string | null;
+  dispatchedAt: string | null;
+  receivedAt: string | null;
+}
+
 export const orderingApi = {
   getPlans: (storeId: number) =>
     client.get<ApiResponse<OrderPlan[]>>('/ordering/plans', { params: { storeId } }),
@@ -179,4 +194,8 @@ export const orderingApi = {
 
   reorder: (orderId: number, storeId: number) =>
     client.post<ApiResponse<CartResponse>>(`/ordering/reorder/${orderId}`, null, { params: { storeId } }),
+
+  // Detailed plan
+  getPlanDetail: (id: number) =>
+    client.get<ApiResponse<OrderDetailedResponse>>(`/ordering/plans/${id}/detail`),
 };

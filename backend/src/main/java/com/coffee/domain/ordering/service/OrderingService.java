@@ -74,6 +74,7 @@ public class OrderingService {
             throw new BusinessException("Only DRAFT orders can be confirmed", HttpStatus.BAD_REQUEST);
         }
         plan.setStatus(OrderStatus.CONFIRMED);
+        plan.setConfirmedAt(java.time.LocalDateTime.now());
         return toResponse(planRepository.save(plan));
     }
 
@@ -93,7 +94,47 @@ public class OrderingService {
                 .build());
 
         plan.setStatus(OrderStatus.DISPATCHED);
+        plan.setDispatchedAt(java.time.LocalDateTime.now());
         return toResponse(planRepository.save(plan));
+    }
+
+    public OrderPlanDto.DetailedResponse findByIdDetailed(Long id) {
+        OrderPlan plan = getOrThrow(id);
+        Supplier supplier = supplierRepository.findById(plan.getSupplierId()).orElse(null);
+        List<OrderLine> lines = lineRepository.findByOrderPlanId(plan.getId());
+
+        List<OrderPlanDto.HistoryLine> historyLines = lines.stream().map(line -> {
+            Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
+            Item item = pkg != null ? itemRepository.findById(pkg.getItemId()).orElse(null) : null;
+            BigDecimal price = supplierItemRepository
+                    .findBySupplierIdAndPackagingId(plan.getSupplierId(), line.getPackagingId())
+                    .map(SupplierItem::getPrice)
+                    .orElse(BigDecimal.ZERO);
+
+            return OrderPlanDto.HistoryLine.builder()
+                    .packagingId(line.getPackagingId())
+                    .packName(pkg != null ? pkg.getPackName() : "Unknown")
+                    .itemId(pkg != null ? pkg.getItemId() : null)
+                    .itemName(item != null ? item.getName() : "Unknown")
+                    .packQty(line.getPackQty())
+                    .unitsPerPack(pkg != null ? pkg.getUnitsPerPack() : BigDecimal.ZERO)
+                    .price(price)
+                    .build();
+        }).toList();
+
+        return OrderPlanDto.DetailedResponse.builder()
+                .id(plan.getId())
+                .storeId(plan.getStoreId())
+                .supplierId(plan.getSupplierId())
+                .supplierName(supplier != null ? supplier.getName() : "Unknown")
+                .status(plan.getStatus().name())
+                .recommendedByAi(plan.getRecommendedByAi())
+                .lines(historyLines)
+                .createdAt(plan.getCreatedAt())
+                .confirmedAt(plan.getConfirmedAt())
+                .dispatchedAt(plan.getDispatchedAt())
+                .receivedAt(plan.getReceivedAt())
+                .build();
     }
 
     public List<OrderPlanDto.HistoryResponse> getOrderHistory(Long storeId, int limit) {

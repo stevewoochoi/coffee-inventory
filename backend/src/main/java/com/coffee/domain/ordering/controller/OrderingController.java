@@ -44,6 +44,11 @@ public class OrderingController {
         return ResponseEntity.ok(ApiResponse.ok(orderingService.findById(id)));
     }
 
+    @GetMapping("/plans/{id}/detail")
+    public ResponseEntity<ApiResponse<OrderPlanDto.DetailedResponse>> findByIdDetailed(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.findByIdDetailed(id)));
+    }
+
     @PostMapping("/plans")
     public ResponseEntity<ApiResponse<OrderPlanDto.Response>> create(
             @Valid @RequestBody OrderPlanDto.CreateRequest request) {

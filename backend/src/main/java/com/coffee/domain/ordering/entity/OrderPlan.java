@@ -32,6 +32,15 @@ public class OrderPlan {
     @Builder.Default
     private Boolean recommendedByAi = false;
 
+    @Column(name = "confirmed_at")
+    private LocalDateTime confirmedAt;
+
+    @Column(name = "dispatched_at")
+    private LocalDateTime dispatchedAt;
+
+    @Column(name = "received_at")
+    private LocalDateTime receivedAt;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

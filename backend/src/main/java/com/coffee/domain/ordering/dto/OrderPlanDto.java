@@ -54,6 +54,23 @@ public class OrderPlanDto {
     @Getter
     @Builder
     @AllArgsConstructor
+    public static class DetailedResponse {
+        private Long id;
+        private Long storeId;
+        private Long supplierId;
+        private String supplierName;
+        private String status;
+        private Boolean recommendedByAi;
+        private List<HistoryLine> lines;
+        private LocalDateTime createdAt;
+        private LocalDateTime confirmedAt;
+        private LocalDateTime dispatchedAt;
+        private LocalDateTime receivedAt;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
     public static class HistoryLine {
         private Long packagingId;
         private String packName;
