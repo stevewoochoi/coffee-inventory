@@ -11,6 +11,17 @@ export interface StockStatus {
   normalCount: number;
   lowStockCount: number;
   outOfStockCount: number;
+  expiringCount: number;
+}
+
+export interface RecentOrder {
+  id: number;
+  status: string;
+  supplierName: string;
+  totalAmount: number;
+  createdAt: string;
+  deliveryDate: string | null;
+  itemCount: number;
 }
 
 export interface TopConsumption {
@@ -30,8 +41,11 @@ export interface StoreDashboard {
   urgentOrderCount: number;
   recommendedOrderCount: number;
   pendingReceivingCount: number;
+  pendingCartCount: number;
+  pendingClaimCount: number;
   stockStatus: StockStatus | null;
   topConsumption: TopConsumption[];
+  recentOrders: RecentOrder[];
 }
 
 export interface StoreSummary {

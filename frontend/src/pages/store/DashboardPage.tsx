@@ -4,7 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { dashboardApi, type StoreDashboard } from '@/api/dashboard';
+import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+const statusColor: Record<string, string> = {
+  DRAFT: 'bg-gray-100 text-gray-800',
+  CONFIRMED: 'bg-blue-100 text-blue-800',
+  DISPATCHED: 'bg-green-100 text-green-800',
+  CANCELLED: 'bg-red-100 text-red-800',
+  PARTIALLY_RECEIVED: 'bg-yellow-100 text-yellow-800',
+  DELIVERED: 'bg-emerald-100 text-emerald-800',
+};
 
 function TaskCard({ label, count, color, bgColor, onClick }: {
   label: string; count: number; color: string; bgColor: string; onClick?: () => void;
@@ -50,12 +60,19 @@ export default function StoreDashboardPage() {
 
   const stockStatus = data.stockStatus;
   const totalStockItems = stockStatus ? stockStatus.totalItems : 0;
+  const expiringCount = stockStatus?.expiringCount ?? 0;
   const normalPct = totalStockItems > 0 ? Math.round((stockStatus!.normalCount / totalStockItems) * 100) : 0;
   const lowPct = totalStockItems > 0 ? Math.round((stockStatus!.lowStockCount / totalStockItems) * 100) : 0;
   const outPct = totalStockItems > 0 ? Math.round((stockStatus!.outOfStockCount / totalStockItems) * 100) : 0;
+  const expiringPct = totalStockItems > 0 ? Math.round((expiringCount / totalStockItems) * 100) : 0;
 
   const today = new Date();
   const greeting = today.getHours() < 12 ? t('dashboard.goodMorning') : today.getHours() < 18 ? t('dashboard.goodAfternoon') : t('dashboard.goodEvening');
+
+  // Safe defaults for new fields (backward compatible with older API responses)
+  const pendingCartCount = data.pendingCartCount ?? 0;
+  const pendingClaimCount = data.pendingClaimCount ?? 0;
+  const recentOrders = data.recentOrders ?? [];
 
   return (
     <div className="space-y-6">
@@ -67,10 +84,10 @@ export default function StoreDashboardPage() {
         </p>
       </div>
 
-      {/* Today's Tasks */}
+      {/* Today's Tasks - 5 cards */}
       <div>
         <h3 className="text-lg font-semibold mb-3">{t('dashboard.todayTasks')}</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <TaskCard
             label={t('dashboard.urgentOrders')}
             count={data.urgentOrderCount}
@@ -79,10 +96,10 @@ export default function StoreDashboardPage() {
             onClick={() => navigate('/store/ordering/new')}
           />
           <TaskCard
-            label={t('dashboard.recommendedOrders')}
-            count={data.recommendedOrderCount}
-            color={data.recommendedOrderCount > 0 ? 'text-amber-700 border-amber-300' : 'text-gray-500 border-gray-200'}
-            bgColor={data.recommendedOrderCount > 0 ? 'bg-amber-50' : 'bg-gray-50'}
+            label={t('dashboard.pendingCart')}
+            count={pendingCartCount}
+            color={pendingCartCount > 0 ? 'text-amber-700 border-amber-300' : 'text-gray-500 border-gray-200'}
+            bgColor={pendingCartCount > 0 ? 'bg-amber-50' : 'bg-gray-50'}
             onClick={() => navigate('/store/ordering/new')}
           />
           <TaskCard
@@ -99,6 +116,13 @@ export default function StoreDashboardPage() {
             bgColor={data.expiryAlertCount > 0 ? 'bg-yellow-50' : 'bg-gray-50'}
             onClick={() => navigate('/store/expiry')}
           />
+          <TaskCard
+            label={t('dashboard.pendingClaims')}
+            count={pendingClaimCount}
+            color={pendingClaimCount > 0 ? 'text-purple-700 border-purple-300' : 'text-gray-500 border-gray-200'}
+            bgColor={pendingClaimCount > 0 ? 'bg-purple-50' : 'bg-gray-50'}
+            onClick={() => navigate('/store/claims')}
+          />
         </div>
       </div>
 
@@ -110,8 +134,9 @@ export default function StoreDashboardPage() {
             {normalPct > 0 && <div className="bg-green-500 transition-all" style={{ width: `${normalPct}%` }} />}
             {lowPct > 0 && <div className="bg-amber-500 transition-all" style={{ width: `${lowPct}%` }} />}
             {outPct > 0 && <div className="bg-red-500 transition-all" style={{ width: `${outPct}%` }} />}
+            {expiringPct > 0 && <div className="bg-orange-400 transition-all" style={{ width: `${expiringPct}%` }} />}
           </div>
-          <div className="flex gap-6 mt-3 text-sm">
+          <div className="flex flex-wrap gap-4 mt-3 text-sm">
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-green-500 inline-block" />
               {t('dashboard.normal')} {stockStatus.normalCount}
@@ -124,6 +149,53 @@ export default function StoreDashboardPage() {
               <span className="w-3 h-3 rounded-full bg-red-500 inline-block" />
               {t('dashboard.outOfStock')} {stockStatus.outOfStockCount}
             </span>
+            {expiringCount > 0 && (
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-orange-400 inline-block" />
+                {t('dashboard.expiring')} {expiringCount}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Recent Orders */}
+      {recentOrders.length > 0 && (
+        <div className="bg-white rounded-xl border p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">{t('dashboard.recentOrders')}</h3>
+            <button
+              onClick={() => navigate('/store/ordering/history')}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              {t('dashboard.viewAll')}
+            </button>
+          </div>
+          <div className="space-y-3">
+            {recentOrders.map((order) => (
+              <div
+                key={order.id}
+                className="flex items-center justify-between border rounded-lg p-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => navigate(`/store/ordering/${order.id}`)}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-sm">#{order.id}</span>
+                  <div>
+                    <p className="text-sm font-medium">{order.supplierName}</p>
+                    <p className="text-xs text-gray-500">
+                      {order.itemCount} {t('dashboard.items')}
+                      {order.deliveryDate && ` | ${t('dashboard.delivery')}: ${order.deliveryDate}`}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{'\u20A9'}{order.totalAmount.toLocaleString()}</span>
+                  <Badge className={statusColor[order.status] || ''}>
+                    {t(`ordering.status.${order.status}`)}
+                  </Badge>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -174,10 +246,10 @@ export default function StoreDashboardPage() {
         </div>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions - 5 buttons */}
       <div>
         <h3 className="text-lg font-semibold mb-3">{t('dashboard.quickActions')}</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 lg:grid-cols-5 gap-3">
           <button onClick={() => navigate('/store/ordering/new')}
             className="p-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 text-center min-h-[60px]">
             {t('dashboard.quickOrder')}
@@ -193,6 +265,10 @@ export default function StoreDashboardPage() {
           <button onClick={() => navigate('/store/waste')}
             className="p-4 bg-orange-600 text-white rounded-xl font-medium hover:bg-orange-700 text-center min-h-[60px]">
             {t('dashboard.quickWaste')}
+          </button>
+          <button onClick={() => navigate('/store/claims')}
+            className="p-4 bg-rose-600 text-white rounded-xl font-medium hover:bg-rose-700 text-center min-h-[60px]">
+            {t('dashboard.quickClaims')}
           </button>
         </div>
       </div>

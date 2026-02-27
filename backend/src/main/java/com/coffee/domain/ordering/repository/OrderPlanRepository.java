@@ -13,4 +13,6 @@ public interface OrderPlanRepository extends JpaRepository<OrderPlan, Long> {
 
     List<OrderPlan> findByStoreIdAndStatusInAndCreatedAtBetween(
             Long storeId, List<OrderStatus> statuses, LocalDateTime from, LocalDateTime to);
+
+    List<OrderPlan> findByStatusAndCutoffAtBefore(OrderStatus status, LocalDateTime cutoff);
 }

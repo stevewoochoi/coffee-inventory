@@ -7,6 +7,7 @@ import com.coffee.domain.ordering.dto.OrderNeedsDto;
 import com.coffee.domain.ordering.dto.OrderPlanDto;
 import com.coffee.domain.ordering.dto.OrderSuggestionDto;
 import com.coffee.domain.ordering.service.OrderCartService;
+import com.coffee.domain.ordering.service.OrderConfirmService;
 import com.coffee.domain.ordering.service.OrderNeedsService;
 import com.coffee.domain.ordering.service.OrderPdfService;
 import com.coffee.domain.ordering.service.OrderSuggestionService;
@@ -28,6 +29,7 @@ import java.util.List;
 public class OrderingController {
 
     private final OrderingService orderingService;
+    private final OrderConfirmService confirmService;
     private final OrderSuggestionService suggestionService;
     private final OrderNeedsService orderNeedsService;
     private final OrderPdfService orderPdfService;
@@ -96,6 +98,25 @@ public class OrderingController {
         return ResponseEntity.ok(ApiResponse.ok(
                 orderCartService.copyOrderToCart(storeId, userId, orderId),
                 "Order copied to cart"));
+    }
+
+    @PostMapping("/cart/{cartId}/confirm")
+    public ResponseEntity<ApiResponse<OrderPlanDto.ConfirmCartResponse>> confirmCart(
+            @PathVariable Long cartId) {
+        return ResponseEntity.ok(ApiResponse.ok(confirmService.confirmCart(cartId), "Cart confirmed"));
+    }
+
+    @PostMapping("/plans/{id}/cancel")
+    public ResponseEntity<ApiResponse<Void>> cancelOrder(@PathVariable Long id) {
+        confirmService.cancelOrder(id);
+        return ResponseEntity.ok(ApiResponse.ok(null, "Order cancelled"));
+    }
+
+    @PutMapping("/plans/{id}")
+    public ResponseEntity<ApiResponse<OrderPlanDto.Response>> modifyOrder(
+            @PathVariable Long id,
+            @Valid @RequestBody OrderPlanDto.ModifyRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok(confirmService.modifyOrder(id, request), "Order modified"));
     }
 
     @GetMapping("/plans/{id}/pdf")

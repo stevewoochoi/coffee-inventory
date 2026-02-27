@@ -80,4 +80,19 @@ public class OrderPlanDto {
         private BigDecimal unitsPerPack;
         private BigDecimal price;
     }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class ConfirmCartResponse {
+        private List<Long> orderPlanIds;
+        private int orderCount;
+        private BigDecimal totalAmount;
+    }
+
+    @Getter
+    @Setter
+    public static class ModifyRequest {
+        private List<OrderLineDto> lines;
+    }
 }
