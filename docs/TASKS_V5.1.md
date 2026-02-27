@@ -53,7 +53,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 ### TASK-054 | DB 스키마 보강 (Flyway V7__ordering_system.sql)
 
 **A. 배송정책 테이블 (정책 엔진 기반)**
-- [ ] `delivery_policy` 테이블 — 납품일/컷오프/센터 규칙을 코드에 하드코딩하지 않고 DB화
+- [x] `delivery_policy` 테이블 — 납품일/컷오프/센터 규칙을 코드에 하드코딩하지 않고 DB화
   ```sql
   CREATE TABLE delivery_policy (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -78,7 +78,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
     FOREIGN KEY (brand_id) REFERENCES brands(id)
   );
   ```
-- [ ] `store_delivery_policy` 매핑 테이블 (매장별 정책 배정)
+- [x] `store_delivery_policy` 매핑 테이블 (매장별 정책 배정)
   ```sql
   CREATE TABLE store_delivery_policy (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -89,7 +89,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
     FOREIGN KEY (delivery_policy_id) REFERENCES delivery_policy(id)
   );
   ```
-- [ ] `delivery_holiday` 테이블 (공휴일/배송불가일)
+- [x] `delivery_holiday` 테이블 (공휴일/배송불가일)
   ```sql
   CREATE TABLE delivery_holiday (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -101,7 +101,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
   ```
 
 **B. 부재료 카테고리**
-- [ ] `item_category` 테이블
+- [x] `item_category` 테이블
   ```sql
   CREATE TABLE item_category (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -120,7 +120,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
   ```
 
 **C. items 테이블 확장**
-- [ ] 컬럼 추가
+- [x] 컬럼 추가
   ```sql
   ALTER TABLE items ADD COLUMN category_id BIGINT;
   ALTER TABLE items ADD COLUMN lead_time_days INT DEFAULT 2;
@@ -131,7 +131,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
   ```
 
 **D. 장바구니 (매장 공유)**
-- [ ] `order_cart` 테이블
+- [x] `order_cart` 테이블
   ```sql
   CREATE TABLE order_cart (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -147,7 +147,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
     UNIQUE KEY (store_id, delivery_date, status)
   );
   ```
-- [ ] `order_cart_item` 테이블
+- [x] `order_cart_item` 테이블
   ```sql
   CREATE TABLE order_cart_item (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -169,7 +169,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
   ```
 
 **E. order_plan 테이블 확장**
-- [ ] 컬럼 추가
+- [x] 컬럼 추가
   ```sql
   ALTER TABLE order_plans ADD COLUMN delivery_date DATE;
   ALTER TABLE order_plans ADD COLUMN cutoff_at DATETIME;
@@ -182,7 +182,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
   ```
 
 **F. delivery 테이블 확장 (발주↔입고 연결)**
-- [ ] 컬럼 추가
+- [x] 컬럼 추가
   ```sql
   ALTER TABLE deliveries ADD COLUMN ref_type VARCHAR(20);
     -- 'ORDER_PLAN' / 'MANUAL' / 'BARCODE_SCAN'
@@ -191,7 +191,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
   ```
 
 **G. 클레임/반품 테이블**
-- [ ] `claim` 테이블
+- [x] `claim` 테이블
   ```sql
   CREATE TABLE claim (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -215,7 +215,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
     FOREIGN KEY (order_plan_id) REFERENCES order_plans(id)
   );
   ```
-- [ ] `claim_line` 테이블
+- [x] `claim_line` 테이블
   ```sql
   CREATE TABLE claim_line (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -228,7 +228,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
     FOREIGN KEY (claim_id) REFERENCES claim(id) ON DELETE CASCADE
   );
   ```
-- [ ] `claim_image` 테이블 (사진 첨부 — 할리스 PAPI_R0160 참고)
+- [x] `claim_image` 테이블 (사진 첨부 — 할리스 PAPI_R0160 참고)
   ```sql
   CREATE TABLE claim_image (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -240,7 +240,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
   ```
 
 **H. 재고실사 테이블 (할리스 PAPI_I0010~I0030 참고)**
-- [ ] `inventory_audit` 테이블
+- [x] `inventory_audit` 테이블
   ```sql
   CREATE TABLE inventory_audit (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -256,7 +256,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
     FOREIGN KEY (store_id) REFERENCES stores(id)
   );
   ```
-- [ ] `inventory_audit_line` 테이블
+- [x] `inventory_audit_line` 테이블
   ```sql
   CREATE TABLE inventory_audit_line (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -270,7 +270,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
   );
   ```
 
-- [ ] 테스트: 전체 마이그레이션 정상 적용 확인 (빌드 성공)
+- [x] 테스트: 전체 마이그레이션 정상 적용 확인 (빌드 성공)
 
 ---
 
@@ -278,7 +278,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 > **핵심**: 납품일/컷오프/리드타임/배송요일 규칙을 하드코딩하지 않고 정책 테이블 기반 캡슐화
 
-- [ ] `DeliveryPolicyService` 구현
+- [x] `DeliveryPolicyService` 구현
   ```java
   public class DeliveryPolicyService {
     DeliveryPolicy getStorePolicy(Long storeId);
@@ -288,13 +288,13 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
     OrderAvailability checkOrderAvailability(Long storeId, LocalDate deliveryDate);
   }
   ```
-- [ ] 납품일 계산 로직 (할리스/벤티 공통):
+- [x] 납품일 계산 로직 (할리스/벤티 공통):
   - 현재시각 < cutoff_time(09:00) → D+cutoff_lead_days_before (D+2)
   - 현재시각 >= cutoff_time(09:00) → D+cutoff_lead_days_after (D+3)
   - 배송요일(MON_WED_FRI 등) 해당일만 활성
   - delivery_holiday 공휴일 제외, 일요일 제외
   - 아이템별 lead_time_days > 정책 기본값이면 더 늦은 날짜부터 가능
-- [ ] GET /api/v1/ordering/delivery-dates?storeId={id}
+- [x] GET /api/v1/ordering/delivery-dates?storeId={id}
   ```json
   {
     "availableDates": [
@@ -306,10 +306,10 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
     "maxDisplayDays": 14
   }
   ```
-- [ ] GET /api/v1/ordering/availability?storeId={id}&deliveryDate={date}
+- [x] GET /api/v1/ordering/availability?storeId={id}&deliveryDate={date}
   - 할리스 PAPI_R0020(주문가능상태조회) 참고
   - Response: `{ "available": true, "deadline": "...", "remainingMinutes": 480 }`
-- [ ] 테스트: 리드타임/배송요일/시간대별/공휴일 케이스
+- [x] 테스트: 리드타임/배송요일/시간대별/공휴일 케이스
 
 ---
 
@@ -317,7 +317,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 > 할리스 PAPI_R0040(상품조회), PAPI_C0100~C0120(대/중/소분류) 참고
 
-- [ ] GET /api/v1/ordering/catalog?storeId={id}&deliveryDate={date}&categoryId={id}&keyword={검색어}&lowStockOnly={bool}&page&size
+- [x] GET /api/v1/ordering/catalog?storeId={id}&deliveryDate={date}&categoryId={id}&keyword={검색어}&lowStockOnly={bool}&page&size
   - **정책 엔진 통과**: 선택 납품일에 주문 가능한 상품만 필터링
   - Response (각 상품):
     ```json
@@ -336,8 +336,8 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
       "daysUntilEmpty": 2.1
     }
     ```
-- [ ] GET /api/v1/ordering/categories?brandId={id} — 3단계 카테고리 트리
-- [ ] 추천 발주 수량 (`OrderRecommendationService`)
+- [x] GET /api/v1/ordering/categories?brandId={id} — 3단계 카테고리 트리
+- [x] 추천 발주 수량 (`OrderRecommendationService`)
   ```
   avg_daily_usage = 최근 7~28일 사용량 / 일수
   demand = avg_daily_usage × (lead_time_days + safety_days)
@@ -346,7 +346,7 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
   pack_qty = ceil(recommended_qty / units_per_pack)
   pack_qty = min(pack_qty, max_order_qty)
   ```
-- [ ] 테스트: 납품일 필터링, 추천 수량, 카테고리 트리
+- [x] 테스트: 납품일 필터링, 추천 수량, 카테고리 트리
 
 ---
 
@@ -354,16 +354,16 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 > 벤티: 매장 단위 공유, 다른 기기에서도 이어서 작업(DB 저장)
 
-- [ ] POST /api/v1/ordering/cart — 장바구니 생성/추가
+- [x] POST /api/v1/ordering/cart — 장바구니 생성/추가
   - `{ storeId, deliveryDate, items: [{ itemId, packagingId, quantity }] }`
   - 매장+납품일 ACTIVE 장바구니 있으면 추가, 없으면 생성
   - 공급사 자동 매핑 (packaging → supplier_item)
   - 정책 엔진 검증
-- [ ] GET /api/v1/ordering/cart?storeId={id} — 공급사별 그룹핑 포함
-- [ ] PUT /api/v1/ordering/cart/items/{id} — 수량 변경
-- [ ] DELETE /api/v1/ordering/cart/items/{id} — 아이템 삭제
-- [ ] DELETE /api/v1/ordering/cart/{cartId} — 전체 삭제
-- [ ] 테스트: CRUD, 공유, 정책 검증
+- [x] GET /api/v1/ordering/cart?storeId={id} — 공급사별 그룹핑 포함
+- [x] PUT /api/v1/ordering/cart/items/{id} — 수량 변경
+- [x] DELETE /api/v1/ordering/cart/items/{id} — 아이템 삭제
+- [x] DELETE /api/v1/ordering/cart/{cartId} — 전체 삭제
+- [x] 테스트: CRUD, 공유, 정책 검증
 
 ---
 
@@ -371,27 +371,27 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 > 할리스 PAPI_R0060(주문등록), PAPI_R0090(주문수정/삭제) 참고
 
-- [ ] POST /api/v1/ordering/cart/{cartId}/confirm — 장바구니→발주 확정
+- [x] POST /api/v1/ordering/cart/{cartId}/confirm — 장바구니→발주 확정
   - 공급사별 OrderPlan 분리 생성 (status=CONFIRMED, fulfillment_status=PENDING)
   - cutoff_at / total_amount / vat_amount 계산
   - 장바구니 status=SUBMITTED
-- [ ] POST /api/v1/ordering/plans/{id}/cancel — 취소 (cutoff_at 이전만)
-- [ ] PUT /api/v1/ordering/plans/{id} — 수정 (CONFIRMED + cutoff 이전만)
-- [ ] 컷오프 자동확정 스케줄러 (`@Scheduled`)
+- [x] POST /api/v1/ordering/plans/{id}/cancel — 취소 (cutoff_at 이전만)
+- [x] PUT /api/v1/ordering/plans/{id} — 수정 (CONFIRMED + cutoff 이전만)
+- [x] 컷오프 자동확정 스케줄러 (`@Scheduled`)
   - 매일 09:00: CONFIRMED → DISPATCHED, auto_confirmed_at 기록
-- [ ] 테스트: 확정→취소→마감 흐름, VAT 계산
+- [x] 테스트: 확정→취소→마감 흐름, VAT 계산
 
 ---
 
 ### TASK-059 | 발주 화면 전면 개편 (React)
 
-- [ ] `/store/ordering` 발주 메인 (장바구니 현황 + 저재고 알림 + 최근발주 + 신규발주 버튼)
-- [ ] `/store/ordering/new` 신규 발주 — **3단계 흐름**:
+- [x] `/store/ordering` 발주 메인 (장바구니 현황 + 저재고 알림 + 최근발주 + 신규발주 버튼)
+- [x] `/store/ordering/new` 신규 발주 — **3단계 흐름**:
   - **STEP 1: 납품일 선택** — 캘린더(배송가능일만 활성), 배송타입/마감시간 안내
   - **STEP 2: 상품 선택** — 카테고리 탭, 검색, 저재고 상단, 소진예상일, +/- 수량, 사진/리스트 토글, 플로팅 장바구니 바
   - **STEP 3: 장바구니 & 발주 확정** — 공급사별 그룹핑, 수량 수정, VAT 포함 합계, 마감시간 안내, 확정 버튼
-- [ ] 발주 완료 화면 (요약 + 주문현황/메인 이동)
-- [ ] shadcn/ui + 모바일 최적화
+- [x] 발주 완료 화면 (요약 + 주문현황/메인 이동)
+- [x] shadcn/ui + 모바일 최적화
 
 ---
 
@@ -399,19 +399,19 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 > 할리스 PAPI_R0070~R0090 참고
 
-- [ ] GET /api/v1/ordering/plans?storeId&status&fulfillmentStatus&from&to
-- [ ] GET /api/v1/ordering/plans/{id}
-- [ ] `/store/ordering/history` — 상태별 탭, 발주 카드(상태 뱃지 + 풀필먼트 상태), 수정/취소/상세
-- [ ] 발주 상세 — 타임라인 (확정→전송→배송→입고) + 상품목록 + 금액
-- [ ] 발주 수정 (CONFIRMED + cutoff 이전만)
+- [x] GET /api/v1/ordering/plans?storeId&status&fulfillmentStatus&from&to
+- [x] GET /api/v1/ordering/plans/{id}
+- [x] `/store/ordering/history` — 상태별 탭, 발주 카드(상태 뱃지 + 풀필먼트 상태), 수정/취소/상세
+- [x] 발주 상세 — 타임라인 (확정→전송→배송→입고) + 상품목록 + 금액
+- [x] 발주 수정 (CONFIRMED + cutoff 이전만)
 
 ---
 
 ### TASK-061 | 빠른 재발주
 
-- [ ] GET /api/v1/ordering/history?storeId={id}&limit=10
-- [ ] POST /api/v1/ordering/reorder/{orderPlanId} — 장바구니 자동 채움 + 재고 반영 수량 재계산
-- [ ] React: 메인에서 "재발주" → 장바구니 이동
+- [x] GET /api/v1/ordering/history?storeId={id}&limit=10
+- [x] POST /api/v1/ordering/reorder/{orderPlanId} — 장바구니 자동 채움 + 재고 반영 수량 재계산
+- [x] React: 메인에서 "재발주" → 장바구니 이동
 
 ---
 
@@ -421,13 +421,13 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 > 할리스 PAPI_R0100(입고조회) 참고
 
-- [ ] GET /api/v1/receiving/pending?storeId={id} — 입고 대기 발주 목록
-- [ ] POST /api/v1/receiving/from-order/{orderPlanId} — Delivery + 라인 자동 생성 (ref_type='ORDER_PLAN')
-- [ ] PUT /api/v1/receiving/deliveries/{id}/lines/{lineId} — 입고수량/유통기한/LOT 수정
-- [ ] PUT /api/v1/receiving/deliveries/{id}/confirm — 입고 확정 → ledger RECEIVE + snapshot 갱신
+- [x] GET /api/v1/receiving/pending?storeId={id} — 입고 대기 발주 목록
+- [x] POST /api/v1/receiving/from-order/{orderPlanId} — Delivery + 라인 자동 생성 (ref_type='ORDER_PLAN')
+- [x] PUT /api/v1/receiving/deliveries/{id}/lines/{lineId} — 입고수량/유통기한/LOT 수정
+- [x] PUT /api/v1/receiving/deliveries/{id}/confirm — 입고 확정 → ledger RECEIVE + snapshot 갱신
   - 전체입고 → RECEIVED / 부분입고 → PARTIALLY_RECEIVED
-- [ ] `/store/receiving` — [발주 기반 입고] / [바코드 스캔 입고] 탭
-- [ ] 테스트: 발주→입고 연동, 부분입고, 불일치 추적
+- [x] `/store/receiving` — [발주 기반 입고] / [바코드 스캔 입고] 탭
+- [x] 테스트: 발주→입고 연동, 부분입고, 불일치 추적
 
 ---
 
@@ -437,18 +437,18 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 ### TASK-063 | 클레임 API
 
-- [ ] POST /api/v1/claims — 클레임 등록 (입고된 상품 기반)
-- [ ] POST /api/v1/claims/{id}/images — 사진 첨부
-- [ ] GET /api/v1/claims?storeId&status&from&to — 목록 조회
-- [ ] GET /api/v1/claims/{id} — 상세
-- [ ] PUT /api/v1/claims/{id}/resolve — 처리 완료 (관리자)
-- [ ] GET /api/v1/claims/categories — 클레임 분류 (할리스 PAPI_R0120)
+- [x] POST /api/v1/claims — 클레임 등록 (입고된 상품 기반)
+- [x] POST /api/v1/claims/{id}/images — 사진 첨부
+- [x] GET /api/v1/claims?storeId&status&from&to — 목록 조회
+- [x] GET /api/v1/claims/{id} — 상세
+- [x] PUT /api/v1/claims/{id}/resolve — 처리 완료 (관리자)
+- [x] GET /api/v1/claims/categories — 클레임 분류 (할리스 PAPI_R0120)
 
 ### TASK-064 | 클레임 화면 (React)
 
-- [ ] `/store/claims` — 상태별 탭, 클레임 카드
-- [ ] `/store/claims/new` — 입고 내역 기반 상품 선택, 유형, 사진 촬영/업로드, 설명
-- [ ] `/store/claims/{id}` — 타임라인, 사진 갤러리, 본사 답변
+- [x] `/store/claims` — 상태별 탭, 클레임 카드
+- [x] `/store/claims/new` — 입고 내역 기반 상품 선택, 유형, 사진 촬영/업로드, 설명
+- [x] `/store/claims/{id}` — 타임라인, 사진 갤러리, 본사 답변
 
 ---
 
@@ -458,18 +458,18 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 ### TASK-065 | 재고실사 API
 
-- [ ] GET /api/v1/inventory/audit/availability?storeId={id} — 실사 가능 여부
-- [ ] POST /api/v1/inventory/audit — 실사 시작 (inventory_snapshot 기반 라인 자동 생성)
-- [ ] GET /api/v1/inventory/audit?storeId={id} — 실사 목록
-- [ ] GET /api/v1/inventory/audit/{id} — 실사 상세
-- [ ] PUT /api/v1/inventory/audit/{id}/lines — 실제 수량 입력
-- [ ] PUT /api/v1/inventory/audit/{id}/complete — 완료 → StockLedger ADJUST 생성 → snapshot 갱신
+- [x] GET /api/v1/inventory/audit/availability?storeId={id} — 실사 가능 여부
+- [x] POST /api/v1/inventory/audit — 실사 시작 (inventory_snapshot 기반 라인 자동 생성)
+- [x] GET /api/v1/inventory/audit?storeId={id} — 실사 목록
+- [x] GET /api/v1/inventory/audit/{id} — 실사 상세
+- [x] PUT /api/v1/inventory/audit/{id}/lines — 실제 수량 입력
+- [x] PUT /api/v1/inventory/audit/{id}/complete — 완료 → StockLedger ADJUST 생성 → snapshot 갱신
 
 ### TASK-066 | 재고실사 화면 (React)
 
-- [ ] `/store/inventory/audit` — 목록
-- [ ] `/store/inventory/audit/new` — 품목 리스트, 실제 수량 입력, 차이 자동 계산, 카테고리 필터
-- [ ] `/store/inventory/audit/{id}` — 결과 (차이 요약, 금액 환산)
+- [x] `/store/inventory/audit` — 목록
+- [x] `/store/inventory/audit/new` — 품목 리스트, 실제 수량 입력, 차이 자동 계산, 카테고리 필터
+- [x] `/store/inventory/audit/{id}` — 결과 (차이 요약, 금액 환산)
 
 ---
 
@@ -477,11 +477,11 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 ### TASK-067 | 유통기한 알림 & FIFO
 
-- [ ] GET /api/v1/inventory/expiry-alerts?storeId={id} — D-7 이내 만료 임박 목록
-- [ ] GET /api/v1/inventory/snapshot/lots?storeId={id}&itemId={id} — LOT별 잔여수량 (FIFO 정렬)
-- [ ] 유통기한 알림 스케줄러 (매일 07:00) — D-7 주의, D-3 경고, D-0 만료
-- [ ] FIFO 차감 로직 (StockLedgerService) — 사용/판매 시 가장 오래된 LOT부터 차감
-- [ ] React: 유통기한 알림 위젯 + "폐기 등록" 바로가기
+- [x] GET /api/v1/inventory/expiry-alerts?storeId={id} — D-7 이내 만료 임박 목록
+- [x] GET /api/v1/inventory/snapshot/lots?storeId={id}&itemId={id} — LOT별 잔여수량 (FIFO 정렬)
+- [x] 유통기한 알림 스케줄러 (매일 07:00) — D-7 주의, D-3 경고, D-0 만료
+- [x] FIFO 차감 로직 (StockLedgerService) — 사용/판매 시 가장 오래된 LOT부터 차감
+- [x] React: 유통기한 알림 위젯 + "폐기 등록" 바로가기
 
 ---
 
@@ -489,14 +489,14 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 ### TASK-068 | 매장 대시보드 API
 
-- [ ] GET /api/v1/dashboard/store/{storeId}/today
+- [x] GET /api/v1/dashboard/store/{storeId}/today
   - todoCards: urgentOrderCount, pendingCartCount, pendingReceivingCount, expiryAlertCount, pendingClaimCount
   - inventorySummary: totalItems, normalCount, lowStockCount, outOfStockCount, expiringCount
   - recentOrders, consumptionTrend(7일)
 
 ### TASK-069 | 매장 대시보드 React 화면
 
-- [ ] `/store/dashboard` — 오늘 할 일 카드 5개, 재고 프로그레스바, 최근 발주, 빠른 액션 버튼 5개
+- [x] `/store/dashboard` — 오늘 할 일 카드 5개, 재고 프로그레스바, 최근 발주, 빠른 액션 버튼 5개
   - [🛒발주] [📦입고] [📋실사] [🗑폐기] [📞클레임]
 
 ---
@@ -505,13 +505,13 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 ### TASK-070 | 재고 현황 화면 개선
 
-- [ ] 재고 게이지 바, 소진 예상일, "발주하기"→장바구니 추가, 카테고리 필터, 정렬 옵션
+- [x] 재고 게이지 바, 소진 예상일, "발주하기"→장바구니 추가, 카테고리 필터, 정렬 옵션
 
 ### TASK-071 | 빠른 재고 조정 & 소진 예측
 
-- [ ] POST /api/v1/inventory/adjust — 빠른 조정 (AUDIT/DAMAGE/WASTE/OTHER)
-- [ ] GET /api/v1/inventory/forecast?storeId={id} — 소진 예상일 (최근 7일 평균)
-- [ ] 재고 카드 인라인 조정 모달
+- [x] POST /api/v1/inventory/adjust — 빠른 조정 (AUDIT/DAMAGE/WASTE/OTHER)
+- [x] GET /api/v1/inventory/forecast?storeId={id} — 소진 예상일 (최근 7일 평균)
+- [x] 재고 카드 인라인 조정 모달
 
 ---
 
@@ -521,14 +521,14 @@ SUBMITTED(접수) → IN_REVIEW(처리중) → RESOLVED(답변완료) → CLOSED
 
 ### TASK-072 | 풀필먼트 상태 관리 API (BRAND_ADMIN / FULFILLMENT 역할)
 
-- [ ] PUT /api/v1/admin/ordering/plans/{id}/fulfillment — 출고 상태 업데이트
-- [ ] GET /api/v1/admin/ordering/plans?status=DISPATCHED&fulfillmentStatus=PENDING — 처리 대기 목록
+- [x] PUT /api/v1/admin/ordering/plans/{id}/fulfillment — 출고 상태 업데이트
+- [x] GET /api/v1/admin/ordering/plans?status=DISPATCHED&fulfillmentStatus=PENDING — 처리 대기 목록
 
 ### TASK-073 | 품절관리 API (할리스 PAPI_M0010~M0040)
 
-- [ ] GET /api/v1/soldout/products?storeId={id} — 품절 상품 목록
-- [ ] POST /api/v1/soldout/register — 품절 등록
-- [ ] DELETE /api/v1/soldout/{id} — 품절 해제
+- [x] GET /api/v1/soldout/products?storeId={id} — 품절 상품 목록
+- [x] POST /api/v1/soldout/register — 품절 등록
+- [x] DELETE /api/v1/soldout/{id} — 품절 해제
 
 ---
 
