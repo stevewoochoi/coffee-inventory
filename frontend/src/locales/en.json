@@ -684,5 +684,60 @@
       "photos": "Photos",
       "resolution": "Resolution"
     }
+  },
+  "audit": {
+    "title": "Inventory Audit",
+    "newAudit": "New Audit",
+    "loadFailed": "Failed to load audits",
+    "createSuccess": "Audit started",
+    "createFailed": "Failed to create audit",
+    "noAudits": "No audits found",
+    "total": "Total",
+    "progress": "Progress",
+    "differences": "differences",
+    "status": {
+      "all": "All",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "filter": {
+      "all": "All",
+      "counted": "Counted",
+      "uncounted": "Uncounted",
+      "difference": "Differences"
+    },
+    "detail": {
+      "loadFailed": "Failed to load audit",
+      "notFound": "Audit not found",
+      "date": "Audit Date",
+      "created": "Created",
+      "completedAt": "Completed At",
+      "totalItems": "Total",
+      "counted": "Counted",
+      "uncounted": "Uncounted",
+      "searchItems": "Search items...",
+      "system": "System",
+      "actual": "Actual",
+      "diff": "Diff",
+      "edit": "Edit",
+      "count": "Count",
+      "notePlaceholder": "Note (optional)",
+      "invalidQty": "Please enter a valid quantity",
+      "lineUpdated": "Line updated",
+      "updateFailed": "Failed to update line",
+      "completed": "Audit completed",
+      "completeFailed": "Failed to complete audit",
+      "cancelled": "Audit cancelled",
+      "cancelFailed": "Failed to cancel audit",
+      "cancelAudit": "Cancel Audit",
+      "cancelTitle": "Cancel Audit",
+      "cancelDesc": "Are you sure you want to cancel this audit? All counted data will be discarded.",
+      "completeAudit": "Complete Audit",
+      "completeTitle": "Complete Audit",
+      "completeDesc": "Complete this audit? {{diffs}} item(s) have differences that will be adjusted.",
+      "summaryTitle": "Audit Results",
+      "summaryDesc": "{{total}} items audited, {{diffs}} item(s) had quantity differences."
+    }
   }
 }

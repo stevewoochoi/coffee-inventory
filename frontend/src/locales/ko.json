@@ -684,5 +684,60 @@
       "photos": "사진",
       "resolution": "처리 결과"
     }
+  },
+  "audit": {
+    "title": "재고실사",
+    "newAudit": "새 실사",
+    "loadFailed": "실사 목록을 불러오지 못했습니다",
+    "createSuccess": "실사가 시작되었습니다",
+    "createFailed": "실사 생성에 실패했습니다",
+    "noAudits": "실사 기록이 없습니다",
+    "total": "전체",
+    "progress": "진행",
+    "differences": "차이",
+    "status": {
+      "all": "전체",
+      "IN_PROGRESS": "진행중",
+      "COMPLETED": "완료",
+      "CANCELLED": "취소"
+    },
+    "filter": {
+      "all": "전체",
+      "counted": "카운트 완료",
+      "uncounted": "미카운트",
+      "difference": "차이 있음"
+    },
+    "detail": {
+      "loadFailed": "실사 상세를 불러오지 못했습니다",
+      "notFound": "실사를 찾을 수 없습니다",
+      "date": "실사일",
+      "created": "생성일",
+      "completedAt": "완료일",
+      "totalItems": "전체",
+      "counted": "카운트",
+      "uncounted": "미카운트",
+      "searchItems": "품목 검색...",
+      "system": "시스템",
+      "actual": "실제",
+      "diff": "차이",
+      "edit": "수정",
+      "count": "카운트",
+      "notePlaceholder": "메모 (선택사항)",
+      "invalidQty": "올바른 수량을 입력해 주세요",
+      "lineUpdated": "업데이트되었습니다",
+      "updateFailed": "업데이트에 실패했습니다",
+      "completed": "실사가 완료되었습니다",
+      "completeFailed": "실사 완료에 실패했습니다",
+      "cancelled": "실사가 취소되었습니다",
+      "cancelFailed": "실사 취소에 실패했습니다",
+      "cancelAudit": "실사 취소",
+      "cancelTitle": "실사 취소",
+      "cancelDesc": "이 실사를 취소하시겠습니까? 모든 카운트 데이터가 삭제됩니다.",
+      "completeAudit": "실사 완료",
+      "completeTitle": "실사 완료",
+      "completeDesc": "실사를 완료하시겠습니까? {{diffs}}건의 차이가 재고에 반영됩니다.",
+      "summaryTitle": "실사 결과",
+      "summaryDesc": "{{total}}개 품목 실사 완료, {{diffs}}건의 수량 차이가 있습니다."
+    }
   }
 }

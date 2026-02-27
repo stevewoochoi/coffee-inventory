@@ -684,5 +684,60 @@
       "photos": "写真",
       "resolution": "処理結果"
     }
+  },
+  "audit": {
+    "title": "棚卸",
+    "newAudit": "新規棚卸",
+    "loadFailed": "棚卸の読み込みに失敗しました",
+    "createSuccess": "棚卸が開始されました",
+    "createFailed": "棚卸の作成に失敗しました",
+    "noAudits": "棚卸記録がありません",
+    "total": "合計",
+    "progress": "進捗",
+    "differences": "差異",
+    "status": {
+      "all": "全て",
+      "IN_PROGRESS": "進行中",
+      "COMPLETED": "完了",
+      "CANCELLED": "キャンセル"
+    },
+    "filter": {
+      "all": "全て",
+      "counted": "カウント済み",
+      "uncounted": "未カウント",
+      "difference": "差異あり"
+    },
+    "detail": {
+      "loadFailed": "棚卸詳細の読み込みに失敗しました",
+      "notFound": "棚卸が見つかりません",
+      "date": "棚卸日",
+      "created": "作成日",
+      "completedAt": "完了日",
+      "totalItems": "合計",
+      "counted": "カウント",
+      "uncounted": "未カウント",
+      "searchItems": "品目検索...",
+      "system": "システム",
+      "actual": "実際",
+      "diff": "差異",
+      "edit": "編集",
+      "count": "カウント",
+      "notePlaceholder": "メモ（任意）",
+      "invalidQty": "有効な数量を入力してください",
+      "lineUpdated": "更新されました",
+      "updateFailed": "更新に失敗しました",
+      "completed": "棚卸が完了しました",
+      "completeFailed": "棚卸の完了に失敗しました",
+      "cancelled": "棚卸がキャンセルされました",
+      "cancelFailed": "棚卸のキャンセルに失敗しました",
+      "cancelAudit": "棚卸キャンセル",
+      "cancelTitle": "棚卸キャンセル",
+      "cancelDesc": "この棚卸をキャンセルしますか？すべてのカウントデータが削除されます。",
+      "completeAudit": "棚卸完了",
+      "completeTitle": "棚卸完了",
+      "completeDesc": "棚卸を完了しますか？{{diffs}}件の差異が在庫に反映されます。",
+      "summaryTitle": "棚卸結果",
+      "summaryDesc": "{{total}}品目を棚卸完了、{{diffs}}件の数量差異があります。"
+    }
   }
 }

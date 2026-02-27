@@ -32,6 +32,8 @@ import ReportsPage from '@/pages/store/ReportsPage';
 import ClaimsPage from '@/pages/store/ClaimsPage';
 import NewClaimPage from '@/pages/store/NewClaimPage';
 import ClaimDetailPage from '@/pages/store/ClaimDetailPage';
+import AuditListPage from '@/pages/store/AuditListPage';
+import AuditDetailPage from '@/pages/store/AuditDetailPage';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -80,6 +82,8 @@ function App() {
             <Route path="/store/claims" element={<ClaimsPage />} />
             <Route path="/store/claims/new" element={<NewClaimPage />} />
             <Route path="/store/claims/:id" element={<ClaimDetailPage />} />
+            <Route path="/store/inventory/audit" element={<AuditListPage />} />
+            <Route path="/store/inventory/audit/:id" element={<AuditDetailPage />} />
             <Route path="/store/physical-count" element={<PhysicalCountPage />} />
             <Route path="/store/physical-count/:id" element={<PhysicalCountDetailPage />} />
           </Route>
