@@ -195,6 +195,11 @@ export interface OrderDetailedResponse {
   supplierId: number;
   supplierName: string;
   status: string;
+  fulfillmentStatus: string | null;
+  deliveryDate: string | null;
+  cutoffAt: string | null;
+  totalAmount: number | null;
+  vatAmount: number | null;
   recommendedByAi: boolean;
   lines: HistoryLine[];
   createdAt: string;
