@@ -27,7 +27,7 @@ public class ItemCategory {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "level")
+    @Column(name = "level", columnDefinition = "TINYINT")
     @Builder.Default
     private Integer level = 1;
 

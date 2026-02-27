@@ -26,7 +26,7 @@ public class InventoryAudit {
     private LocalDate auditDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, columnDefinition = "VARCHAR(20)")
     @Builder.Default
     private AuditStatus status = AuditStatus.IN_PROGRESS;
 

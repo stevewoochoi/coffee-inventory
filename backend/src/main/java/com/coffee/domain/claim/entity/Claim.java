@@ -28,11 +28,11 @@ public class Claim {
     private Long deliveryId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "claim_type", nullable = false, length = 30)
+    @Column(name = "claim_type", nullable = false, columnDefinition = "VARCHAR(30)")
     private ClaimType claimType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, columnDefinition = "VARCHAR(20)")
     @Builder.Default
     private ClaimStatus status = ClaimStatus.SUBMITTED;
 
