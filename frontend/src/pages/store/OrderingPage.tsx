@@ -173,6 +173,42 @@ export default function OrderingPage() {
         </Button>
       </div>
 
+      {/* Cart status card */}
+      {cartInfo && cartInfo.totalItems > 0 && (
+        <Card className="border-blue-200 bg-blue-50 cursor-pointer" onClick={() => navigate('/store/ordering/new')}>
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-blue-800">{t('ordering.main.cartPending')}</p>
+                <p className="text-sm text-blue-600">
+                  {t('ordering.cart.items', { count: cartInfo.totalItems })} | {'\u20A9'}{cartInfo.grandTotal.toLocaleString()}
+                </p>
+              </div>
+              <Button size="sm" className="bg-blue-800 hover:bg-blue-900 min-h-[44px]">
+                {t('ordering.main.continueOrder')}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Low stock alerts */}
+      {lowStockCount > 0 && (
+        <Card className="border-red-200 bg-red-50 cursor-pointer" onClick={() => navigate('/store/ordering/new')}>
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-red-800">{t('ordering.main.lowStockAlert')}</p>
+                <p className="text-sm text-red-600">
+                  {t('ordering.main.lowStockDesc', { count: lowStockCount })}
+                </p>
+              </div>
+              <Badge className="bg-red-100 text-red-800">{lowStockCount}</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Status tabs */}
       <div className="flex gap-1 overflow-x-auto pb-1">
         {STATUS_TABS.map((tab) => {

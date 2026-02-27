@@ -312,6 +312,38 @@
       "confirmed": "Confirmed",
       "dispatched": "Dispatched",
       "received": "Received"
+    },
+    "steps": {
+      "deliveryDate": "Delivery Date",
+      "products": "Products",
+      "confirm": "Confirm",
+      "selectDate": "Select delivery date",
+      "cutoff": "Cutoff",
+      "deadlineBy": "Order by",
+      "recommended": "Recommended",
+      "noDates": "No available delivery dates",
+      "lowStockFilter": "Low Stock",
+      "noProducts": "No products found",
+      "addSuggested": "Add suggested {{qty}}",
+      "viewCart": "View Cart",
+      "vat": "VAT (10%)",
+      "deadlineNotice": "Check the order deadline",
+      "confirmTitle": "Confirm your order?",
+      "confirmDesc": "{{count}} items, {{suppliers}} suppliers, total ₩{{total}} (incl. VAT)"
+    },
+    "complete": {
+      "title": "Order Complete!",
+      "description": "Your order has been submitted successfully.",
+      "orderCount": "Orders",
+      "orderIds": "Order IDs",
+      "viewOrders": "View Orders",
+      "goToMain": "Go to Main"
+    },
+    "main": {
+      "cartPending": "Cart in progress",
+      "continueOrder": "Continue Order",
+      "lowStockAlert": "Low Stock Alert",
+      "lowStockDesc": "{{count}} items need ordering"
     }
   },
   "expiry": {

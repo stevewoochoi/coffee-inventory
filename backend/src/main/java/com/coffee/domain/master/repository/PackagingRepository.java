@@ -9,6 +9,8 @@ import java.util.Optional;
 
 public interface PackagingRepository extends JpaRepository<Packaging, Long> {
 
+    List<Packaging> findByItemId(Long itemId);
+
     List<Packaging> findByItemIdAndStatus(Long itemId, PackagingStatus status);
 
     Optional<Packaging> findByIdAndStatus(Long id, PackagingStatus status);

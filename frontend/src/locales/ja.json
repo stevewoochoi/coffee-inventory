@@ -312,6 +312,38 @@
       "confirmed": "確定",
       "dispatched": "送信",
       "received": "入荷"
+    },
+    "steps": {
+      "deliveryDate": "納品日選択",
+      "products": "商品選択",
+      "confirm": "発注確定",
+      "selectDate": "納品日を選択してください",
+      "cutoff": "締切時間",
+      "deadlineBy": "注文締切",
+      "recommended": "推奨",
+      "noDates": "利用可能な納品日がありません",
+      "lowStockFilter": "不足のみ",
+      "noProducts": "商品がありません",
+      "addSuggested": "推奨{{qty}}個追加",
+      "viewCart": "カートを見る",
+      "vat": "消費税 (10%)",
+      "deadlineNotice": "注文締切時間をご確認ください",
+      "confirmTitle": "発注を確定しますか？",
+      "confirmDesc": "{{count}}件、{{suppliers}}取引先、合計 ₩{{total}}（税込）"
+    },
+    "complete": {
+      "title": "発注が完了しました！",
+      "description": "注文が正常に登録されました。",
+      "orderCount": "発注件数",
+      "orderIds": "注文番号",
+      "viewOrders": "注文状況",
+      "goToMain": "メインへ"
+    },
+    "main": {
+      "cartPending": "進行中のカート",
+      "continueOrder": "注文を続ける",
+      "lowStockAlert": "在庫不足アラート",
+      "lowStockDesc": "{{count}}件の品目が発注必要です"
     }
   },
   "expiry": {

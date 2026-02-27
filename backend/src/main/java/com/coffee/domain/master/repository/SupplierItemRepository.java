@@ -10,5 +10,7 @@ public interface SupplierItemRepository extends JpaRepository<SupplierItem, Long
 
     List<SupplierItem> findBySupplierId(Long supplierId);
 
+    List<SupplierItem> findByPackagingId(Long packagingId);
+
     Optional<SupplierItem> findBySupplierIdAndPackagingId(Long supplierId, Long packagingId);
 }

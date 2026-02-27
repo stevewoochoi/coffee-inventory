@@ -312,6 +312,38 @@
       "confirmed": "확정",
       "dispatched": "발송",
       "received": "입고"
+    },
+    "steps": {
+      "deliveryDate": "납품일 선택",
+      "products": "상품 선택",
+      "confirm": "발주 확정",
+      "selectDate": "납품일을 선택하세요",
+      "cutoff": "마감시간",
+      "deadlineBy": "주문 마감",
+      "recommended": "추천",
+      "noDates": "이용 가능한 납품일이 없습니다",
+      "lowStockFilter": "부족만",
+      "noProducts": "상품이 없습니다",
+      "addSuggested": "추천 {{qty}}개 추가",
+      "viewCart": "장바구니 보기",
+      "vat": "부가세 (10%)",
+      "deadlineNotice": "주문 마감 시간을 확인하세요",
+      "confirmTitle": "발주를 확정하시겠습니까?",
+      "confirmDesc": "{{count}}개 항목, {{suppliers}}개 공급사, 총 ₩{{total}} (VAT 포함)"
+    },
+    "complete": {
+      "title": "발주가 완료되었습니다!",
+      "description": "주문이 성공적으로 접수되었습니다.",
+      "orderCount": "발주 건수",
+      "orderIds": "주문 번호",
+      "viewOrders": "주문 현황",
+      "goToMain": "메인으로"
+    },
+    "main": {
+      "cartPending": "진행 중인 장바구니",
+      "continueOrder": "이어서 발주",
+      "lowStockAlert": "재고 부족 알림",
+      "lowStockDesc": "{{count}}개 품목이 발주 필요합니다"
     }
   },
   "expiry": {

@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface ItemCategoryRepository extends JpaRepository<ItemCategory, Long> {
 
+    List<ItemCategory> findByBrandIdAndIsActiveTrue(Long brandId);
+
     List<ItemCategory> findByBrandIdAndIsActiveTrueOrderByDisplayOrderAsc(Long brandId);
 
     List<ItemCategory> findByBrandIdOrderByDisplayOrderAsc(Long brandId);
