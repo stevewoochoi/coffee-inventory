@@ -36,9 +36,10 @@ public class OrderingController {
     private final OrderCartService orderCartService;
 
     @GetMapping("/plans")
-    public ResponseEntity<ApiResponse<List<OrderPlanDto.Response>>> findByStoreId(
-            @RequestParam Long storeId) {
-        return ResponseEntity.ok(ApiResponse.ok(orderingService.findByStoreId(storeId)));
+    public ResponseEntity<ApiResponse<List<OrderPlanDto.DetailedResponse>>> findByStoreId(
+            @RequestParam Long storeId,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.findByStoreIdFiltered(storeId, status)));
     }
 
     @GetMapping("/plans/{id}")

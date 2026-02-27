@@ -60,6 +60,11 @@ public class OrderPlanDto {
         private Long supplierId;
         private String supplierName;
         private String status;
+        private String fulfillmentStatus;
+        private java.time.LocalDate deliveryDate;
+        private LocalDateTime cutoffAt;
+        private BigDecimal totalAmount;
+        private BigDecimal vatAmount;
         private Boolean recommendedByAi;
         private List<HistoryLine> lines;
         private LocalDateTime createdAt;

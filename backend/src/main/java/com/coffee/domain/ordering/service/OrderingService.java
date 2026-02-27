@@ -42,6 +42,59 @@ public class OrderingService {
                 .toList();
     }
 
+    public List<OrderPlanDto.DetailedResponse> findByStoreIdFiltered(Long storeId, String status) {
+        List<OrderPlan> plans;
+        if (status != null && !status.isEmpty()) {
+            plans = planRepository.findByStoreIdAndStatusOrderByCreatedAtDesc(storeId, OrderStatus.valueOf(status));
+        } else {
+            plans = planRepository.findByStoreIdOrderByCreatedAtDesc(storeId);
+        }
+        return plans.stream().map(this::toDetailedResponse).toList();
+    }
+
+    private OrderPlanDto.DetailedResponse toDetailedResponse(OrderPlan plan) {
+        Supplier supplier = supplierRepository.findById(plan.getSupplierId()).orElse(null);
+        List<OrderLine> lines = lineRepository.findByOrderPlanId(plan.getId());
+
+        List<OrderPlanDto.HistoryLine> historyLines = lines.stream().map(line -> {
+            Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
+            Item item = pkg != null ? itemRepository.findById(pkg.getItemId()).orElse(null) : null;
+            BigDecimal price = supplierItemRepository
+                    .findBySupplierIdAndPackagingId(plan.getSupplierId(), line.getPackagingId())
+                    .map(SupplierItem::getPrice)
+                    .orElse(BigDecimal.ZERO);
+
+            return OrderPlanDto.HistoryLine.builder()
+                    .packagingId(line.getPackagingId())
+                    .packName(pkg != null ? pkg.getPackName() : "Unknown")
+                    .itemId(pkg != null ? pkg.getItemId() : null)
+                    .itemName(item != null ? item.getName() : "Unknown")
+                    .packQty(line.getPackQty())
+                    .unitsPerPack(pkg != null ? pkg.getUnitsPerPack() : BigDecimal.ZERO)
+                    .price(price)
+                    .build();
+        }).toList();
+
+        return OrderPlanDto.DetailedResponse.builder()
+                .id(plan.getId())
+                .storeId(plan.getStoreId())
+                .supplierId(plan.getSupplierId())
+                .supplierName(supplier != null ? supplier.getName() : "Unknown")
+                .status(plan.getStatus().name())
+                .fulfillmentStatus(plan.getFulfillmentStatus())
+                .deliveryDate(plan.getDeliveryDate())
+                .cutoffAt(plan.getCutoffAt())
+                .totalAmount(plan.getTotalAmount())
+                .vatAmount(plan.getVatAmount())
+                .recommendedByAi(plan.getRecommendedByAi())
+                .lines(historyLines)
+                .createdAt(plan.getCreatedAt())
+                .confirmedAt(plan.getConfirmedAt())
+                .dispatchedAt(plan.getDispatchedAt())
+                .receivedAt(plan.getReceivedAt())
+                .build();
+    }
+
     public OrderPlanDto.Response findById(Long id) {
         return toResponse(getOrThrow(id));
     }
@@ -99,42 +152,7 @@ public class OrderingService {
     }
 
     public OrderPlanDto.DetailedResponse findByIdDetailed(Long id) {
-        OrderPlan plan = getOrThrow(id);
-        Supplier supplier = supplierRepository.findById(plan.getSupplierId()).orElse(null);
-        List<OrderLine> lines = lineRepository.findByOrderPlanId(plan.getId());
-
-        List<OrderPlanDto.HistoryLine> historyLines = lines.stream().map(line -> {
-            Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
-            Item item = pkg != null ? itemRepository.findById(pkg.getItemId()).orElse(null) : null;
-            BigDecimal price = supplierItemRepository
-                    .findBySupplierIdAndPackagingId(plan.getSupplierId(), line.getPackagingId())
-                    .map(SupplierItem::getPrice)
-                    .orElse(BigDecimal.ZERO);
-
-            return OrderPlanDto.HistoryLine.builder()
-                    .packagingId(line.getPackagingId())
-                    .packName(pkg != null ? pkg.getPackName() : "Unknown")
-                    .itemId(pkg != null ? pkg.getItemId() : null)
-                    .itemName(item != null ? item.getName() : "Unknown")
-                    .packQty(line.getPackQty())
-                    .unitsPerPack(pkg != null ? pkg.getUnitsPerPack() : BigDecimal.ZERO)
-                    .price(price)
-                    .build();
-        }).toList();
-
-        return OrderPlanDto.DetailedResponse.builder()
-                .id(plan.getId())
-                .storeId(plan.getStoreId())
-                .supplierId(plan.getSupplierId())
-                .supplierName(supplier != null ? supplier.getName() : "Unknown")
-                .status(plan.getStatus().name())
-                .recommendedByAi(plan.getRecommendedByAi())
-                .lines(historyLines)
-                .createdAt(plan.getCreatedAt())
-                .confirmedAt(plan.getConfirmedAt())
-                .dispatchedAt(plan.getDispatchedAt())
-                .receivedAt(plan.getReceivedAt())
-                .build();
+        return toDetailedResponse(getOrThrow(id));
     }
 
     public List<OrderPlanDto.HistoryResponse> getOrderHistory(Long storeId, int limit) {
