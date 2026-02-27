@@ -15,4 +15,12 @@ public interface OrderPlanRepository extends JpaRepository<OrderPlan, Long> {
             Long storeId, List<OrderStatus> statuses, LocalDateTime from, LocalDateTime to);
 
     List<OrderPlan> findByStatusAndCutoffAtBefore(OrderStatus status, LocalDateTime cutoff);
+
+    List<OrderPlan> findByStatusOrderByCreatedAtDesc(OrderStatus status);
+
+    List<OrderPlan> findByFulfillmentStatusOrderByCreatedAtDesc(String fulfillmentStatus);
+
+    List<OrderPlan> findByStatusAndFulfillmentStatusOrderByCreatedAtDesc(OrderStatus status, String fulfillmentStatus);
+
+    List<OrderPlan> findAllByOrderByCreatedAtDesc();
 }

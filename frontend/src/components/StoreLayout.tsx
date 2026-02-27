@@ -11,6 +11,7 @@ const navKeys = [
   { to: '/store/waste', key: 'nav.waste' },
   { to: '/store/ordering', key: 'nav.ordering' },
   { to: '/store/expiry', key: 'nav.expiry' },
+  { to: '/store/claims', key: 'nav.claims' },
   { to: '/store/physical-count', key: 'nav.count' },
   { to: '/store/reports', key: 'nav.reports' },
 ];

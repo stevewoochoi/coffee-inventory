@@ -29,6 +29,9 @@ import PhysicalCountDetailPage from '@/pages/store/PhysicalCountDetailPage';
 import StoreDashboardPage from '@/pages/store/DashboardPage';
 import AdminDashboardPage from '@/pages/admin/DashboardPage';
 import ReportsPage from '@/pages/store/ReportsPage';
+import ClaimsPage from '@/pages/store/ClaimsPage';
+import NewClaimPage from '@/pages/store/NewClaimPage';
+import ClaimDetailPage from '@/pages/store/ClaimDetailPage';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -74,6 +77,9 @@ function App() {
             <Route path="/store/ordering/:id" element={<OrderDetailPage />} />
             <Route path="/store/expiry" element={<StoreExpiryPage />} />
             <Route path="/store/reports" element={<ReportsPage />} />
+            <Route path="/store/claims" element={<ClaimsPage />} />
+            <Route path="/store/claims/new" element={<NewClaimPage />} />
+            <Route path="/store/claims/:id" element={<ClaimDetailPage />} />
             <Route path="/store/physical-count" element={<PhysicalCountPage />} />
             <Route path="/store/physical-count/:id" element={<PhysicalCountDetailPage />} />
           </Route>
