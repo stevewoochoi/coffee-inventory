@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { orderingApi, type OrderPlan, type OrderHistory, type OrderDetailedResponse } from '@/api/ordering';
+import { orderingApi, type OrderPlan, type OrderHistory, type OrderDetailedResponse, type CartResponse, type OrderNeedsResponse } from '@/api/ordering';
 import OrderTimeline from '@/components/store/OrderTimeline';
 
 const statusColor: Record<string, string> = {
@@ -29,13 +29,19 @@ export default function OrderingPage() {
   const [expandedPlan, setExpandedPlan] = useState<number | null>(null);
   const [detailedPlan, setDetailedPlan] = useState<OrderDetailedResponse | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [cartInfo, setCartInfo] = useState<CartResponse | null>(null);
+  const [lowStockCount, setLowStockCount] = useState(0);
   const { user } = useAuthStore();
   const storeId = user?.storeId ?? 1;
+  const userId = user?.id ?? 1;
+  const brandId = user?.brandId;
   const { t } = useTranslation();
 
   useEffect(() => {
     loadPlans();
     loadHistory();
+    loadCartInfo();
+    loadLowStockCount();
   }, []);
 
   async function loadPlans() {
@@ -53,6 +59,25 @@ export default function OrderingPage() {
     try {
       const res = await orderingApi.getOrderHistory(storeId, 5);
       setHistory(res.data.data);
+    } catch {
+      // silently fail
+    }
+  }
+
+  async function loadCartInfo() {
+    try {
+      const res = await orderingApi.getCart(storeId, userId);
+      setCartInfo(res.data.data);
+    } catch {
+      // silently fail
+    }
+  }
+
+  async function loadLowStockCount() {
+    try {
+      const res = await orderingApi.getOrderNeeds(storeId, brandId);
+      const needs: OrderNeedsResponse = res.data.data;
+      setLowStockCount(needs.urgent.length + needs.recommended.length);
     } catch {
       // silently fail
     }
