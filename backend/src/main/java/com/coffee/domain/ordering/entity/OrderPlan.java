@@ -25,6 +25,7 @@ public class OrderPlan {
     private Long supplierId;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(30)")
     @Builder.Default
     private OrderStatus status = OrderStatus.DRAFT;
 
