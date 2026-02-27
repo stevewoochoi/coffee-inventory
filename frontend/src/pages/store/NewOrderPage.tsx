@@ -20,47 +20,6 @@ import {
   type ConfirmResponse,
 } from '@/api/ordering';
 
-// TODO: Remove mock data when backend APIs are ready
-function generateMockDeliveryDates(): AvailableDateResponse {
-  const dates: AvailableDate[] = [];
-  const today = new Date();
-  const deliveryDays = [1, 3, 5]; // MON, WED, FRI
-  for (let i = 2; i <= 16; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    if (deliveryDays.includes(d.getDay())) {
-      dates.push({
-        date: d.toISOString().split('T')[0],
-        dayOfWeek: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][d.getDay()],
-        isRecommended: dates.length === 0,
-        orderDeadline: new Date(d.getTime() - 2 * 86400000).toISOString().replace(/\.\d+Z$/, ''),
-      });
-    }
-  }
-  return {
-    availableDates: dates,
-    storeDeliveryType: 'MON_WED_FRI',
-    cutoffTime: '09:00',
-    maxDisplayDays: 14,
-  };
-}
-
-const MOCK_CATEGORIES: CategoryNode[] = [
-  { id: 1, name: '\uC6D0\uB450', displayOrder: 1 },
-  { id: 2, name: '\uC720\uC81C\uD488', displayOrder: 2 },
-  { id: 3, name: '\uC2DC\uB7FD', displayOrder: 3 },
-  { id: 4, name: '\uCEF5/\uD3EC\uC7A5\uC7AC', displayOrder: 4 },
-  { id: 5, name: '\uB514\uC800\uD2B8', displayOrder: 5 },
-];
-
-const MOCK_CATALOG: CatalogItem[] = [
-  { itemId: 1, itemName: '\uC5D0\uD2F0\uC624\uD53C\uC544 \uC608\uAC00\uCCB4\uD504 \uC6D0\uB450', itemCode: 'CF-001', categoryId: 1, categoryName: '\uC6D0\uB450', imageUrl: null, temperatureZone: 'AMBIENT', currentStock: 2.5, unit: 'kg', minStock: 5.0, isLowStock: true, packagings: [{ packagingId: 7, label: '1kg x 1\uBD09', unitsPerPack: 1.0, unitPrice: 25000, supplierId: 1, supplierName: '\uC6D0\uB450\uC0C1\uC0AC', maxOrderQty: 50 }], lastOrder: { date: '2026-02-20', quantity: 3 }, suggestedQty: 3, suggestedByAi: false, daysUntilEmpty: 2.1 },
-  { itemId: 2, itemName: '\uCF5C\uB86C\uBE44\uC544 \uC218\uD504\uB9AC\uBAA8 \uC6D0\uB450', itemCode: 'CF-002', categoryId: 1, categoryName: '\uC6D0\uB450', imageUrl: null, temperatureZone: 'AMBIENT', currentStock: 8.0, unit: 'kg', minStock: 5.0, isLowStock: false, packagings: [{ packagingId: 8, label: '1kg x 1\uBD09', unitsPerPack: 1.0, unitPrice: 22000, supplierId: 1, supplierName: '\uC6D0\uB450\uC0C1\uC0AC', maxOrderQty: 50 }], lastOrder: null, suggestedQty: 0, suggestedByAi: false, daysUntilEmpty: 8.5 },
-  { itemId: 3, itemName: '\uC6B0\uC720 1L', itemCode: 'DY-001', categoryId: 2, categoryName: '\uC720\uC81C\uD488', imageUrl: null, temperatureZone: 'COLD', currentStock: 5.0, unit: 'L', minStock: 10.0, isLowStock: true, packagings: [{ packagingId: 10, label: '1L x 12\uD329', unitsPerPack: 12.0, unitPrice: 18000, supplierId: 2, supplierName: '\uC11C\uC6B8\uC720\uC5C5', maxOrderQty: 20 }], lastOrder: { date: '2026-02-25', quantity: 2 }, suggestedQty: 2, suggestedByAi: false, daysUntilEmpty: 1.5 },
-  { itemId: 4, itemName: '\uBC14\uB2D0\uB77C \uC2DC\uB7FD', itemCode: 'SY-001', categoryId: 3, categoryName: '\uC2DC\uB7FD', imageUrl: null, temperatureZone: 'AMBIENT', currentStock: 3.0, unit: 'bottle', minStock: 2.0, isLowStock: false, packagings: [{ packagingId: 15, label: '750ml x 1\uBCD1', unitsPerPack: 1.0, unitPrice: 12000, supplierId: 3, supplierName: '\uC2DC\uB7FD\uCF54\uB9AC\uC544', maxOrderQty: 30 }], lastOrder: null, suggestedQty: 0, suggestedByAi: false, daysUntilEmpty: 15.0 },
-  { itemId: 5, itemName: '\uD14C\uC774\uD06C\uC544\uC6C3 \uCEF5 12oz', itemCode: 'CU-001', categoryId: 4, categoryName: '\uCEF5/\uD3EC\uC7A5\uC7AC', imageUrl: null, temperatureZone: 'AMBIENT', currentStock: 100, unit: 'ea', minStock: 200, isLowStock: true, packagings: [{ packagingId: 20, label: '50ea x 1\uBC15\uC2A4', unitsPerPack: 50, unitPrice: 8000, supplierId: 4, supplierName: '\uD3EC\uC7A5\uC7AC\uB9C8\uD2B8', maxOrderQty: 100 }], lastOrder: { date: '2026-02-22', quantity: 4 }, suggestedQty: 4, suggestedByAi: false, daysUntilEmpty: 3.0 },
-  { itemId: 6, itemName: '\uCE74\uB77C\uBA5C \uC2DC\uB7FD', itemCode: 'SY-002', categoryId: 3, categoryName: '\uC2DC\uB7FD', imageUrl: null, temperatureZone: 'AMBIENT', currentStock: 1.0, unit: 'bottle', minStock: 2.0, isLowStock: true, packagings: [{ packagingId: 16, label: '750ml x 1\uBCD1', unitsPerPack: 1.0, unitPrice: 13000, supplierId: 3, supplierName: '\uC2DC\uB7FD\uCF54\uB9AC\uC544', maxOrderQty: 30 }], lastOrder: null, suggestedQty: 2, suggestedByAi: false, daysUntilEmpty: 4.0 },
-];
 
 interface CartItem {
   itemId: number;
@@ -114,8 +73,7 @@ export default function NewOrderPage() {
       const res = await orderingApi.getDeliveryDates(storeId);
       setDeliveryData(res.data.data);
     } catch {
-      // TODO: Remove mock fallback when backend is ready
-      setDeliveryData(generateMockDeliveryDates());
+      toast.error(t('common.loadError'));
     }
   }
 
@@ -127,15 +85,12 @@ export default function NewOrderPage() {
   }, [step]);
 
   async function loadCategories() {
-    if (!brandId) {
-      setCategories(MOCK_CATEGORIES);
-      return;
-    }
+    if (!brandId) return;
     try {
       const res = await orderingApi.getOrderingCategories(brandId);
       setCategories(res.data.data);
     } catch {
-      setCategories(MOCK_CATEGORIES);
+      toast.error(t('common.loadError'));
     }
   }
 
@@ -152,17 +107,8 @@ export default function NewOrderPage() {
       });
       setCatalog(res.data.data.content);
     } catch {
-      // TODO: Remove mock fallback when backend is ready
-      let items = [...MOCK_CATALOG];
-      if (activeCategory) items = items.filter(i => i.categoryId === activeCategory);
-      if (searchKeyword) items = items.filter(i => i.itemName.toLowerCase().includes(searchKeyword.toLowerCase()));
-      if (lowStockOnly) items = items.filter(i => i.isLowStock);
-      items.sort((a, b) => {
-        if (a.isLowStock && !b.isLowStock) return -1;
-        if (!a.isLowStock && b.isLowStock) return 1;
-        return a.itemName.localeCompare(b.itemName);
-      });
-      setCatalog(items);
+      toast.error(t('common.loadError'));
+      setCatalog([]);
     } finally {
       setCatalogLoading(false);
     }
@@ -256,10 +202,7 @@ export default function NewOrderPage() {
       toast.success(t('ordering.cart.orderConfirmed'));
       setStep(4);
     } catch {
-      // TODO: Remove mock fallback when backend is ready
-      setConfirmResult({ orderPlanIds: [Math.floor(Math.random() * 1000) + 100], orderCount: supplierGroups.length });
-      toast.success(t('ordering.cart.orderConfirmed'));
-      setStep(4);
+      toast.error(t('common.saveError'));
     } finally {
       setConfirming(false);
       setShowConfirmDialog(false);
