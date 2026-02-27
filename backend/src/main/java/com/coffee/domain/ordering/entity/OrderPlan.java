@@ -3,6 +3,8 @@ package com.coffee.domain.ordering.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,6 +34,30 @@ public class OrderPlan {
     @Column(name = "recommended_by_ai")
     @Builder.Default
     private Boolean recommendedByAi = false;
+
+    @Column(name = "delivery_date")
+    private LocalDate deliveryDate;
+
+    @Column(name = "cutoff_at")
+    private LocalDateTime cutoffAt;
+
+    @Column(name = "auto_confirmed_at")
+    private LocalDateTime autoConfirmedAt;
+
+    @Column(name = "fulfillment_status", length = 20)
+    @Builder.Default
+    private String fulfillmentStatus = "PENDING";
+
+    @Column(name = "delivery_policy_id")
+    private Long deliveryPolicyId;
+
+    @Column(name = "total_amount", precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal totalAmount = BigDecimal.ZERO;
+
+    @Column(name = "vat_amount", precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal vatAmount = BigDecimal.ZERO;
 
     @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;

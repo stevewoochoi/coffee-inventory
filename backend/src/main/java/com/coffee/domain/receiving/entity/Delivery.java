@@ -31,6 +31,12 @@ public class Delivery {
     @Column(name = "order_plan_id")
     private Long orderPlanId;
 
+    @Column(name = "ref_type", length = 20)
+    private String refType;
+
+    @Column(name = "ref_id")
+    private Long refId;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private DeliveryStatus status = DeliveryStatus.PENDING;

@@ -1,0 +1,37 @@
+package com.coffee.domain.claim.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "claim_line")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+public class ClaimLine {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "claim_id", nullable = false)
+    private Long claimId;
+
+    @Column(name = "item_id", nullable = false)
+    private Long itemId;
+
+    @Column(name = "packaging_id")
+    private Long packagingId;
+
+    @Column(name = "claimed_qty", nullable = false)
+    private Integer claimedQty;
+
+    @Column(name = "accepted_qty")
+    @Builder.Default
+    private Integer acceptedQty = 0;
+
+    @Column(name = "reason", columnDefinition = "TEXT")
+    private String reason;
+}

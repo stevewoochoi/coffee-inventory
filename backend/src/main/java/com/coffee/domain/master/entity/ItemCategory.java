@@ -21,12 +21,22 @@ public class ItemCategory {
     @Column(name = "brand_id", nullable = false)
     private Long brandId;
 
+    @Column(name = "parent_id")
+    private Long parentId;
+
     @Column(nullable = false, length = 100)
     private String name;
+
+    @Column(name = "level")
+    @Builder.Default
+    private Integer level = 1;
 
     @Column(name = "display_order")
     @Builder.Default
     private Integer displayOrder = 0;
+
+    @Column(name = "icon", length = 50)
+    private String icon;
 
     @Column(name = "is_active")
     @Builder.Default

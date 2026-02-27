@@ -48,6 +48,21 @@ public class Item {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    @Column(name = "lead_time_days")
+    @Builder.Default
+    private Integer leadTimeDays = 2;
+
+    @Column(name = "max_order_qty")
+    private Integer maxOrderQty;
+
+    @Column(name = "temperature_zone", length = 20)
+    @Builder.Default
+    private String temperatureZone = "AMBIENT";
+
+    @Column(name = "is_orderable")
+    @Builder.Default
+    private Boolean isOrderable = true;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

@@ -3,6 +3,7 @@ package com.coffee.domain.ordering.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,6 +22,9 @@ public class OrderCartItem {
     @Column(name = "cart_id", nullable = false)
     private Long cartId;
 
+    @Column(name = "item_id")
+    private Long itemId;
+
     @Column(name = "packaging_id", nullable = false)
     private Long packagingId;
 
@@ -30,6 +34,19 @@ public class OrderCartItem {
     @Column(name = "pack_qty", nullable = false)
     @Builder.Default
     private Integer packQty = 1;
+
+    @Column(name = "unit_price", precision = 12, scale = 2)
+    private BigDecimal unitPrice;
+
+    @Column(name = "recommended_qty")
+    private Integer recommendedQty;
+
+    @Column(name = "recommended_by_ai")
+    @Builder.Default
+    private Boolean recommendedByAi = false;
+
+    @Column(name = "added_by")
+    private Long addedBy;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

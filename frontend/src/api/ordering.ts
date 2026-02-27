@@ -102,6 +102,71 @@ export interface ConfirmResponse {
   orderCount: number;
 }
 
+// Delivery dates types
+export interface AvailableDate {
+  date: string;
+  dayOfWeek: string;
+  isRecommended: boolean;
+  orderDeadline: string;
+}
+
+export interface AvailableDateResponse {
+  availableDates: AvailableDate[];
+  storeDeliveryType: string;
+  cutoffTime: string;
+  maxDisplayDays: number;
+}
+
+export interface OrderAvailability {
+  available: boolean;
+  deadline: string;
+  remainingMinutes: number;
+}
+
+// Catalog types
+export interface CatalogPackaging {
+  packagingId: number;
+  label: string;
+  unitsPerPack: number;
+  unitPrice: number;
+  supplierId: number;
+  supplierName: string;
+  maxOrderQty: number;
+}
+
+export interface CatalogItem {
+  itemId: number;
+  itemName: string;
+  itemCode: string;
+  categoryId: number;
+  categoryName: string;
+  imageUrl: string | null;
+  temperatureZone: string;
+  currentStock: number;
+  unit: string;
+  minStock: number;
+  isLowStock: boolean;
+  packagings: CatalogPackaging[];
+  lastOrder: { date: string; quantity: number } | null;
+  suggestedQty: number;
+  suggestedByAi: boolean;
+  daysUntilEmpty: number | null;
+}
+
+export interface CatalogResponse {
+  content: CatalogItem[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export interface CategoryNode {
+  id: number;
+  name: string;
+  displayOrder: number;
+}
+
 // History types
 export interface HistoryLine {
   packagingId: number;
@@ -198,4 +263,44 @@ export const orderingApi = {
   // Detailed plan
   getPlanDetail: (id: number) =>
     client.get<ApiResponse<OrderDetailedResponse>>(`/ordering/plans/${id}/detail`),
+
+  // Delivery dates
+  getDeliveryDates: (storeId: number) =>
+    client.get<ApiResponse<AvailableDateResponse>>('/ordering/delivery-dates', { params: { storeId } }),
+
+  getAvailability: (storeId: number, deliveryDate: string) =>
+    client.get<ApiResponse<OrderAvailability>>('/ordering/availability', { params: { storeId, deliveryDate } }),
+
+  // Catalog
+  getCatalog: (params: {
+    storeId: number;
+    deliveryDate: string;
+    categoryId?: number;
+    keyword?: string;
+    lowStockOnly?: boolean;
+    page?: number;
+    size?: number;
+  }) =>
+    client.get<ApiResponse<CatalogResponse>>('/ordering/catalog', { params }),
+
+  getOrderingCategories: (brandId: number) =>
+    client.get<ApiResponse<CategoryNode[]>>('/ordering/categories', { params: { brandId } }),
+
+  // Enhanced cart with delivery date
+  createCartWithDate: (data: {
+    storeId: number;
+    deliveryDate: string;
+    items: Array<{ itemId: number; packagingId: number; quantity: number }>;
+  }) =>
+    client.post<ApiResponse<CartResponse>>('/ordering/cart', data),
+
+  confirmCartById: (cartId: number) =>
+    client.post<ApiResponse<ConfirmResponse>>(`/ordering/cart/${cartId}/confirm`),
+
+  // Order management
+  cancelPlan: (id: number) =>
+    client.post<ApiResponse<OrderPlan>>(`/ordering/plans/${id}/cancel`),
+
+  updatePlan: (id: number, data: { lines: OrderLineDto[] }) =>
+    client.put<ApiResponse<OrderPlan>>(`/ordering/plans/${id}`, data),
 };
