@@ -123,7 +123,15 @@
     "pendingReceiving": "入荷待ち",
     "stockOverview": "在庫概要",
     "topConsumption": "TOP 5 消費品目",
-    "quickActions": "クイックアクション"
+    "quickActions": "クイックアクション",
+    "pendingCart": "カート保留",
+    "pendingClaims": "クレーム保留",
+    "expiring": "期限切れ間近",
+    "recentOrders": "最近の発注",
+    "viewAll": "すべて表示",
+    "items": "件",
+    "delivery": "納品日",
+    "quickClaims": "クレーム"
   },
   "inventory": {
     "title": "現在の在庫",

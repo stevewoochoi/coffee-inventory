@@ -123,7 +123,15 @@
     "pendingReceiving": "입고 대기",
     "stockOverview": "재고 현황",
     "topConsumption": "TOP 5 소비 항목",
-    "quickActions": "빠른 액션"
+    "quickActions": "빠른 액션",
+    "pendingCart": "장바구니 대기",
+    "pendingClaims": "클레임 대기",
+    "expiring": "유통기한 임박",
+    "recentOrders": "최근 발주",
+    "viewAll": "전체 보기",
+    "items": "건",
+    "delivery": "납품일",
+    "quickClaims": "클레임"
   },
   "inventory": {
     "title": "현재 재고",

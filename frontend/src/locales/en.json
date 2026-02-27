@@ -123,7 +123,15 @@
     "pendingReceiving": "Pending Receiving",
     "stockOverview": "Stock Overview",
     "topConsumption": "Top 5 Consumption",
-    "quickActions": "Quick Actions"
+    "quickActions": "Quick Actions",
+    "pendingCart": "Cart Pending",
+    "pendingClaims": "Pending Claims",
+    "expiring": "Expiring",
+    "recentOrders": "Recent Orders",
+    "viewAll": "View All",
+    "items": "items",
+    "delivery": "Delivery",
+    "quickClaims": "Claims"
   },
   "inventory": {
     "title": "Current Inventory",
