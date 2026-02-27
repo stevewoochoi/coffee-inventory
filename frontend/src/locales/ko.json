@@ -344,6 +344,26 @@
       "continueOrder": "이어서 발주",
       "lowStockAlert": "재고 부족 알림",
       "lowStockDesc": "{{count}}개 품목이 발주 필요합니다"
+    },
+    "historyPage": {
+      "title": "주문 현황",
+      "delivery": "납품일"
+    },
+    "detailPage": {
+      "notFound": "주문을 찾을 수 없습니다",
+      "fulfillment": "배송 현황",
+      "items": "주문 상품",
+      "cancel": "주문 취소",
+      "cancelTitle": "주문을 취소하시겠습니까?",
+      "cancelDesc": "이 작업은 되돌릴 수 없습니다.",
+      "cancelSuccess": "주문이 취소되었습니다",
+      "cancelFailed": "주문 취소에 실패했습니다"
+    },
+    "fulfillment": {
+      "PENDING": "대기",
+      "PREPARING": "출고예정",
+      "SHIPPING": "배송중",
+      "DELIVERED": "완료"
     }
   },
   "expiry": {

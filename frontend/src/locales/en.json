@@ -344,6 +344,26 @@
       "continueOrder": "Continue Order",
       "lowStockAlert": "Low Stock Alert",
       "lowStockDesc": "{{count}} items need ordering"
+    },
+    "historyPage": {
+      "title": "Order History",
+      "delivery": "Delivery"
+    },
+    "detailPage": {
+      "notFound": "Order not found",
+      "fulfillment": "Fulfillment Status",
+      "items": "Order Items",
+      "cancel": "Cancel Order",
+      "cancelTitle": "Cancel this order?",
+      "cancelDesc": "This action cannot be undone.",
+      "cancelSuccess": "Order cancelled",
+      "cancelFailed": "Failed to cancel order"
+    },
+    "fulfillment": {
+      "PENDING": "Pending",
+      "PREPARING": "Preparing",
+      "SHIPPING": "Shipping",
+      "DELIVERED": "Delivered"
     }
   },
   "expiry": {

@@ -344,6 +344,26 @@
       "continueOrder": "注文を続ける",
       "lowStockAlert": "在庫不足アラート",
       "lowStockDesc": "{{count}}件の品目が発注必要です"
+    },
+    "historyPage": {
+      "title": "注文履歴",
+      "delivery": "納品日"
+    },
+    "detailPage": {
+      "notFound": "注文が見つかりません",
+      "fulfillment": "配送状況",
+      "items": "注文商品",
+      "cancel": "注文キャンセル",
+      "cancelTitle": "注文をキャンセルしますか？",
+      "cancelDesc": "この操作は元に戻せません。",
+      "cancelSuccess": "注文がキャンセルされました",
+      "cancelFailed": "注文のキャンセルに失敗しました"
+    },
+    "fulfillment": {
+      "PENDING": "待機",
+      "PREPARING": "出荷準備",
+      "SHIPPING": "配送中",
+      "DELIVERED": "完了"
     }
   },
   "expiry": {

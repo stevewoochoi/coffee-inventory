@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public class OrderCartDto {
@@ -27,11 +28,29 @@ public class OrderCartDto {
     }
 
     @Getter
+    @Setter
+    public static class CreateCartRequest {
+        @NotNull private Long storeId;
+        @NotNull private LocalDate deliveryDate;
+        private List<CartItemInput> items;
+    }
+
+    @Getter
+    @Setter
+    public static class CartItemInput {
+        @NotNull private Long itemId;
+        @NotNull private Long packagingId;
+        @NotNull @Min(1) private Integer quantity;
+    }
+
+    @Getter
     @Builder
     @AllArgsConstructor
     public static class CartResponse {
         private Long cartId;
         private Long storeId;
+        private LocalDate deliveryDate;
+        private String status;
         private List<SupplierGroup> supplierGroups;
         private BigDecimal grandTotal;
         private int totalItems;
@@ -68,5 +87,12 @@ public class OrderCartDto {
     public static class ConfirmResponse {
         private List<Long> orderPlanIds;
         private int orderCount;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class CartListResponse {
+        private List<CartResponse> carts;
     }
 }

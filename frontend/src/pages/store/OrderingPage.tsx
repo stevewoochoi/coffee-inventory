@@ -164,13 +164,22 @@ export default function OrderingPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">{t('ordering.title')}</h2>
-        <Button
-          size="lg"
-          className="bg-blue-800 hover:bg-blue-900 text-base px-6 py-3"
-          onClick={() => navigate('/store/ordering/new')}
-        >
-          {t('ordering.newOrder')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="min-h-[44px]"
+            onClick={() => navigate('/store/ordering/history')}
+          >
+            {t('ordering.historyPage.title')}
+          </Button>
+          <Button
+            size="lg"
+            className="bg-blue-800 hover:bg-blue-900 text-base px-6 py-3"
+            onClick={() => navigate('/store/ordering/new')}
+          >
+            {t('ordering.newOrder')}
+          </Button>
+        </div>
       </div>
 
       {/* Cart status card */}

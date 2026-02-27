@@ -18,6 +18,8 @@ import ReceivingPage from '@/pages/store/ReceivingPage';
 import WastePage from '@/pages/store/WastePage';
 import OrderingPage from '@/pages/store/OrderingPage';
 import NewOrderPage from '@/pages/store/NewOrderPage';
+import OrderHistoryPage from '@/pages/store/OrderHistoryPage';
+import OrderDetailPage from '@/pages/store/OrderDetailPage';
 import OrderingAdminPage from '@/pages/admin/OrderingAdminPage';
 import CategoriesPage from '@/pages/admin/CategoriesPage';
 import AdminExpiryPage from '@/pages/admin/ExpiryPage';
@@ -68,6 +70,8 @@ function App() {
             <Route path="/store/waste" element={<WastePage />} />
             <Route path="/store/ordering" element={<OrderingPage />} />
             <Route path="/store/ordering/new" element={<NewOrderPage />} />
+            <Route path="/store/ordering/history" element={<OrderHistoryPage />} />
+            <Route path="/store/ordering/:id" element={<OrderDetailPage />} />
             <Route path="/store/expiry" element={<StoreExpiryPage />} />
             <Route path="/store/reports" element={<ReportsPage />} />
             <Route path="/store/physical-count" element={<PhysicalCountPage />} />
