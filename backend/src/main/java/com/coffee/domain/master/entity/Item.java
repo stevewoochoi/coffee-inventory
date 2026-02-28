@@ -41,6 +41,10 @@ public class Item {
     @Column(name = "price", precision = 12, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "vat_inclusive")
+    @Builder.Default
+    private Boolean vatInclusive = true;
+
     @Column(name = "min_stock_qty", precision = 12, scale = 3)
     private BigDecimal minStockQty;
 

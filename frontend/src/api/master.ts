@@ -10,6 +10,7 @@ export interface Item {
   baseUnit: string;
   lossRate: number;
   price: number | null;
+  vatInclusive: boolean;
   isActive: boolean;
   imageUrl: string | null;
   createdAt: string;
@@ -22,6 +23,7 @@ export interface ItemRequest {
   baseUnit: string;
   lossRate?: number;
   price?: number;
+  vatInclusive?: boolean;
 }
 
 export interface Page<T> {
@@ -57,6 +59,7 @@ export interface Packaging {
   categoryId: number | null;
   supplierItems: SupplierItemInfo[];
   itemPrice: number | null;
+  vatInclusive: boolean | null;
 }
 
 export interface PackagingRequest {

@@ -40,7 +40,7 @@ export default function ItemsPage() {
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ brandId, name: '', baseUnit: 'g', category: '', lossRate: 0, price: undefined });
+    setForm({ brandId, name: '', baseUnit: 'g', category: '', lossRate: 0, price: undefined, vatInclusive: true });
     setDialogOpen(true);
   };
 
@@ -53,6 +53,7 @@ export default function ItemsPage() {
       category: item.category || '',
       lossRate: item.lossRate,
       price: item.price ?? undefined,
+      vatInclusive: item.vatInclusive ?? true,
     });
     setDialogOpen(true);
   };
@@ -113,6 +114,7 @@ export default function ItemsPage() {
               <TableHead>{t('items.baseUnit')}</TableHead>
               <TableHead>{t('items.lossRate')}</TableHead>
               <TableHead>{t('items.price')}</TableHead>
+              <TableHead>{t('items.vat')}</TableHead>
               <TableHead>{t('common.status')}</TableHead>
               <TableHead className="text-right">{t('common.actions')}</TableHead>
             </TableRow>
@@ -144,6 +146,15 @@ export default function ItemsPage() {
                 <TableCell>{(item.lossRate * 100).toFixed(1)}%</TableCell>
                 <TableCell>{item.price != null ? `₩${item.price.toLocaleString()}` : '-'}</TableCell>
                 <TableCell>
+                  {item.price != null && item.vatInclusive ? (
+                    <span className="text-xs text-orange-600 font-medium">
+                      {t('items.vatIncl')} ₩{Math.round(item.price * 0.1).toLocaleString()}
+                    </span>
+                  ) : item.price != null && !item.vatInclusive ? (
+                    <span className="text-xs text-gray-400">{t('items.vatExcl')}</span>
+                  ) : '-'}
+                </TableCell>
+                <TableCell>
                   <Badge variant={item.isActive ? 'default' : 'secondary'}>
                     {item.isActive ? t('common.active') : t('common.inactive')}
                   </Badge>
@@ -160,7 +171,7 @@ export default function ItemsPage() {
             ))}
             {items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={10} className="text-center text-gray-500 py-8">
                   {t('items.noItems')}
                 </TableCell>
               </TableRow>
@@ -199,6 +210,9 @@ export default function ItemsPage() {
                 <div className="text-sm text-gray-500 mt-1">
                   {item.category || '-'} · {item.baseUnit} · {(item.lossRate * 100).toFixed(1)}%
                   {item.price != null && ` · ₩${item.price.toLocaleString()}`}
+                  {item.price != null && item.vatInclusive && (
+                    <span className="text-orange-600"> ({t('items.vatIncl')} ₩{Math.round(item.price * 0.1).toLocaleString()})</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -246,7 +260,7 @@ export default function ItemsPage() {
               <Label>{t('items.category')}</Label>
               <Input value={form.category || ''} onChange={(e) => setForm({ ...form, category: e.target.value })} />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('items.baseUnit')}</Label>
                 <Input value={form.baseUnit} onChange={(e) => setForm({ ...form, baseUnit: e.target.value })} />
@@ -256,11 +270,30 @@ export default function ItemsPage() {
                 <Input type="number" step="0.01" value={form.lossRate || 0}
                   onChange={(e) => setForm({ ...form, lossRate: parseFloat(e.target.value) || 0 })} />
               </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>{t('items.price')}</Label>
                 <Input type="number" step="0.01" value={form.price ?? ''}
                   placeholder="₩"
                   onChange={(e) => setForm({ ...form, price: e.target.value ? parseFloat(e.target.value) : undefined })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('items.vat')}</Label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={form.vatInclusive ? 'true' : 'false'}
+                  onChange={(e) => setForm({ ...form, vatInclusive: e.target.value === 'true' })}
+                >
+                  <option value="true">{t('items.vatIncl')}</option>
+                  <option value="false">{t('items.vatExcl')}</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>{t('items.vatAmount')}</Label>
+                <Input readOnly
+                  value={form.price && form.vatInclusive ? `₩${Math.round(form.price * 0.1).toLocaleString()}` : '-'}
+                  className="bg-gray-50" />
               </div>
             </div>
           </div>

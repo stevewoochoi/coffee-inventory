@@ -219,6 +219,7 @@ public class PackagingService {
                 .categoryId(categoryId)
                 .supplierItems(supplierItems)
                 .itemPrice(item != null ? item.getPrice() : null)
+                .vatInclusive(item != null ? item.getVatInclusive() : null)
                 .build();
     }
 }

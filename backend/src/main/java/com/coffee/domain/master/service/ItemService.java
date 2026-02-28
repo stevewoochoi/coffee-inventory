@@ -46,6 +46,7 @@ public class ItemService {
                 .baseUnit(request.getBaseUnit())
                 .lossRate(request.getLossRate() != null ? request.getLossRate() : java.math.BigDecimal.ZERO)
                 .price(request.getPrice())
+                .vatInclusive(request.getVatInclusive() != null ? request.getVatInclusive() : true)
                 .build();
         return toResponse(itemRepository.save(item));
     }
@@ -61,6 +62,9 @@ public class ItemService {
             item.setLossRate(request.getLossRate());
         }
         item.setPrice(request.getPrice());
+        if (request.getVatInclusive() != null) {
+            item.setVatInclusive(request.getVatInclusive());
+        }
         if (request.getMinStockQty() != null) {
             item.setMinStockQty(request.getMinStockQty());
         }
@@ -109,6 +113,7 @@ public class ItemService {
                 .baseUnit(item.getBaseUnit())
                 .lossRate(item.getLossRate())
                 .price(item.getPrice())
+                .vatInclusive(item.getVatInclusive())
                 .minStockQty(item.getMinStockQty())
                 .imageUrl(item.getImageUrl())
                 .isActive(item.getIsActive())

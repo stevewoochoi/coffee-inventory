@@ -1,0 +1,1 @@
+ALTER TABLE item ADD COLUMN vat_inclusive TINYINT(1) NOT NULL DEFAULT 1 AFTER price;

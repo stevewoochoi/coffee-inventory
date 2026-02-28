@@ -179,6 +179,7 @@ export default function PackagingsPage() {
               <TableHead>{t('packagings.qtyPerPack')}</TableHead>
               <TableHead>{t('packagings.supplier')}</TableHead>
               <TableHead>{t('packagings.boxPrice')}</TableHead>
+              <TableHead>{t('items.vat')}</TableHead>
               <TableHead>{t('packagings.unitPrice')}</TableHead>
               <TableHead>{t('common.status')}</TableHead>
               <TableHead className="text-right">{t('common.actions')}</TableHead>
@@ -211,6 +212,15 @@ export default function PackagingsPage() {
                 <TableCell>{pkg.unitsPerPack}</TableCell>
                 <TableCell>{pkg.supplierItems?.[0]?.supplierName || '-'}</TableCell>
                 <TableCell>{formatPrice(pkg.supplierItems?.[0]?.price ?? null)}</TableCell>
+                <TableCell>
+                  {pkg.supplierItems?.[0]?.price != null && pkg.vatInclusive ? (
+                    <span className="text-xs text-orange-600 font-medium">
+                      {t('items.vatIncl')} ₩{Math.round((pkg.supplierItems[0].price) * 0.1).toLocaleString()}
+                    </span>
+                  ) : pkg.supplierItems?.[0]?.price != null && !pkg.vatInclusive ? (
+                    <span className="text-xs text-gray-400">{t('items.vatExcl')}</span>
+                  ) : '-'}
+                </TableCell>
                 <TableCell>{getUnitPrice(pkg)}</TableCell>
                 <TableCell>
                   <Badge variant={pkg.status === 'ACTIVE' ? 'default' : 'secondary'}>
@@ -233,7 +243,7 @@ export default function PackagingsPage() {
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={11} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={12} className="text-center text-gray-500 py-8">
                   {t('packagings.noPackagings')}
                 </TableCell>
               </TableRow>
@@ -373,6 +383,20 @@ export default function PackagingsPage() {
                     value={form.boxPrice && form.unitsPerPack ? `₩${Math.round(form.boxPrice / form.unitsPerPack).toLocaleString()}` : '-'} />
                 </div>
               </div>
+              {(() => {
+                const selectedItem = items.find(i => i.id === form.itemId);
+                const isVat = selectedItem?.vatInclusive ?? false;
+                return form.boxPrice != null && isVat ? (
+                  <div className="flex items-center gap-2 px-1">
+                    <span className="text-xs text-orange-600 font-medium">
+                      {t('items.vatIncl')} 10%: ₩{Math.round(form.boxPrice * 0.1).toLocaleString()}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      ({t('packagings.vatTotal')}: ₩{Math.round(form.boxPrice * 1.1).toLocaleString()})
+                    </span>
+                  </div>
+                ) : null;
+              })()}
               {!editPkg && (
                 <div className="space-y-2">
                   <Label>{t('packagings.selectSupplier')}</Label>

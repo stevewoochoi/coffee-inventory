@@ -469,7 +469,11 @@
     "created": "Item created",
     "saveFailed": "Failed to save item",
     "deleteFailed": "Failed to delete item",
-    "price": "Unit Price"
+    "price": "Unit Price",
+    "vat": "VAT",
+    "vatIncl": "Taxable",
+    "vatExcl": "Tax-free",
+    "vatAmount": "VAT (10%)"
   },
   "packagings": {
     "title": "Packaging Management",
@@ -503,6 +507,7 @@
     "boxPrice": "Box Price",
     "unitPrice": "Unit Price",
     "selectItem": "Select item",
+    "vatTotal": "Total incl. VAT",
     "autoCalcHint": "Auto-calculated: item price × units per pack",
     "unitPriceCalc": "Unit Price (calc)",
     "selectSupplier": "Select Supplier",

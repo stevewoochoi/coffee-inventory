@@ -47,6 +47,7 @@ public class PackagingDto {
         private Long categoryId;
         private List<SupplierItemInfo> supplierItems;
         private BigDecimal itemPrice;
+        private Boolean vatInclusive;
     }
 
     @Getter
