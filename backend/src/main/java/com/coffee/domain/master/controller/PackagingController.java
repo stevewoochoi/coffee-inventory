@@ -2,6 +2,7 @@ package com.coffee.domain.master.controller;
 
 import com.coffee.common.response.ApiResponse;
 import com.coffee.domain.master.dto.PackagingDto;
+import com.coffee.domain.master.entity.PackagingStatus;
 import com.coffee.domain.master.service.PackagingService;
 import com.coffee.domain.upload.dto.UploadDto;
 import jakarta.validation.Valid;
@@ -27,6 +28,21 @@ public class PackagingController {
         return ResponseEntity.ok(ApiResponse.ok(packagingService.findByItemId(itemId)));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<PackagingDto.Response>>> findAll(
+            @RequestParam Long brandId,
+            @RequestParam(required = false) String status) {
+        PackagingStatus ps = null;
+        if (status != null && !status.isEmpty()) {
+            try {
+                ps = PackagingStatus.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                ps = null;
+            }
+        }
+        return ResponseEntity.ok(ApiResponse.ok(packagingService.findAllByBrandId(brandId, ps)));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PackagingDto.Response>> findById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok(packagingService.findById(id)));
@@ -37,6 +53,13 @@ public class PackagingController {
             @Valid @RequestBody PackagingDto.Request request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(packagingService.create(request), "Packaging created"));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<PackagingDto.Response>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody PackagingDto.Request request) {
+        return ResponseEntity.ok(ApiResponse.ok(packagingService.update(id, request), "Packaging updated"));
     }
 
     @PostMapping("/{id}/image")

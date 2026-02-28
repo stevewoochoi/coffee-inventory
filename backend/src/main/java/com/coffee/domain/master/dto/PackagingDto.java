@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class PackagingDto {
 
@@ -37,5 +38,22 @@ public class PackagingDto {
         private String imageUrl;
         private String status;
         private LocalDateTime createdAt;
+        // 추가 필드
+        private String itemName;
+        private String baseUnit;
+        private String categoryName;
+        private Long categoryId;
+        private List<SupplierItemInfo> supplierItems;
+    }
+
+    @Getter
+    @Builder
+    public static class SupplierItemInfo {
+        private Long supplierItemId;
+        private Long supplierId;
+        private String supplierName;
+        private BigDecimal price;
+        private String supplierSku;
+        private Integer leadTimeDays;
     }
 }

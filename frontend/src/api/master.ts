@@ -31,6 +31,15 @@ export interface Page<T> {
 }
 
 // Packaging types
+export interface SupplierItemInfo {
+  supplierItemId: number;
+  supplierId: number;
+  supplierName: string;
+  price: number | null;
+  supplierSku: string | null;
+  leadTimeDays: number;
+}
+
 export interface Packaging {
   id: number;
   itemId: number;
@@ -40,6 +49,11 @@ export interface Packaging {
   imageUrl: string | null;
   status: string;
   createdAt: string;
+  itemName: string;
+  baseUnit: string;
+  categoryName: string | null;
+  categoryId: number | null;
+  supplierItems: SupplierItemInfo[];
 }
 
 export interface PackagingRequest {
@@ -105,8 +119,14 @@ export const masterApi = {
     client.get<ApiResponse<Packaging[]>>('/master/packagings', {
       params: { itemId },
     }),
+  getAllPackagings: (brandId?: number, status?: string) =>
+    client.get<ApiResponse<Packaging[]>>('/master/packagings/all', {
+      params: { brandId, status },
+    }),
   createPackaging: (data: PackagingRequest) =>
     client.post<ApiResponse<Packaging>>('/master/packagings', data),
+  updatePackaging: (id: number, data: PackagingRequest) =>
+    client.put<ApiResponse<Packaging>>(`/master/packagings/${id}`, data),
   updatePackagingImage: (id: number, imageUrl: string) =>
     client.post<ApiResponse<Packaging>>(`/master/packagings/${id}/image`, { imageUrl }),
   deprecatePackaging: (id: number) =>

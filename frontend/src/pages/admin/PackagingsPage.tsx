@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { masterApi, type Packaging, type PackagingRequest } from '@/api/master';
+import { useAuthStore } from '@/store/authStore';
+import { masterApi, type Packaging, type PackagingRequest, type Item } from '@/api/master';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,28 +16,60 @@ import { Badge } from '@/components/ui/badge';
 import ImageUpload from '@/components/ImageUpload';
 
 export default function PackagingsPage() {
-  const [itemId, setItemId] = useState('');
   const [packagings, setPackagings] = useState<Packaging[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [items, setItems] = useState<Item[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [selectedPkg, setSelectedPkg] = useState<Packaging | null>(null);
+  const [editPkg, setEditPkg] = useState<Packaging | null>(null);
+  const [searchText, setSearchText] = useState('');
+  const [showAll, setShowAll] = useState(false);
+  const { user } = useAuthStore();
+  const brandId = user?.brandId ?? 1;
   const { t } = useTranslation();
   const [form, setForm] = useState<PackagingRequest>({
     itemId: 0, packName: '', unitsPerPack: 0,
   });
 
-  const loadPackagings = async () => {
-    if (!itemId) return;
+  const loadPackagings = useCallback(async () => {
     try {
-      const res = await masterApi.getPackagings(Number(itemId));
+      const status = showAll ? undefined : 'ACTIVE';
+      const res = await masterApi.getAllPackagings(brandId, status);
       setPackagings(res.data.data);
-      setLoaded(true);
     } catch { toast.error(t('packagings.loadFailed')); }
-  };
+  }, [brandId, showAll, t]);
+
+  const loadItems = useCallback(async () => {
+    try {
+      const res = await masterApi.getItems(brandId, 0, 1000);
+      setItems(res.data.data.content);
+    } catch { /* items load failure is non-critical */ }
+  }, [brandId]);
+
+  useEffect(() => { loadPackagings(); }, [loadPackagings]);
+  useEffect(() => { loadItems(); }, [loadItems]);
+
+  const filtered = packagings.filter((pkg) => {
+    if (!searchText) return true;
+    const q = searchText.toLowerCase();
+    return (pkg.itemName?.toLowerCase().includes(q)) ||
+           (pkg.packName?.toLowerCase().includes(q));
+  });
 
   const openCreate = () => {
-    setForm({ itemId: Number(itemId), packName: '', unitsPerPack: 0, packBarcode: '' });
+    setEditPkg(null);
+    setForm({ itemId: 0, packName: '', unitsPerPack: 0, packBarcode: '' });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (pkg: Packaging) => {
+    setEditPkg(pkg);
+    setForm({
+      itemId: pkg.itemId,
+      packName: pkg.packName,
+      unitsPerPack: pkg.unitsPerPack,
+      packBarcode: pkg.packBarcode || '',
+    });
     setDialogOpen(true);
   };
 
@@ -55,12 +88,21 @@ export default function PackagingsPage() {
   };
 
   const handleSave = async () => {
+    if (!form.itemId) {
+      toast.error(t('packagings.selectItem'));
+      return;
+    }
     try {
-      await masterApi.createPackaging(form);
-      toast.success(t('packagings.created'));
+      if (editPkg) {
+        await masterApi.updatePackaging(editPkg.id, form);
+        toast.success(t('packagings.updated'));
+      } else {
+        await masterApi.createPackaging(form);
+        toast.success(t('packagings.created'));
+      }
       setDialogOpen(false);
       loadPackagings();
-    } catch { toast.error(t('packagings.createFailed')); }
+    } catch { toast.error(editPkg ? t('packagings.updateFailed') : t('packagings.createFailed')); }
   };
 
   const handleDeprecate = async (id: number) => {
@@ -71,156 +113,213 @@ export default function PackagingsPage() {
     } catch { toast.error(t('packagings.deprecateFailed')); }
   };
 
+  const formatPrice = (price: number | null) => {
+    if (price == null) return '-';
+    return `₩${price.toLocaleString()}`;
+  };
+
+  const getUnitPrice = (pkg: Packaging) => {
+    const si = pkg.supplierItems?.[0];
+    if (!si?.price || !pkg.unitsPerPack) return '-';
+    return formatPrice(Math.round(si.price / pkg.unitsPerPack));
+  };
+
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">{t('packagings.title')}</h2>
-
-      <div className="flex gap-2 mb-6">
-        <Input
-          placeholder={t('packagings.itemIdPlaceholder')}
-          value={itemId}
-          onChange={(e) => setItemId(e.target.value)}
-          className="max-w-xs"
-        />
-        <Button onClick={loadPackagings} className="bg-blue-800 hover:bg-blue-900">
-          {t('packagings.search')}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-900">{t('packagings.title')}</h2>
+        <Button onClick={openCreate} className="bg-blue-800 hover:bg-blue-900">
+          {t('packagings.addPackaging')}
         </Button>
-        {loaded && (
-          <Button onClick={openCreate} variant="outline">
-            {t('packagings.addPackaging')}
-          </Button>
-        )}
       </div>
 
-      {loaded && (
-        <>
-          {/* Desktop: Table view */}
-          <div className="hidden md:block bg-white rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('common.id')}</TableHead>
-                  <TableHead>{t('common.image')}</TableHead>
-                  <TableHead>{t('packagings.packName')}</TableHead>
-                  <TableHead>{t('packagings.qtyPerPack')}</TableHead>
-                  <TableHead>{t('packagings.barcode')}</TableHead>
-                  <TableHead>{t('common.status')}</TableHead>
-                  <TableHead className="text-right">{t('common.actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {packagings.map((pkg) => (
-                  <TableRow key={pkg.id}>
-                    <TableCell>{pkg.id}</TableCell>
-                    <TableCell>
-                      {pkg.imageUrl ? (
-                        <img
-                          src={pkg.imageUrl}
-                          alt={pkg.packName}
-                          className="w-10 h-10 object-cover rounded cursor-pointer"
-                          onClick={() => openImageDialog(pkg)}
-                        />
-                      ) : (
-                        <button
-                          className="w-10 h-10 rounded border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs hover:border-blue-400"
-                          onClick={() => openImageDialog(pkg)}
-                        >
-                          +
-                        </button>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium">{pkg.packName}</TableCell>
-                    <TableCell>{pkg.unitsPerPack}</TableCell>
-                    <TableCell>{pkg.packBarcode || '-'}</TableCell>
-                    <TableCell>
-                      <Badge variant={pkg.status === 'ACTIVE' ? 'default' : 'secondary'}>
-                        {pkg.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="destructive" size="sm" onClick={() => handleDeprecate(pkg.id)}>
-                        {t('packagings.deprecate')}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {packagings.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-gray-500 py-8">
-                      {t('packagings.noPackagings')}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+      {/* 필터 영역 */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Input
+          placeholder={t('packagings.searchPlaceholder')}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          className="max-w-xs"
+        />
+        <Button
+          variant={showAll ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setShowAll(!showAll)}
+        >
+          {showAll ? t('packagings.showAll') : t('packagings.showActive')}
+        </Button>
+      </div>
 
-          {/* Mobile: Card view */}
-          <div className="md:hidden space-y-3">
-            {packagings.map((pkg) => (
-              <div key={pkg.id} className="bg-white rounded-lg border p-4">
-                <div className="flex items-start gap-3 mb-3">
+      {/* Desktop: Table view */}
+      <div className="hidden md:block bg-white rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t('common.image')}</TableHead>
+              <TableHead>{t('packagings.itemName')}</TableHead>
+              <TableHead>{t('packagings.category')}</TableHead>
+              <TableHead>{t('packagings.packName')}</TableHead>
+              <TableHead>{t('packagings.baseUnit')}</TableHead>
+              <TableHead>{t('packagings.qtyPerPack')}</TableHead>
+              <TableHead>{t('packagings.supplier')}</TableHead>
+              <TableHead>{t('packagings.boxPrice')}</TableHead>
+              <TableHead>{t('packagings.unitPrice')}</TableHead>
+              <TableHead>{t('common.status')}</TableHead>
+              <TableHead className="text-right">{t('common.actions')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((pkg) => (
+              <TableRow key={pkg.id}>
+                <TableCell>
                   {pkg.imageUrl ? (
                     <img
                       src={pkg.imageUrl}
                       alt={pkg.packName}
-                      className="w-12 h-12 object-cover rounded cursor-pointer flex-shrink-0"
+                      className="w-10 h-10 object-cover rounded cursor-pointer"
                       onClick={() => openImageDialog(pkg)}
                     />
                   ) : (
                     <button
-                      className="w-12 h-12 rounded border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs hover:border-blue-400 flex-shrink-0"
+                      className="w-10 h-10 rounded border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs hover:border-blue-400"
                       onClick={() => openImageDialog(pkg)}
                     >
                       +
                     </button>
                   )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold truncate">{pkg.packName}</span>
-                      <Badge variant={pkg.status === 'ACTIVE' ? 'default' : 'secondary'} className="flex-shrink-0">
-                        {pkg.status}
-                      </Badge>
-                    </div>
-                    <div className="text-sm text-gray-500 mt-1">
-                      {t('packagings.qtyPerPack')}: {pkg.unitsPerPack} · {pkg.packBarcode || '-'}
-                    </div>
-                  </div>
+                </TableCell>
+                <TableCell className="font-medium">{pkg.itemName || '-'}</TableCell>
+                <TableCell>{pkg.categoryName || '-'}</TableCell>
+                <TableCell>{pkg.packName}</TableCell>
+                <TableCell>{pkg.baseUnit || '-'}</TableCell>
+                <TableCell>{pkg.unitsPerPack}</TableCell>
+                <TableCell>{pkg.supplierItems?.[0]?.supplierName || '-'}</TableCell>
+                <TableCell>{formatPrice(pkg.supplierItems?.[0]?.price ?? null)}</TableCell>
+                <TableCell>{getUnitPrice(pkg)}</TableCell>
+                <TableCell>
+                  <Badge variant={pkg.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                    {pkg.status === 'ACTIVE' ? t('common.active') : t('common.inactive')}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right space-x-2">
+                  {pkg.status === 'ACTIVE' && (
+                    <>
+                      <Button variant="outline" size="sm" onClick={() => openEdit(pkg)}>
+                        {t('common.edit')}
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDeprecate(pkg.id)}>
+                        {t('packagings.deprecate')}
+                      </Button>
+                    </>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+            {filtered.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={11} className="text-center text-gray-500 py-8">
+                  {t('packagings.noPackagings')}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile: Card view */}
+      <div className="md:hidden space-y-3">
+        {filtered.map((pkg) => (
+          <div key={pkg.id} className="bg-white rounded-lg border p-4">
+            <div className="flex items-start gap-3 mb-3">
+              {pkg.imageUrl ? (
+                <img
+                  src={pkg.imageUrl}
+                  alt={pkg.packName}
+                  className="w-12 h-12 object-cover rounded cursor-pointer flex-shrink-0"
+                  onClick={() => openImageDialog(pkg)}
+                />
+              ) : (
+                <button
+                  className="w-12 h-12 rounded border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs hover:border-blue-400 flex-shrink-0"
+                  onClick={() => openImageDialog(pkg)}
+                >
+                  +
+                </button>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold truncate">{pkg.itemName || '-'}</span>
+                  <Badge variant={pkg.status === 'ACTIVE' ? 'default' : 'secondary'} className="flex-shrink-0">
+                    {pkg.status === 'ACTIVE' ? t('common.active') : t('common.inactive')}
+                  </Badge>
                 </div>
-                <Button variant="destructive" size="sm" className="w-full min-h-[44px]" onClick={() => handleDeprecate(pkg.id)}>
+                <div className="text-sm text-gray-500 mt-1">
+                  {pkg.packName} · {pkg.unitsPerPack}{pkg.baseUnit || ''}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {pkg.categoryName || '-'} · {pkg.supplierItems?.[0]?.supplierName || '-'}
+                </div>
+                {pkg.supplierItems?.[0]?.price != null && (
+                  <div className="text-sm text-gray-700 mt-1">
+                    {t('packagings.boxPrice')}: {formatPrice(pkg.supplierItems[0].price)} · {t('packagings.unitPrice')}: {getUnitPrice(pkg)}
+                  </div>
+                )}
+              </div>
+            </div>
+            {pkg.status === 'ACTIVE' && (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1 min-h-[44px]" onClick={() => openEdit(pkg)}>
+                  {t('common.edit')}
+                </Button>
+                <Button variant="destructive" size="sm" className="flex-1 min-h-[44px]" onClick={() => handleDeprecate(pkg.id)}>
                   {t('packagings.deprecate')}
                 </Button>
               </div>
-            ))}
-            {packagings.length === 0 && (
-              <div className="text-center text-gray-500 py-8 bg-white rounded-lg border">
-                {t('packagings.noPackagings')}
-              </div>
             )}
           </div>
-        </>
-      )}
+        ))}
+        {filtered.length === 0 && (
+          <div className="text-center text-gray-500 py-8 bg-white rounded-lg border">
+            {t('packagings.noPackagings')}
+          </div>
+        )}
+      </div>
 
-      {/* Create Dialog */}
+      {/* Edit/Create Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('packagings.addTitle')}</DialogTitle>
+            <DialogTitle>{editPkg ? t('packagings.editTitle') : t('packagings.addTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>{t('packagings.itemName')}</Label>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={form.itemId}
+                onChange={(e) => setForm({ ...form, itemId: Number(e.target.value) })}
+              >
+                <option value={0}>{t('packagings.selectItem')}</option>
+                {items.map((item) => (
+                  <option key={item.id} value={item.id}>{item.name} ({item.baseUnit})</option>
+                ))}
+              </select>
+            </div>
             <div className="space-y-2">
               <Label>{t('packagings.packName')}</Label>
               <Input value={form.packName} onChange={(e) => setForm({ ...form, packName: e.target.value })} />
             </div>
-            <div className="space-y-2">
-              <Label>{t('packagings.qtyPerPack')}</Label>
-              <Input type="number" value={form.unitsPerPack}
-                onChange={(e) => setForm({ ...form, unitsPerPack: parseFloat(e.target.value) || 0 })} />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('packagings.barcode')}</Label>
-              <Input value={form.packBarcode || ''}
-                onChange={(e) => setForm({ ...form, packBarcode: e.target.value })} />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{t('packagings.qtyPerPack')}</Label>
+                <Input type="number" value={form.unitsPerPack}
+                  onChange={(e) => setForm({ ...form, unitsPerPack: parseFloat(e.target.value) || 0 })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('packagings.barcode')}</Label>
+                <Input value={form.packBarcode || ''}
+                  onChange={(e) => setForm({ ...form, packBarcode: e.target.value })} />
+              </div>
             </div>
           </div>
           <DialogFooter>
