@@ -34,6 +34,7 @@ public class ItemDto {
         private BigDecimal lossRate;
         private BigDecimal price;
         private Boolean vatInclusive;
+        private Long supplierId;
         private BigDecimal minStockQty;
     }
 
@@ -57,6 +58,8 @@ public class ItemDto {
         private BigDecimal lossRate;
         private BigDecimal price;
         private Boolean vatInclusive;
+        private Long supplierId;
+        private String supplierName;
         private BigDecimal minStockQty;
         private String imageUrl;
         private Boolean isActive;

@@ -473,7 +473,9 @@
     "vat": "부가세",
     "vatIncl": "과세",
     "vatExcl": "면세",
-    "vatAmount": "부가세 (10%)"
+    "vatAmount": "부가세 (10%)",
+    "supplier": "공급사",
+    "selectSupplier": "공급사 선택"
   },
   "packagings": {
     "title": "포장단위 관리",

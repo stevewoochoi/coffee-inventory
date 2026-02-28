@@ -45,6 +45,9 @@ public class Item {
     @Builder.Default
     private Boolean vatInclusive = true;
 
+    @Column(name = "supplier_id")
+    private Long supplierId;
+
     @Column(name = "min_stock_qty", precision = 12, scale = 3)
     private BigDecimal minStockQty;
 

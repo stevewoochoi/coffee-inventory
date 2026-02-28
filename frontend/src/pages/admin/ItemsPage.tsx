@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
-import { masterApi, type Item, type ItemRequest } from '@/api/master';
+import { masterApi, type Item, type ItemRequest, type Supplier } from '@/api/master';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,7 +26,15 @@ export default function ItemsPage() {
   const { user } = useAuthStore();
   const brandId = user?.brandId ?? 1;
   const { t } = useTranslation();
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [form, setForm] = useState<ItemRequest>({ brandId, name: '', baseUnit: 'g' });
+
+  const loadSuppliers = useCallback(async () => {
+    try {
+      const res = await masterApi.getSuppliers(brandId);
+      setSuppliers(res.data.data);
+    } catch { /* non-critical */ }
+  }, [brandId]);
 
   const loadItems = useCallback(async () => {
     try {
@@ -37,10 +45,11 @@ export default function ItemsPage() {
   }, [page, t]);
 
   useEffect(() => { loadItems(); }, [loadItems]);
+  useEffect(() => { loadSuppliers(); }, [loadSuppliers]);
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ brandId, name: '', baseUnit: 'g', category: '', lossRate: 0, price: undefined, vatInclusive: true });
+    setForm({ brandId, name: '', baseUnit: 'g', category: '', lossRate: 0, price: undefined, vatInclusive: true, supplierId: undefined });
     setDialogOpen(true);
   };
 
@@ -54,6 +63,7 @@ export default function ItemsPage() {
       lossRate: item.lossRate,
       price: item.price ?? undefined,
       vatInclusive: item.vatInclusive ?? true,
+      supplierId: item.supplierId ?? undefined,
     });
     setDialogOpen(true);
   };
@@ -111,6 +121,7 @@ export default function ItemsPage() {
               <TableHead>{t('common.image')}</TableHead>
               <TableHead>{t('common.name')}</TableHead>
               <TableHead>{t('items.category')}</TableHead>
+              <TableHead>{t('items.supplier')}</TableHead>
               <TableHead>{t('items.baseUnit')}</TableHead>
               <TableHead>{t('items.lossRate')}</TableHead>
               <TableHead>{t('items.price')}</TableHead>
@@ -142,6 +153,7 @@ export default function ItemsPage() {
                 </TableCell>
                 <TableCell className="font-medium">{item.name}</TableCell>
                 <TableCell>{item.category || '-'}</TableCell>
+                <TableCell>{item.supplierName || '-'}</TableCell>
                 <TableCell>{item.baseUnit}</TableCell>
                 <TableCell>{(item.lossRate * 100).toFixed(1)}%</TableCell>
                 <TableCell>{item.price != null ? `₩${item.price.toLocaleString()}` : '-'}</TableCell>
@@ -171,7 +183,7 @@ export default function ItemsPage() {
             ))}
             {items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={10} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={11} className="text-center text-gray-500 py-8">
                   {t('items.noItems')}
                 </TableCell>
               </TableRow>
@@ -208,7 +220,7 @@ export default function ItemsPage() {
                   </Badge>
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
-                  {item.category || '-'} · {item.baseUnit} · {(item.lossRate * 100).toFixed(1)}%
+                  {item.category || '-'} · {item.supplierName || '-'} · {item.baseUnit} · {(item.lossRate * 100).toFixed(1)}%
                   {item.price != null && ` · ₩${item.price.toLocaleString()}`}
                   {item.price != null && item.vatInclusive && (
                     <span className="text-orange-600"> ({t('items.vatIncl')} ₩{Math.round(item.price * 0.1).toLocaleString()})</span>
@@ -256,9 +268,24 @@ export default function ItemsPage() {
               <Label>{t('common.name')}</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
-            <div className="space-y-2">
-              <Label>{t('items.category')}</Label>
-              <Input value={form.category || ''} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{t('items.category')}</Label>
+                <Input value={form.category || ''} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('items.supplier')}</Label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={form.supplierId ?? ''}
+                  onChange={(e) => setForm({ ...form, supplierId: e.target.value ? Number(e.target.value) : undefined })}
+                >
+                  <option value="">{t('items.selectSupplier')}</option>
+                  {suppliers.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

@@ -11,6 +11,8 @@ export interface Item {
   lossRate: number;
   price: number | null;
   vatInclusive: boolean;
+  supplierId: number | null;
+  supplierName: string | null;
   isActive: boolean;
   imageUrl: string | null;
   createdAt: string;
@@ -24,6 +26,7 @@ export interface ItemRequest {
   lossRate?: number;
   price?: number;
   vatInclusive?: boolean;
+  supplierId?: number;
 }
 
 export interface Page<T> {
