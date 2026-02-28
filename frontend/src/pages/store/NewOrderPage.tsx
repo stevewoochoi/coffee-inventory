@@ -64,6 +64,9 @@ export default function NewOrderPage() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [confirmResult, setConfirmResult] = useState<ConfirmResponse | null>(null);
 
+  // Suggestion dialog
+  const [suggestionItem, setSuggestionItem] = useState<CatalogItem | null>(null);
+
   useEffect(() => {
     loadDeliveryDates();
   }, []);
@@ -166,6 +169,24 @@ export default function NewOrderPage() {
         supplierId: pkg.supplierId, supplierName: pkg.supplierName,
       }];
     });
+  }
+
+  function handlePlusClick(item: CatalogItem, packagingIdx: number) {
+    const pkg = item.packagings[packagingIdx];
+    if (!pkg) return;
+    const qty = getCartQty(item.itemId, pkg.packagingId);
+    if (qty === 0 && item.suggestedQty > 0) {
+      setSuggestionItem(item);
+    } else {
+      updateCartQty(item, packagingIdx, 1);
+    }
+  }
+
+  function formatPackUnit(unitsPerPack: number, unit: string): string {
+    const formatted = Number.isInteger(unitsPerPack)
+      ? unitsPerPack.toString()
+      : parseFloat(unitsPerPack.toFixed(2)).toString();
+    return `${formatted}${unit}`;
   }
 
   const totalCartItems = localCart.reduce((sum, c) => sum + c.quantity, 0);
@@ -452,6 +473,7 @@ export default function NewOrderPage() {
                       </div>
                       <div className="text-xs text-gray-400 mt-0.5">
                         {pkg.label} / {'\u20A9'}{pkg.unitPrice.toLocaleString()}
+                        <span className="ml-1.5 text-blue-600 font-medium">(1팩={formatPackUnit(pkg.unitsPerPack, item.unit)})</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -467,13 +489,13 @@ export default function NewOrderPage() {
                         }}
                         className="w-14 h-10 text-center text-sm" min={1} max={pkg.maxOrderQty > 0 ? pkg.maxOrderQty : undefined} />
                       <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
-                        onClick={() => updateCartQty(item, 0, 1)}>+</Button>
+                        onClick={() => handlePlusClick(item, 0)}>+</Button>
                     </div>
                   </div>
                   {item.suggestedQty > 0 && qty === 0 && (
                     <button className="text-xs text-blue-600 mt-1 hover:underline"
-                      onClick={() => setCartQty(item, 0, item.suggestedQty)}>
-                      {t('ordering.steps.addSuggested', { qty: item.suggestedQty })}
+                      onClick={() => setSuggestionItem(item)}>
+                      AI 추천: {item.suggestedQty}팩
                     </button>
                   )}
                 </CardContent>
@@ -500,11 +522,12 @@ export default function NewOrderPage() {
                   <div>
                     <p className="font-medium text-xs truncate">{item.itemName}</p>
                     <p className="text-xs text-gray-500">{'\u20A9'}{pkg.unitPrice.toLocaleString()}</p>
+                    <p className="text-xs text-blue-600 font-medium">1팩={formatPackUnit(pkg.unitsPerPack, item.unit)}</p>
                   </div>
                   <div className="flex items-center gap-1">
                     <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -1)} disabled={qty === 0}>-</Button>
                     <span className="w-8 text-center text-sm font-bold">{qty}</span>
-                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, 1)}>+</Button>
+                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handlePlusClick(item, 0)}>+</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -655,6 +678,68 @@ export default function NewOrderPage() {
           )}
         </div>
       )}
+
+      {/* Suggestion Dialog */}
+      <AlertDialog open={!!suggestionItem} onOpenChange={(open) => { if (!open) setSuggestionItem(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>AI 추천 수량 안내</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                <p className="font-semibold text-base text-foreground">{suggestionItem?.itemName}</p>
+                <div className="bg-gray-50 rounded-lg p-3 space-y-1.5">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">현재 재고</span>
+                    <span className="font-medium">{suggestionItem?.currentStock.toFixed(0)} {suggestionItem?.unit}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">최소 재고</span>
+                    <span className="font-medium">{suggestionItem?.minStock.toFixed(0)} {suggestionItem?.unit}</span>
+                  </div>
+                  {suggestionItem?.daysUntilEmpty != null && suggestionItem.daysUntilEmpty < 999 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">예상 소진</span>
+                      <span className={`font-medium ${suggestionItem.daysUntilEmpty <= 3 ? 'text-red-600' : ''}`}>
+                        {suggestionItem.daysUntilEmpty.toFixed(0)}일 후
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between border-t pt-1.5">
+                    <span className="text-gray-500">패킹 단위</span>
+                    <span className="font-medium text-blue-600">
+                      1팩 = {suggestionItem && formatPackUnit(suggestionItem.packagings[0]?.unitsPerPack ?? 0, suggestionItem.unit)}
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-3 text-center">
+                  <span className="text-gray-600">AI 추천 수량: </span>
+                  <span className="text-blue-800 font-bold text-lg">{suggestionItem?.suggestedQty}팩</span>
+                  {suggestionItem && suggestionItem.packagings[0] && (
+                    <span className="text-gray-500 text-xs block mt-0.5">
+                      ({formatPackUnit(suggestionItem.packagings[0].unitsPerPack * suggestionItem.suggestedQty, suggestionItem.unit)})
+                    </span>
+                  )}
+                </div>
+                <p className="text-gray-500 text-center">추천 수량으로 추가하시겠습니까?</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              if (suggestionItem) {
+                updateCartQty(suggestionItem, 0, 1);
+              }
+              setSuggestionItem(null);
+            }}>1팩만 추가</AlertDialogCancel>
+            <AlertDialogAction className="bg-blue-800 hover:bg-blue-900" onClick={() => {
+              if (suggestionItem) {
+                setCartQty(suggestionItem, 0, suggestionItem.suggestedQty);
+              }
+              setSuggestionItem(null);
+            }}>추천 수량 추가 ({suggestionItem?.suggestedQty}팩)</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
