@@ -9,4 +9,6 @@ import java.util.List;
 public interface DeliveryHolidayRepository extends JpaRepository<DeliveryHoliday, Long> {
 
     List<DeliveryHoliday> findByBrandIdAndHolidayDateBetween(Long brandId, LocalDate from, LocalDate to);
+
+    List<DeliveryHoliday> findByBrandIdOrderByHolidayDateAsc(Long brandId);
 }

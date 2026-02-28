@@ -69,8 +69,11 @@ public class DeliveryService {
     @Transactional
     public DeliveryScanDto.Response addScan(Long deliveryId, DeliveryScanDto.Request request) {
         Delivery delivery = getOrThrow(deliveryId);
-        if (delivery.getStatus() == DeliveryStatus.COMPLETED || delivery.getStatus() == DeliveryStatus.CANCELLED) {
-            throw new BusinessException("Cannot scan for completed or cancelled delivery", HttpStatus.BAD_REQUEST);
+        if (delivery.getStatus() == DeliveryStatus.COMPLETED) {
+            throw new BusinessException("이미 완료된 입고 건입니다", HttpStatus.BAD_REQUEST);
+        }
+        if (delivery.getStatus() == DeliveryStatus.CANCELLED) {
+            throw new BusinessException("취소된 입고 건에는 스캔할 수 없습니다", HttpStatus.BAD_REQUEST);
         }
 
         if (delivery.getStatus() == DeliveryStatus.PENDING) {
@@ -99,7 +102,7 @@ public class DeliveryService {
     public DeliveryDto.Response confirm(Long deliveryId, Long userId) {
         Delivery delivery = getOrThrow(deliveryId);
         if (delivery.getStatus() == DeliveryStatus.COMPLETED) {
-            throw new BusinessException("Delivery already confirmed", HttpStatus.BAD_REQUEST);
+            throw new BusinessException("이미 완료된 입고 건입니다", HttpStatus.BAD_REQUEST);
         }
 
         List<DeliveryScan> scans = scanRepository.findByDeliveryId(deliveryId);

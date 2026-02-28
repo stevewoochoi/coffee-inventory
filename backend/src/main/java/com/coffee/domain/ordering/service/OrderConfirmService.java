@@ -149,8 +149,8 @@ public class OrderConfirmService {
         OrderPlan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new ResourceNotFoundException("OrderPlan", planId));
 
-        if (plan.getStatus() != OrderStatus.CONFIRMED) {
-            throw new BusinessException("Only CONFIRMED orders can be modified", HttpStatus.BAD_REQUEST);
+        if (plan.getStatus() != OrderStatus.CONFIRMED && plan.getStatus() != OrderStatus.DRAFT) {
+            throw new BusinessException("Only DRAFT or CONFIRMED orders can be modified", HttpStatus.BAD_REQUEST);
         }
 
         // Check cutoff
