@@ -1,5 +1,6 @@
 package com.coffee.domain.ordering.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ public class OrderPlanDto {
     @Setter
     public static class OrderLineDto {
         @NotNull private Long packagingId;
-        @NotNull private Integer packQty;
+        @NotNull @Min(1) private Integer packQty;
     }
 
     @Getter

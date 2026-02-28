@@ -35,6 +35,8 @@ export default function ReportsPage() {
   const [to, setTo] = useState(lastDay);
   const [month, setMonth] = useState(monthStr);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const [consumption, setConsumption] = useState<ConsumptionReport | null>(null);
   const [waste, setWaste] = useState<WasteReport | null>(null);
@@ -43,6 +45,7 @@ export default function ReportsPage() {
 
   async function loadReport() {
     setLoading(true);
+    setError(false);
     try {
       switch (tab) {
         case 'consumption': {
@@ -67,9 +70,34 @@ export default function ReportsPage() {
         }
       }
     } catch {
+      setError(true);
       toast.error(t('reports.loadFailed'));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDownloadPdf() {
+    setDownloading(true);
+    try {
+      const params: Record<string, string> = { tab };
+      if (tab === 'order-cost') {
+        params.month = month;
+      } else if (tab !== 'loss-rate') {
+        params.from = from;
+        params.to = to;
+      }
+      const res = await reportApi.downloadPdf(storeId, params);
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report-${tab}-${new Date().toISOString().split('T')[0]}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      toast.error('PDF 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setDownloading(false);
     }
   }
 
@@ -141,10 +169,29 @@ export default function ReportsPage() {
         >
           {loading ? t('common.loading') : t('common.loadReport')}
         </Button>
+        <Button
+          size="lg"
+          variant="outline"
+          className="text-base px-6 py-3"
+          onClick={handleDownloadPdf}
+          disabled={downloading || loading}
+        >
+          {downloading ? t('common.loading') ?? '다운로드 중...' : 'PDF'}
+        </Button>
       </div>
 
+      {/* Error fallback */}
+      {error && (
+        <div className="text-center py-12 bg-white rounded-lg border">
+          <p className="text-gray-500 mb-4">보고서를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.</p>
+          <Button onClick={loadReport} className="bg-blue-800 hover:bg-blue-900">
+            {t('common.retry') ?? '다시 시도'}
+          </Button>
+        </div>
+      )}
+
       {/* Report content */}
-      {tab === 'consumption' && consumption && (
+      {!error && tab === 'consumption' && consumption && (
         <div className="space-y-2">
           <p className="text-sm text-gray-500">
             {t('reports.totalConsumption')} <span className="font-bold text-gray-900">{consumption.totalQty}</span>
@@ -180,7 +227,7 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {tab === 'waste' && waste && (
+      {!error && tab === 'waste' && waste && (
         <div className="space-y-2">
           <p className="text-sm text-gray-500">
             {t('reports.totalWaste')} <span className="font-bold text-gray-900">{waste.totalQty}</span>
@@ -223,7 +270,7 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {tab === 'loss-rate' && lossRate && (
+      {!error && tab === 'loss-rate' && lossRate && (
         <>
           {/* Desktop */}
           <div className="hidden md:block">
@@ -275,7 +322,7 @@ export default function ReportsPage() {
         </>
       )}
 
-      {tab === 'order-cost' && orderCost && (
+      {!error && tab === 'order-cost' && orderCost && (
         <div className="space-y-2">
           <div className="flex gap-4 text-sm text-gray-500">
             <span>{t('reports.orders')} <span className="font-bold text-gray-900">{orderCost.totalOrders}</span></span>

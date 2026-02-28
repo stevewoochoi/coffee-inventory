@@ -48,9 +48,10 @@ export default function PhysicalCountPage() {
     try {
       setStarting(true);
       const res = await physicalCountApi.start(storeId, user?.userId ?? 1);
+      toast.success(t('physicalCount.startSuccess') ?? '재고실사가 시작되었습니다.');
       navigate(`/store/physical-count/${res.data.data.id}`);
     } catch {
-      toast.error(t('physicalCount.startFailed'));
+      toast.error(t('physicalCount.startFailed') ?? '재고실사 시작에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setStarting(false);
     }

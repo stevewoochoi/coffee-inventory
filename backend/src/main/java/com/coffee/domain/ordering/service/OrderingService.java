@@ -21,12 +21,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class OrderingService {
+
+    private static final BigDecimal VAT_RATE = new BigDecimal("0.10");
 
     private final OrderPlanRepository planRepository;
     private final OrderLineRepository lineRepository;
@@ -35,6 +39,7 @@ public class OrderingService {
     private final PackagingRepository packagingRepository;
     private final ItemRepository itemRepository;
     private final SupplierItemRepository supplierItemRepository;
+    private final DeliveryPolicyService policyService;
 
     public List<OrderPlanDto.Response> findByStoreId(Long storeId) {
         return planRepository.findByStoreIdOrderByCreatedAtDesc(storeId).stream()
@@ -101,21 +106,54 @@ public class OrderingService {
 
     @Transactional
     public OrderPlanDto.Response create(OrderPlanDto.CreateRequest request) {
+        // FIX-07: Validate supplier exists
+        supplierRepository.findById(request.getSupplierId())
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier", request.getSupplierId()));
+
         OrderPlan plan = OrderPlan.builder()
                 .storeId(request.getStoreId())
                 .supplierId(request.getSupplierId())
                 .build();
         planRepository.save(plan);
 
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
         if (request.getLines() != null) {
             for (OrderPlanDto.OrderLineDto line : request.getLines()) {
+                // FIX-02: Validate supplier-item mapping
+                SupplierItem supplierItem = supplierItemRepository
+                        .findBySupplierIdAndPackagingId(request.getSupplierId(), line.getPackagingId())
+                        .orElseThrow(() -> new BusinessException(
+                                "해당 공급사에 등록되지 않은 품목입니다: packagingId=" + line.getPackagingId(),
+                                HttpStatus.BAD_REQUEST));
+
+                // FIX-06: Validate maxOrderQty
+                Packaging packaging = packagingRepository.findById(line.getPackagingId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Packaging", line.getPackagingId()));
+                Item item = itemRepository.findById(packaging.getItemId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Item", packaging.getItemId()));
+                if (item.getMaxOrderQty() != null && line.getPackQty() > item.getMaxOrderQty()) {
+                    throw new BusinessException(
+                            "최대 발주 수량(" + item.getMaxOrderQty() + ")을 초과했습니다: " + item.getName(),
+                            HttpStatus.BAD_REQUEST);
+                }
+
                 lineRepository.save(OrderLine.builder()
                         .orderPlanId(plan.getId())
                         .packagingId(line.getPackagingId())
                         .packQty(line.getPackQty())
                         .build());
+
+                // FIX-03: Calculate amount
+                totalAmount = totalAmount.add(supplierItem.getPrice().multiply(BigDecimal.valueOf(line.getPackQty())));
             }
         }
+
+        // FIX-03: Set amounts
+        BigDecimal vatAmount = totalAmount.multiply(VAT_RATE).setScale(2, RoundingMode.HALF_UP);
+        plan.setTotalAmount(totalAmount);
+        plan.setVatAmount(vatAmount);
+        planRepository.save(plan);
 
         return toResponse(plan);
     }
@@ -127,7 +165,19 @@ public class OrderingService {
             throw new BusinessException("Only DRAFT orders can be confirmed", HttpStatus.BAD_REQUEST);
         }
         plan.setStatus(OrderStatus.CONFIRMED);
-        plan.setConfirmedAt(java.time.LocalDateTime.now());
+        plan.setConfirmedAt(LocalDateTime.now());
+
+        // FIX-04: Calculate cutoffAt if not set
+        if (plan.getDeliveryDate() != null) {
+            DeliveryPolicy policy = policyService.getStorePolicy(plan.getStoreId());
+            if (policy != null) {
+                plan.setCutoffAt(policyService.calculateCutoff(plan.getDeliveryDate(), policy));
+            }
+        }
+        if (plan.getCutoffAt() == null) {
+            plan.setCutoffAt(LocalDateTime.now().plusHours(24));
+        }
+
         return toResponse(planRepository.save(plan));
     }
 

@@ -456,8 +456,14 @@ export default function NewOrderPage() {
                       <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
                         onClick={() => updateCartQty(item, 0, -1)} disabled={qty === 0}>-</Button>
                       <Input type="number" value={qty}
-                        onChange={(e) => setCartQty(item, 0, parseInt(e.target.value) || 0)}
-                        className="w-14 h-10 text-center text-sm" min={0} max={pkg.maxOrderQty} />
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value) || 0;
+                          if (val > pkg.maxOrderQty) {
+                            toast.error(`최대 주문 수량은 ${pkg.maxOrderQty}개입니다.`);
+                          }
+                          setCartQty(item, 0, val < 1 ? 1 : val);
+                        }}
+                        className="w-14 h-10 text-center text-sm" min={1} max={pkg.maxOrderQty} />
                       <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
                         onClick={() => {
                           if (qty === 0 && item.suggestedQty > 0) setCartQty(item, 0, item.suggestedQty);

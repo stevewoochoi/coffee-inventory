@@ -2,7 +2,11 @@ package com.coffee.domain.ordering.service;
 
 import com.coffee.common.exception.BusinessException;
 import com.coffee.common.exception.ResourceNotFoundException;
+import com.coffee.domain.master.entity.Item;
+import com.coffee.domain.master.entity.Packaging;
 import com.coffee.domain.master.entity.SupplierItem;
+import com.coffee.domain.master.repository.ItemRepository;
+import com.coffee.domain.master.repository.PackagingRepository;
 import com.coffee.domain.master.repository.SupplierItemRepository;
 import com.coffee.domain.ordering.dto.OrderPlanDto;
 import com.coffee.domain.ordering.entity.*;
@@ -36,6 +40,8 @@ public class OrderConfirmService {
     private final OrderLineRepository lineRepository;
     private final DeliveryPolicyService policyService;
     private final SupplierItemRepository supplierItemRepository;
+    private final PackagingRepository packagingRepository;
+    private final ItemRepository itemRepository;
 
     @Transactional
     public OrderPlanDto.ConfirmCartResponse confirmCart(Long cartId) {
@@ -124,9 +130,14 @@ public class OrderConfirmService {
             throw new BusinessException("Only DRAFT or CONFIRMED orders can be cancelled", HttpStatus.BAD_REQUEST);
         }
 
-        // Check cutoff
-        if (plan.getCutoffAt() != null && LocalDateTime.now().isAfter(plan.getCutoffAt())) {
-            throw new BusinessException("Cannot cancel order after cutoff time", HttpStatus.BAD_REQUEST);
+        // FIX-04: Check cutoff - CONFIRMED orders with null cutoff cannot be cancelled
+        if (plan.getStatus() == OrderStatus.CONFIRMED) {
+            if (plan.getCutoffAt() == null) {
+                throw new BusinessException("Cannot cancel order: cutoff time is not set", HttpStatus.BAD_REQUEST);
+            }
+            if (LocalDateTime.now().isAfter(plan.getCutoffAt())) {
+                throw new BusinessException("Cannot cancel order after cutoff time", HttpStatus.BAD_REQUEST);
+            }
         }
 
         plan.setStatus(OrderStatus.CANCELLED);
@@ -155,16 +166,28 @@ public class OrderConfirmService {
 
         if (request.getLines() != null) {
             for (OrderPlanDto.OrderLineDto lineDto : request.getLines()) {
+                BigDecimal linePrice = supplierItemRepository
+                        .findBySupplierIdAndPackagingId(plan.getSupplierId(), lineDto.getPackagingId())
+                        .map(SupplierItem::getPrice)
+                        .orElse(BigDecimal.ZERO);
+
+                // FIX-06: Validate maxOrderQty
+                Packaging packaging = packagingRepository.findById(lineDto.getPackagingId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Packaging", lineDto.getPackagingId()));
+                Item item = itemRepository.findById(packaging.getItemId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Item", packaging.getItemId()));
+                if (item.getMaxOrderQty() != null && lineDto.getPackQty() > item.getMaxOrderQty()) {
+                    throw new BusinessException(
+                            "최대 발주 수량(" + item.getMaxOrderQty() + ")을 초과했습니다: " + item.getName(),
+                            HttpStatus.BAD_REQUEST);
+                }
+
                 lineRepository.save(OrderLine.builder()
                         .orderPlanId(planId)
                         .packagingId(lineDto.getPackagingId())
                         .packQty(lineDto.getPackQty())
                         .build());
 
-                BigDecimal linePrice = supplierItemRepository
-                        .findBySupplierIdAndPackagingId(plan.getSupplierId(), lineDto.getPackagingId())
-                        .map(SupplierItem::getPrice)
-                        .orElse(BigDecimal.ZERO);
                 totalAmount = totalAmount.add(linePrice.multiply(BigDecimal.valueOf(lineDto.getPackQty())));
             }
         }

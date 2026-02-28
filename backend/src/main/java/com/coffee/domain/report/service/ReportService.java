@@ -46,6 +46,7 @@ public class ReportService {
         LocalDateTime since = from.atStartOfDay();
         List<Object[]> sellData = stockLedgerRepository.sumQtyByStoreIdAndTypeSince(
                 storeId, LedgerType.SELL, since);
+        if (sellData == null) sellData = Collections.emptyList();
 
         List<ReportDto.ItemConsumption> items = sellData.stream()
                 .map(row -> {
@@ -75,7 +76,8 @@ public class ReportService {
     }
 
     public ReportDto.WasteReport getWasteReport(Long storeId, LocalDate from, LocalDate to) {
-        List<Waste> wastes = wasteRepository.findByStoreIdOrderByCreatedAtDesc(storeId).stream()
+        List<Waste> allWastes = wasteRepository.findByStoreIdOrderByCreatedAtDesc(storeId);
+        List<Waste> wastes = (allWastes != null ? allWastes : List.<Waste>of()).stream()
                 .filter(w -> w.getCreatedAt() != null)
                 .filter(w -> {
                     LocalDate d = w.getCreatedAt().toLocalDate();
@@ -91,7 +93,7 @@ public class ReportService {
                     Long itemId = entry.getKey();
                     List<Waste> itemWastes = entry.getValue();
                     BigDecimal totalQty = itemWastes.stream()
-                            .map(Waste::getQtyBaseUnit)
+                            .map(w -> w.getQtyBaseUnit() != null ? w.getQtyBaseUnit() : BigDecimal.ZERO)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
                     String topReason = itemWastes.stream()
                             .filter(w -> w.getReason() != null)
@@ -131,6 +133,7 @@ public class ReportService {
 
         List<OrderPlan> plans = orderPlanRepository.findByStoreIdAndStatusInAndCreatedAtBetween(
                 storeId, List.of(OrderStatus.CONFIRMED, OrderStatus.DISPATCHED), from, to);
+        if (plans == null) plans = Collections.emptyList();
 
         // Aggregate: key = packagingId, value = total packQty
         Map<Long, Integer> packQtyByPackaging = new HashMap<>();
@@ -138,6 +141,7 @@ public class ReportService {
 
         for (OrderPlan plan : plans) {
             List<OrderLine> lines = orderLineRepository.findByOrderPlanId(plan.getId());
+            if (lines == null) lines = Collections.emptyList();
             for (OrderLine line : lines) {
                 packQtyByPackaging.merge(line.getPackagingId(), line.getPackQty(), Integer::sum);
                 supplierByPackaging.putIfAbsent(line.getPackagingId(), plan.getSupplierId());
@@ -193,13 +197,15 @@ public class ReportService {
 
         List<Object[]> receiveData = stockLedgerRepository.sumQtyByStoreIdAndTypeSince(
                 storeId, LedgerType.RECEIVE, sixMonthsAgo);
+        if (receiveData == null) receiveData = Collections.emptyList();
         List<Object[]> wasteData = stockLedgerRepository.sumQtyByStoreIdAndTypeSince(
                 storeId, LedgerType.WASTE, sixMonthsAgo);
+        if (wasteData == null) wasteData = Collections.emptyList();
 
         Map<Long, BigDecimal> receiveMap = receiveData.stream()
-                .collect(Collectors.toMap(r -> (Long) r[0], r -> (BigDecimal) r[1]));
+                .collect(Collectors.toMap(r -> (Long) r[0], r -> r[1] != null ? (BigDecimal) r[1] : BigDecimal.ZERO));
         Map<Long, BigDecimal> wasteMap = wasteData.stream()
-                .collect(Collectors.toMap(r -> (Long) r[0], r -> (BigDecimal) r[1]));
+                .collect(Collectors.toMap(r -> (Long) r[0], r -> r[1] != null ? (BigDecimal) r[1] : BigDecimal.ZERO));
 
         List<ReportDto.ItemLossRate> items = receiveMap.entrySet().stream()
                 .map(entry -> {

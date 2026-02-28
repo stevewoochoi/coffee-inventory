@@ -33,6 +33,7 @@ function TaskCard({ label, count, color, bgColor, onClick }: {
 export default function StoreDashboardPage() {
   const [data, setData] = useState<StoreDashboard | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const storeId = user?.storeId ?? 1;
@@ -41,16 +42,35 @@ export default function StoreDashboardPage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
+      setError(false);
       const res = await dashboardApi.getStoreDashboard(storeId);
       setData(res.data.data);
-    } catch { toast.error(t('dashboard.loadFailed')); }
-    finally { setLoading(false); }
+    } catch {
+      setError(true);
+      toast.error(t('dashboard.loadFailed'));
+    } finally {
+      setLoading(false);
+    }
   }, [storeId, t]);
 
   useEffect(() => { load(); }, [load]);
 
-  if (loading || !data) {
+  if (loading) {
     return <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>;
+  }
+
+  if (error || !data) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 mb-4">데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.</p>
+        <button
+          onClick={load}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          {t('common.retry') ?? '다시 시도'}
+        </button>
+      </div>
+    );
   }
 
   const chartData = data.dailyConsumption.map(d => ({

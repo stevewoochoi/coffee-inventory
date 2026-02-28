@@ -80,4 +80,10 @@ export const reportApi = {
     client.get<ApiResponse<OrderCostReport>>('/reports/order-cost', {
       params: { storeId, month },
     }),
+
+  downloadPdf: (storeId: number, params: Record<string, string>) =>
+    client.get('/reports/pdf', {
+      params: { storeId, ...params },
+      responseType: 'blob',
+    }),
 };

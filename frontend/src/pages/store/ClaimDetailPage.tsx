@@ -53,6 +53,8 @@ export default function ClaimDetailPage() {
   const { t } = useTranslation();
   const [claim, setClaim] = useState<ClaimResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [resolving, setResolving] = useState(false);
+  const [resolutionNote, setResolutionNote] = useState('');
 
   useEffect(() => {
     if (id) loadClaim(Number(id));
@@ -67,6 +69,29 @@ export default function ClaimDetailPage() {
       toast.error(t('claims.detail.loadFailed'));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResolve() {
+    if (!claim) return;
+    try {
+      setResolving(true);
+      const data: import('@/api/claims').ResolveClaimRequest = {
+        status: 'RESOLVED',
+        resolutionNote: resolutionNote || undefined,
+        lines: claim.lines.map(line => ({
+          claimLineId: line.id,
+          acceptedQty: line.claimedQty,
+        })),
+      };
+      const res = await claimsApi.resolve(claim.id, data);
+      setClaim(res.data.data);
+      setResolutionNote('');
+      toast.success(t('claims.detail.resolveSuccess') ?? '클레임이 해결되었습니다.');
+    } catch {
+      toast.error(t('claims.detail.resolveFailed') ?? '클레임 해결에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setResolving(false);
     }
   }
 
@@ -226,6 +251,30 @@ export default function ClaimDetailPage() {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Resolve action */}
+      {(claim.status === 'SUBMITTED' || claim.status === 'IN_REVIEW') && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">{t('claims.detail.resolveAction') ?? '클레임 해결'}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <textarea
+              value={resolutionNote}
+              onChange={(e) => setResolutionNote(e.target.value)}
+              placeholder={t('claims.detail.resolutionNotePlaceholder') ?? '해결 내용을 입력하세요'}
+              className="w-full border rounded-lg p-3 text-sm min-h-[80px] resize-y"
+            />
+            <Button
+              className="w-full bg-green-600 hover:bg-green-700 min-h-[44px]"
+              onClick={handleResolve}
+              disabled={resolving}
+            >
+              {resolving ? t('common.processing') ?? '처리 중...' : t('claims.detail.resolve') ?? '해결 완료'}
+            </Button>
           </CardContent>
         </Card>
       )}

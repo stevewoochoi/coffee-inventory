@@ -31,6 +31,7 @@ public class OrderPdfService {
                 .orElseThrow(() -> new ResourceNotFoundException("OrderPlan", planId));
 
         List<OrderLine> lines = lineRepository.findByOrderPlanId(planId);
+        if (lines == null) lines = List.of();
 
         Supplier supplier = supplierRepository.findById(plan.getSupplierId())
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier", plan.getSupplierId()));

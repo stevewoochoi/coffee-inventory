@@ -1,6 +1,7 @@
 package com.coffee.domain.ordering.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 @Entity
@@ -22,6 +23,7 @@ public class OrderLine {
     @Column(name = "packaging_id", nullable = false)
     private Long packagingId;
 
+    @Min(1)
     @Column(name = "pack_qty", nullable = false)
     private Integer packQty;
 }

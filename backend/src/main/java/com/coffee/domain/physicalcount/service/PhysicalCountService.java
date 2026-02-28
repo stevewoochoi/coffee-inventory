@@ -43,6 +43,7 @@ public class PhysicalCountService {
 
         // 현재 스냅샷 기준으로 아이템별 합산 라인 자동 생성
         List<InventorySnapshot> snapshots = snapshotRepository.findByStoreId(request.getStoreId());
+        if (snapshots == null) snapshots = List.of();
 
         // 아이템별 수량 합산 (lot별 스냅샷이 여러 개일 수 있으므로)
         var itemQtyMap = snapshots.stream()
@@ -50,7 +51,7 @@ public class PhysicalCountService {
                         InventorySnapshot::getItemId,
                         java.util.stream.Collectors.reducing(
                                 BigDecimal.ZERO,
-                                InventorySnapshot::getQtyBaseUnit,
+                                s -> s.getQtyBaseUnit() != null ? s.getQtyBaseUnit() : BigDecimal.ZERO,
                                 BigDecimal::add)));
 
         List<PhysicalCountLine> lines = itemQtyMap.entrySet().stream()

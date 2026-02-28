@@ -84,7 +84,15 @@ public class ClaimService {
             throw new BusinessException("Claim is already closed", HttpStatus.BAD_REQUEST);
         }
 
-        ClaimStatus newStatus = ClaimStatus.valueOf(request.getStatus());
+        if (request.getStatus() == null || request.getStatus().isBlank()) {
+            throw new BusinessException("Status is required", HttpStatus.BAD_REQUEST);
+        }
+        ClaimStatus newStatus;
+        try {
+            newStatus = ClaimStatus.valueOf(request.getStatus());
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException("Invalid status: " + request.getStatus(), HttpStatus.BAD_REQUEST);
+        }
         claim.setStatus(newStatus);
         claim.setResolutionNote(request.getResolutionNote());
 
@@ -97,7 +105,9 @@ public class ClaimService {
             for (ClaimDto.AcceptedLineInput lineInput : request.getLines()) {
                 ClaimLine line = claimLineRepository.findById(lineInput.getClaimLineId())
                         .orElseThrow(() -> new ResourceNotFoundException("ClaimLine", lineInput.getClaimLineId()));
-                line.setAcceptedQty(lineInput.getAcceptedQty());
+                if (lineInput.getAcceptedQty() != null) {
+                    line.setAcceptedQty(lineInput.getAcceptedQty());
+                }
                 claimLineRepository.save(line);
             }
         }

@@ -54,12 +54,14 @@ public class DashboardService {
         // 오늘 입고 건수
         List<Object[]> receiveData = stockLedgerRepository.sumQtyByStoreIdAndTypeSince(
                 storeId, LedgerType.RECEIVE, todayStart);
+        if (receiveData == null) receiveData = List.of();
         long todayReceiveCount = receiveData.size();
 
         // 오늘 폐기량
-        BigDecimal todayWasteQty = wasteRepository.findByStoreIdOrderByCreatedAtDesc(storeId).stream()
+        List<com.coffee.domain.waste.entity.Waste> allWastes = wasteRepository.findByStoreIdOrderByCreatedAtDesc(storeId);
+        BigDecimal todayWasteQty = (allWastes != null ? allWastes : List.<Waste>of()).stream()
                 .filter(w -> w.getCreatedAt() != null && w.getCreatedAt().toLocalDate().equals(today))
-                .map(Waste::getQtyBaseUnit)
+                .map(w -> w.getQtyBaseUnit() != null ? w.getQtyBaseUnit() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // 저재고 수
@@ -74,9 +76,11 @@ public class DashboardService {
         LocalDateTime weekAgo = today.minusDays(7).atStartOfDay();
         List<Object[]> sellData = stockLedgerRepository.sumQtyByStoreIdAndTypeSince(
                 storeId, LedgerType.SELL, weekAgo);
+        if (sellData == null) sellData = List.of();
         // sellData는 아이템별 합산이므로, 전체 합산
+        final List<Object[]> finalSellData = sellData;
         BigDecimal totalSellQty = sellData.stream()
-                .map(row -> (BigDecimal) row[1])
+                .map(row -> row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // 간단히 7일 평균으로 일별 데이터 생성
@@ -95,8 +99,8 @@ public class DashboardService {
             Store store = storeRepository.findById(storeId).orElse(null);
             if (store != null) {
                 OrderNeedsDto.Response needs = orderNeedsService.getOrderNeeds(storeId, store.getBrandId());
-                urgentOrderCount = needs.getUrgent().size();
-                recommendedOrderCount = needs.getRecommended().size();
+                urgentOrderCount = needs.getUrgent() != null ? needs.getUrgent().size() : 0;
+                recommendedOrderCount = needs.getRecommended() != null ? needs.getRecommended().size() : 0;
             }
         } catch (Exception ignored) {}
 
@@ -107,8 +111,12 @@ public class DashboardService {
 
         // V5: Stock status breakdown
         Map<Long, BigDecimal> stockByItem = new java.util.HashMap<>();
-        snapshotRepository.findByStoreId(storeId)
-                .forEach(s -> stockByItem.merge(s.getItemId(), s.getQtyBaseUnit(), BigDecimal::add));
+        List<InventorySnapshot> snapshots = snapshotRepository.findByStoreId(storeId);
+        if (snapshots != null) {
+            snapshots.forEach(s -> stockByItem.merge(s.getItemId(),
+                    s.getQtyBaseUnit() != null ? s.getQtyBaseUnit() : BigDecimal.ZERO,
+                    BigDecimal::add));
+        }
 
         int totalItems = stockByItem.size();
         int outOfStockCount = 0;
@@ -132,7 +140,7 @@ public class DashboardService {
                 .build();
 
         // V5: Top 5 consumption items
-        List<DashboardDto.TopConsumption> topConsumption = sellData.stream()
+        List<DashboardDto.TopConsumption> topConsumption = finalSellData.stream()
                 .sorted((a, b) -> ((BigDecimal) b[1]).compareTo((BigDecimal) a[1]))
                 .limit(5)
                 .map(row -> {
