@@ -127,10 +127,11 @@ export default function NewOrderPage() {
   function updateCartQty(catalogItem: CatalogItem, packagingIdx: number, delta: number) {
     const pkg = catalogItem.packagings[packagingIdx];
     if (!pkg) return;
+    const maxQty = pkg.maxOrderQty > 0 ? pkg.maxOrderQty : 9999;
     setLocalCart(prev => {
       const existing = prev.find(c => c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId);
       if (existing) {
-        const newQty = Math.max(0, Math.min(pkg.maxOrderQty, existing.quantity + delta));
+        const newQty = Math.max(0, Math.min(maxQty, existing.quantity + delta));
         if (newQty === 0) return prev.filter(c => !(c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId));
         return prev.map(c => c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId ? { ...c, quantity: newQty } : c);
       } else if (delta > 0) {
@@ -138,7 +139,7 @@ export default function NewOrderPage() {
           itemId: catalogItem.itemId, itemName: catalogItem.itemName,
           packagingId: pkg.packagingId, packLabel: pkg.label,
           unitPrice: pkg.unitPrice, unitsPerPack: pkg.unitsPerPack,
-          quantity: Math.min(pkg.maxOrderQty, delta),
+          quantity: Math.min(maxQty, delta),
           supplierId: pkg.supplierId, supplierName: pkg.supplierName,
         }];
       }
@@ -149,8 +150,9 @@ export default function NewOrderPage() {
   function setCartQty(catalogItem: CatalogItem, packagingIdx: number, qty: number) {
     const pkg = catalogItem.packagings[packagingIdx];
     if (!pkg) return;
+    const maxQty = pkg.maxOrderQty > 0 ? pkg.maxOrderQty : 9999;
     setLocalCart(prev => {
-      const clamped = Math.max(0, Math.min(pkg.maxOrderQty, qty));
+      const clamped = Math.max(0, Math.min(maxQty, qty));
       if (clamped === 0) return prev.filter(c => !(c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId));
       const existing = prev.find(c => c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId);
       if (existing) {
@@ -458,12 +460,12 @@ export default function NewOrderPage() {
                       <Input type="number" value={qty}
                         onChange={(e) => {
                           const val = parseInt(e.target.value) || 0;
-                          if (val > pkg.maxOrderQty) {
+                          if (pkg.maxOrderQty > 0 && val > pkg.maxOrderQty) {
                             toast.error(`최대 주문 수량은 ${pkg.maxOrderQty}개입니다.`);
                           }
                           setCartQty(item, 0, val < 1 ? 1 : val);
                         }}
-                        className="w-14 h-10 text-center text-sm" min={1} max={pkg.maxOrderQty} />
+                        className="w-14 h-10 text-center text-sm" min={1} max={pkg.maxOrderQty > 0 ? pkg.maxOrderQty : undefined} />
                       <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
                         onClick={() => {
                           if (qty === 0 && item.suggestedQty > 0) setCartQty(item, 0, item.suggestedQty);
