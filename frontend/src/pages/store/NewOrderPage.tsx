@@ -467,10 +467,7 @@ export default function NewOrderPage() {
                         }}
                         className="w-14 h-10 text-center text-sm" min={1} max={pkg.maxOrderQty > 0 ? pkg.maxOrderQty : undefined} />
                       <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
-                        onClick={() => {
-                          if (qty === 0 && item.suggestedQty > 0) setCartQty(item, 0, item.suggestedQty);
-                          else updateCartQty(item, 0, 1);
-                        }}>+</Button>
+                        onClick={() => updateCartQty(item, 0, 1)}>+</Button>
                     </div>
                   </div>
                   {item.suggestedQty > 0 && qty === 0 && (
@@ -507,10 +504,7 @@ export default function NewOrderPage() {
                   <div className="flex items-center gap-1">
                     <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -1)} disabled={qty === 0}>-</Button>
                     <span className="w-8 text-center text-sm font-bold">{qty}</span>
-                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => {
-                      if (qty === 0 && item.suggestedQty > 0) setCartQty(item, 0, item.suggestedQty);
-                      else updateCartQty(item, 0, 1);
-                    }}>+</Button>
+                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, 1)}>+</Button>
                   </div>
                 </CardContent>
               </Card>
