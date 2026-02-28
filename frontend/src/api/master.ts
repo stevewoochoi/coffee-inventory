@@ -9,6 +9,7 @@ export interface Item {
   category: string | null;
   baseUnit: string;
   lossRate: number;
+  price: number | null;
   isActive: boolean;
   imageUrl: string | null;
   createdAt: string;
@@ -20,6 +21,7 @@ export interface ItemRequest {
   category?: string;
   baseUnit: string;
   lossRate?: number;
+  price?: number;
 }
 
 export interface Page<T> {
@@ -54,6 +56,7 @@ export interface Packaging {
   categoryName: string | null;
   categoryId: number | null;
   supplierItems: SupplierItemInfo[];
+  itemPrice: number | null;
 }
 
 export interface PackagingRequest {
@@ -61,6 +64,8 @@ export interface PackagingRequest {
   packName: string;
   unitsPerPack: number;
   packBarcode?: string;
+  boxPrice?: number;
+  supplierId?: number;
 }
 
 // Supplier types

@@ -25,6 +25,8 @@ public class PackagingDto {
         private BigDecimal unitsPerPack;
 
         private String packBarcode;
+        private BigDecimal boxPrice;
+        private Long supplierId;
     }
 
     @Getter
@@ -44,6 +46,7 @@ public class PackagingDto {
         private String categoryName;
         private Long categoryId;
         private List<SupplierItemInfo> supplierItems;
+        private BigDecimal itemPrice;
     }
 
     @Getter

@@ -32,6 +32,7 @@ public class ItemDto {
         private String baseUnit;
 
         private BigDecimal lossRate;
+        private BigDecimal price;
         private BigDecimal minStockQty;
     }
 
@@ -53,6 +54,7 @@ public class ItemDto {
         private String categoryName;
         private String baseUnit;
         private BigDecimal lossRate;
+        private BigDecimal price;
         private BigDecimal minStockQty;
         private String imageUrl;
         private Boolean isActive;

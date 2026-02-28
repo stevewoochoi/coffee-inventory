@@ -40,7 +40,7 @@ export default function ItemsPage() {
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ brandId, name: '', baseUnit: 'g', category: '', lossRate: 0 });
+    setForm({ brandId, name: '', baseUnit: 'g', category: '', lossRate: 0, price: undefined });
     setDialogOpen(true);
   };
 
@@ -52,6 +52,7 @@ export default function ItemsPage() {
       baseUnit: item.baseUnit,
       category: item.category || '',
       lossRate: item.lossRate,
+      price: item.price ?? undefined,
     });
     setDialogOpen(true);
   };
@@ -111,6 +112,7 @@ export default function ItemsPage() {
               <TableHead>{t('items.category')}</TableHead>
               <TableHead>{t('items.baseUnit')}</TableHead>
               <TableHead>{t('items.lossRate')}</TableHead>
+              <TableHead>{t('items.price')}</TableHead>
               <TableHead>{t('common.status')}</TableHead>
               <TableHead className="text-right">{t('common.actions')}</TableHead>
             </TableRow>
@@ -140,6 +142,7 @@ export default function ItemsPage() {
                 <TableCell>{item.category || '-'}</TableCell>
                 <TableCell>{item.baseUnit}</TableCell>
                 <TableCell>{(item.lossRate * 100).toFixed(1)}%</TableCell>
+                <TableCell>{item.price != null ? `₩${item.price.toLocaleString()}` : '-'}</TableCell>
                 <TableCell>
                   <Badge variant={item.isActive ? 'default' : 'secondary'}>
                     {item.isActive ? t('common.active') : t('common.inactive')}
@@ -157,7 +160,7 @@ export default function ItemsPage() {
             ))}
             {items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={9} className="text-center text-gray-500 py-8">
                   {t('items.noItems')}
                 </TableCell>
               </TableRow>
@@ -195,6 +198,7 @@ export default function ItemsPage() {
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
                   {item.category || '-'} · {item.baseUnit} · {(item.lossRate * 100).toFixed(1)}%
+                  {item.price != null && ` · ₩${item.price.toLocaleString()}`}
                 </div>
               </div>
             </div>
@@ -242,7 +246,7 @@ export default function ItemsPage() {
               <Label>{t('items.category')}</Label>
               <Input value={form.category || ''} onChange={(e) => setForm({ ...form, category: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>{t('items.baseUnit')}</Label>
                 <Input value={form.baseUnit} onChange={(e) => setForm({ ...form, baseUnit: e.target.value })} />
@@ -251,6 +255,12 @@ export default function ItemsPage() {
                 <Label>{t('items.lossRate')}</Label>
                 <Input type="number" step="0.01" value={form.lossRate || 0}
                   onChange={(e) => setForm({ ...form, lossRate: parseFloat(e.target.value) || 0 })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('items.price')}</Label>
+                <Input type="number" step="0.01" value={form.price ?? ''}
+                  placeholder="₩"
+                  onChange={(e) => setForm({ ...form, price: e.target.value ? parseFloat(e.target.value) : undefined })} />
               </div>
             </div>
           </div>

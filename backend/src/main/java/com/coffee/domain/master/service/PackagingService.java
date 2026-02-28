@@ -89,7 +89,20 @@ public class PackagingService {
                 .unitsPerPack(request.getUnitsPerPack())
                 .packBarcode(request.getPackBarcode())
                 .build();
-        return toResponse(packagingRepository.save(packaging));
+        Packaging saved = packagingRepository.save(packaging);
+
+        if (request.getBoxPrice() != null && request.getSupplierId() != null) {
+            supplierRepository.findById(request.getSupplierId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Supplier", request.getSupplierId()));
+            SupplierItem si = SupplierItem.builder()
+                    .supplierId(request.getSupplierId())
+                    .packagingId(saved.getId())
+                    .price(request.getBoxPrice())
+                    .build();
+            supplierItemRepository.save(si);
+        }
+
+        return toResponse(saved);
     }
 
     @Transactional
@@ -103,6 +116,26 @@ public class PackagingService {
                     .orElseThrow(() -> new ResourceNotFoundException("Item", request.getItemId()));
             packaging.setItemId(request.getItemId());
         }
+
+        if (request.getBoxPrice() != null) {
+            if (request.getSupplierId() != null) {
+                SupplierItem si = supplierItemRepository
+                        .findBySupplierIdAndPackagingId(request.getSupplierId(), id)
+                        .orElseGet(() -> SupplierItem.builder()
+                                .supplierId(request.getSupplierId())
+                                .packagingId(id)
+                                .build());
+                si.setPrice(request.getBoxPrice());
+                supplierItemRepository.save(si);
+            } else {
+                List<SupplierItem> sis = supplierItemRepository.findByPackagingId(id);
+                if (!sis.isEmpty()) {
+                    sis.get(0).setPrice(request.getBoxPrice());
+                    supplierItemRepository.save(sis.get(0));
+                }
+            }
+        }
+
         return toResponse(packagingRepository.save(packaging));
     }
 
@@ -185,6 +218,7 @@ public class PackagingService {
                 .categoryName(categoryName)
                 .categoryId(categoryId)
                 .supplierItems(supplierItems)
+                .itemPrice(item != null ? item.getPrice() : null)
                 .build();
     }
 }

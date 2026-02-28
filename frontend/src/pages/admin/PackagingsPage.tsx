@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
-import { masterApi, type Packaging, type PackagingRequest, type Item } from '@/api/master';
+import { masterApi, type Packaging, type PackagingRequest, type Item, type Supplier } from '@/api/master';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,6 +27,8 @@ export default function PackagingsPage() {
   const { user } = useAuthStore();
   const brandId = user?.brandId ?? 1;
   const { t } = useTranslation();
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [boxPriceOverridden, setBoxPriceOverridden] = useState(false);
   const [form, setForm] = useState<PackagingRequest>({
     itemId: 0, packName: '', unitsPerPack: 0,
   });
@@ -46,8 +48,16 @@ export default function PackagingsPage() {
     } catch { /* items load failure is non-critical */ }
   }, [brandId]);
 
+  const loadSuppliers = useCallback(async () => {
+    try {
+      const res = await masterApi.getSuppliers(brandId);
+      setSuppliers(res.data.data);
+    } catch { /* non-critical */ }
+  }, [brandId]);
+
   useEffect(() => { loadPackagings(); }, [loadPackagings]);
   useEffect(() => { loadItems(); }, [loadItems]);
+  useEffect(() => { loadSuppliers(); }, [loadSuppliers]);
 
   const filtered = packagings.filter((pkg) => {
     if (!searchText) return true;
@@ -58,17 +68,23 @@ export default function PackagingsPage() {
 
   const openCreate = () => {
     setEditPkg(null);
-    setForm({ itemId: 0, packName: '', unitsPerPack: 0, packBarcode: '' });
+    setBoxPriceOverridden(false);
+    setForm({ itemId: 0, packName: '', unitsPerPack: 0, packBarcode: '', boxPrice: undefined, supplierId: undefined });
     setDialogOpen(true);
   };
 
   const openEdit = (pkg: Packaging) => {
     setEditPkg(pkg);
+    const existingBoxPrice = pkg.supplierItems?.[0]?.price ?? undefined;
+    const existingSupplierId = pkg.supplierItems?.[0]?.supplierId ?? undefined;
+    setBoxPriceOverridden(existingBoxPrice != null);
     setForm({
       itemId: pkg.itemId,
       packName: pkg.packName,
       unitsPerPack: pkg.unitsPerPack,
       packBarcode: pkg.packBarcode || '',
+      boxPrice: existingBoxPrice,
+      supplierId: existingSupplierId,
     });
     setDialogOpen(true);
   };
@@ -297,7 +313,14 @@ export default function PackagingsPage() {
               <select
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={form.itemId}
-                onChange={(e) => setForm({ ...form, itemId: Number(e.target.value) })}
+                onChange={(e) => {
+                  const newItemId = Number(e.target.value);
+                  const selectedItem = items.find(i => i.id === newItemId);
+                  const autoPrice = (!boxPriceOverridden && selectedItem?.price && form.unitsPerPack)
+                    ? Math.round(selectedItem.price * form.unitsPerPack)
+                    : form.boxPrice;
+                  setForm({ ...form, itemId: newItemId, boxPrice: autoPrice });
+                }}
               >
                 <option value={0}>{t('packagings.selectItem')}</option>
                 {items.map((item) => (
@@ -313,13 +336,58 @@ export default function PackagingsPage() {
               <div className="space-y-2">
                 <Label>{t('packagings.qtyPerPack')}</Label>
                 <Input type="number" value={form.unitsPerPack}
-                  onChange={(e) => setForm({ ...form, unitsPerPack: parseFloat(e.target.value) || 0 })} />
+                  onChange={(e) => {
+                    const newQty = parseFloat(e.target.value) || 0;
+                    const selectedItem = items.find(i => i.id === form.itemId);
+                    const autoPrice = (!boxPriceOverridden && selectedItem?.price && newQty)
+                      ? Math.round(selectedItem.price * newQty)
+                      : form.boxPrice;
+                    setForm({ ...form, unitsPerPack: newQty, boxPrice: autoPrice });
+                  }} />
               </div>
               <div className="space-y-2">
                 <Label>{t('packagings.barcode')}</Label>
                 <Input value={form.packBarcode || ''}
                   onChange={(e) => setForm({ ...form, packBarcode: e.target.value })} />
               </div>
+            </div>
+            {/* Box Price Section */}
+            <div className="border-t pt-4 space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('packagings.boxPrice')}</Label>
+                  <Input type="number" step="1" value={form.boxPrice ?? ''}
+                    placeholder="₩"
+                    onChange={(e) => {
+                      const val = e.target.value ? parseFloat(e.target.value) : undefined;
+                      setBoxPriceOverridden(val != null);
+                      setForm({ ...form, boxPrice: val });
+                    }} />
+                  {!boxPriceOverridden && form.boxPrice != null && (
+                    <p className="text-xs text-gray-400">{t('packagings.autoCalcHint')}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('packagings.unitPriceCalc')}</Label>
+                  <Input readOnly
+                    value={form.boxPrice && form.unitsPerPack ? `₩${Math.round(form.boxPrice / form.unitsPerPack).toLocaleString()}` : '-'} />
+                </div>
+              </div>
+              {!editPkg && (
+                <div className="space-y-2">
+                  <Label>{t('packagings.selectSupplier')}</Label>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={form.supplierId ?? ''}
+                    onChange={(e) => setForm({ ...form, supplierId: e.target.value ? Number(e.target.value) : undefined })}
+                  >
+                    <option value="">{t('packagings.selectSupplier')}</option>
+                    {suppliers.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>

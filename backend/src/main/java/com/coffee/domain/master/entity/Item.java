@@ -38,6 +38,9 @@ public class Item {
     @Builder.Default
     private BigDecimal lossRate = BigDecimal.ZERO;
 
+    @Column(name = "price", precision = 12, scale = 2)
+    private BigDecimal price;
+
     @Column(name = "min_stock_qty", precision = 12, scale = 3)
     private BigDecimal minStockQty;
 

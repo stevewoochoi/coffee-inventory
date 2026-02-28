@@ -468,7 +468,8 @@
     "updated": "Item updated",
     "created": "Item created",
     "saveFailed": "Failed to save item",
-    "deleteFailed": "Failed to delete item"
+    "deleteFailed": "Failed to delete item",
+    "price": "Unit Price"
   },
   "packagings": {
     "title": "Packaging Management",
@@ -502,6 +503,9 @@
     "boxPrice": "Box Price",
     "unitPrice": "Unit Price",
     "selectItem": "Select item",
+    "autoCalcHint": "Auto-calculated: item price × units per pack",
+    "unitPriceCalc": "Unit Price (calc)",
+    "selectSupplier": "Select Supplier",
     "showActive": "Active only",
     "showAll": "All",
     "searchPlaceholder": "Search by item or pack name..."

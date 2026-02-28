@@ -45,6 +45,7 @@ public class ItemService {
                 .categoryId(request.getCategoryId())
                 .baseUnit(request.getBaseUnit())
                 .lossRate(request.getLossRate() != null ? request.getLossRate() : java.math.BigDecimal.ZERO)
+                .price(request.getPrice())
                 .build();
         return toResponse(itemRepository.save(item));
     }
@@ -59,6 +60,7 @@ public class ItemService {
         if (request.getLossRate() != null) {
             item.setLossRate(request.getLossRate());
         }
+        item.setPrice(request.getPrice());
         if (request.getMinStockQty() != null) {
             item.setMinStockQty(request.getMinStockQty());
         }
@@ -106,6 +108,7 @@ public class ItemService {
                 .categoryName(categoryName)
                 .baseUnit(item.getBaseUnit())
                 .lossRate(item.getLossRate())
+                .price(item.getPrice())
                 .minStockQty(item.getMinStockQty())
                 .imageUrl(item.getImageUrl())
                 .isActive(item.getIsActive())
