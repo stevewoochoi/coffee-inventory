@@ -46,6 +46,11 @@ public class SupplierService {
                 .brandId(request.getBrandId())
                 .name(request.getName())
                 .email(request.getEmail())
+                .bizNo(request.getBizNo())
+                .representative(request.getRepresentative())
+                .phone(request.getPhone())
+                .address(request.getAddress())
+                .memo(request.getMemo())
                 .orderMethod(request.getOrderMethod() != null
                         ? OrderMethod.valueOf(request.getOrderMethod()) : OrderMethod.EMAIL)
                 .build();
@@ -57,6 +62,11 @@ public class SupplierService {
         Supplier supplier = getOrThrow(id);
         supplier.setName(request.getName());
         if (request.getEmail() != null) supplier.setEmail(request.getEmail());
+        if (request.getBizNo() != null) supplier.setBizNo(request.getBizNo());
+        if (request.getRepresentative() != null) supplier.setRepresentative(request.getRepresentative());
+        if (request.getPhone() != null) supplier.setPhone(request.getPhone());
+        if (request.getAddress() != null) supplier.setAddress(request.getAddress());
+        if (request.getMemo() != null) supplier.setMemo(request.getMemo());
         if (request.getOrderMethod() != null) supplier.setOrderMethod(OrderMethod.valueOf(request.getOrderMethod()));
         return toResponse(supplierRepository.save(supplier));
     }
@@ -108,6 +118,11 @@ public class SupplierService {
                 .brandId(s.getBrandId())
                 .name(s.getName())
                 .email(s.getEmail())
+                .bizNo(s.getBizNo())
+                .representative(s.getRepresentative())
+                .phone(s.getPhone())
+                .address(s.getAddress())
+                .memo(s.getMemo())
                 .orderMethod(s.getOrderMethod().name())
                 .createdAt(s.getCreatedAt())
                 .build();

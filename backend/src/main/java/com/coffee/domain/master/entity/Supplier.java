@@ -27,6 +27,21 @@ public class Supplier {
     @Column(length = 200)
     private String email;
 
+    @Column(name = "biz_no", length = 20)
+    private String bizNo;
+
+    @Column(length = 50)
+    private String representative;
+
+    @Column(length = 30)
+    private String phone;
+
+    @Column(length = 300)
+    private String address;
+
+    @Column(columnDefinition = "TEXT")
+    private String memo;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "order_method")
     @Builder.Default

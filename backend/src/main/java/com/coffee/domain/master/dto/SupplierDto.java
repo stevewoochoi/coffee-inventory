@@ -20,6 +20,11 @@ public class SupplierDto {
         private String name;
 
         private String email;
+        private String bizNo;
+        private String representative;
+        private String phone;
+        private String address;
+        private String memo;
         private String orderMethod;
     }
 
@@ -30,6 +35,11 @@ public class SupplierDto {
         private Long brandId;
         private String name;
         private String email;
+        private String bizNo;
+        private String representative;
+        private String phone;
+        private String address;
+        private String memo;
         private String orderMethod;
         private LocalDateTime createdAt;
     }
