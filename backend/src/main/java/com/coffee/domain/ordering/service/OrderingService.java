@@ -251,9 +251,13 @@ public class OrderingService {
                 }).toList();
     }
 
-    public List<OrderPlanDto.DetailedResponse> findAllByBrandId(Long brandId, Long supplierId, String status) {
-        List<Store> stores = storeRepository.findByBrandId(brandId);
-        List<Long> storeIds = stores.stream().map(Store::getId).toList();
+    public List<OrderPlanDto.DetailedResponse> findAllByBrandId(Long brandId, Long supplierId, Long storeId, String status) {
+        List<Long> storeIds;
+        if (storeId != null) {
+            storeIds = List.of(storeId);
+        } else {
+            storeIds = storeRepository.findByBrandId(brandId).stream().map(Store::getId).toList();
+        }
         if (storeIds.isEmpty()) {
             return List.of();
         }

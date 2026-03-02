@@ -224,7 +224,7 @@ export const orderingApi = {
   getPlans: (storeId: number) =>
     client.get<ApiResponse<OrderPlan[]>>('/ordering/plans', { params: { storeId } }),
 
-  getAllPlans: (params: { brandId: number; supplierId?: number; status?: string }) =>
+  getAllPlans: (params: { brandId: number; supplierId?: number; storeId?: number; status?: string }) =>
     client.get<ApiResponse<OrderDetailedResponse[]>>('/ordering/plans/all', { params }),
 
   getSupplierSummary: (brandId: number) =>

@@ -25,6 +25,7 @@ export default function OrderingAdminPage() {
   const [summary, setSummary] = useState<SupplierSummary[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [filterSupplier, setFilterSupplier] = useState<string>('');
+  const [filterStore, setFilterStore] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,8 +37,9 @@ export default function OrderingAdminPage() {
   const loadPlans = useCallback(async () => {
     setLoading(true);
     try {
-      const params: { brandId: number; supplierId?: number; status?: string } = { brandId };
+      const params: { brandId: number; supplierId?: number; storeId?: number; status?: string } = { brandId };
       if (filterSupplier) params.supplierId = Number(filterSupplier);
+      if (filterStore) params.storeId = Number(filterStore);
       if (filterStatus) params.status = filterStatus;
       const res = await orderingApi.getAllPlans(params);
       setPlans(res.data.data);
@@ -46,7 +48,7 @@ export default function OrderingAdminPage() {
     } finally {
       setLoading(false);
     }
-  }, [brandId, filterSupplier, filterStatus, t]);
+  }, [brandId, filterSupplier, filterStore, filterStatus, t]);
 
   const loadSummary = useCallback(async () => {
     try {
@@ -66,10 +68,25 @@ export default function OrderingAdminPage() {
   useEffect(() => { loadSummary(); }, [loadSummary]);
   useEffect(() => { loadSuppliers(); }, [loadSuppliers]);
 
+  // 매장 목록 추출 (전체 plans에서 — 필터 전 데이터가 필요하므로 별도 로드)
+  const [allStores, setAllStores] = useState<{id: number; name: string}[]>([]);
+  const loadStores = useCallback(async () => {
+    try {
+      const res = await orderingApi.getAllPlans({ brandId });
+      const storeMap = new Map<number, string>();
+      res.data.data.forEach((p: OrderDetailedResponse) => {
+        if (p.storeId && p.storeName) storeMap.set(p.storeId, p.storeName);
+      });
+      setAllStores(Array.from(storeMap, ([id, name]) => ({ id, name })));
+    } catch { /* non-critical */ }
+  }, [brandId]);
+  useEffect(() => { loadStores(); }, [loadStores]);
+
   const filtered = plans.filter((p) => {
     if (!searchText) return true;
     const q = searchText.toLowerCase();
     return (p.supplierName?.toLowerCase().includes(q)) ||
+           (p.storeName?.toLowerCase().includes(q)) ||
            (String(p.id).includes(q));
   });
 
@@ -102,6 +119,16 @@ export default function OrderingAdminPage() {
               onChange={(e) => setSearchText(e.target.value)}
               className="max-w-[200px]"
             />
+            <select
+              className="border rounded-md px-3 py-1.5 text-sm h-10"
+              value={filterStore}
+              onChange={(e) => setFilterStore(e.target.value)}
+            >
+              <option value="">{t('orderAdmin.allStores')}</option>
+              {allStores.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
             <select
               className="border rounded-md px-3 py-1.5 text-sm h-10"
               value={filterSupplier}

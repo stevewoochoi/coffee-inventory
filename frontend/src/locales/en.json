@@ -642,7 +642,8 @@
   "orderAdmin": {
     "orderList": "Order List",
     "supplierSummary": "Supplier Summary",
-    "searchPlaceholder": "Search order ID, supplier...",
+    "searchPlaceholder": "Search order ID, store, supplier...",
+    "allStores": "All Stores",
     "allSuppliers": "All Suppliers",
     "storeName": "Store",
     "supplierName": "Supplier",

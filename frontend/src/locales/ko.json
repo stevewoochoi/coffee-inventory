@@ -642,7 +642,8 @@
   "orderAdmin": {
     "orderList": "발주 목록",
     "supplierSummary": "공급사별 요약",
-    "searchPlaceholder": "주문번호, 공급사명 검색...",
+    "searchPlaceholder": "주문번호, 매장명, 공급사명 검색...",
+    "allStores": "전체 매장",
     "allSuppliers": "전체 공급사",
     "storeName": "매장",
     "supplierName": "공급사",
