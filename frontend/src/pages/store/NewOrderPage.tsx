@@ -80,14 +80,7 @@ export default function NewOrderPage() {
     }
   }
 
-  useEffect(() => {
-    if (step === 2) {
-      loadCategories();
-      loadCatalog();
-    }
-  }, [step]);
-
-  async function loadCategories() {
+  const loadCategories = useCallback(async () => {
     if (!brandId) return;
     try {
       const res = await orderingApi.getOrderingCategories(brandId);
@@ -95,7 +88,15 @@ export default function NewOrderPage() {
     } catch {
       toast.error(t('common.loadError'));
     }
-  }
+  }, [brandId, t]);
+
+  useEffect(() => { loadCategories(); }, [loadCategories]);
+
+  useEffect(() => {
+    if (step === 2) {
+      loadCatalog();
+    }
+  }, [step]);
 
   const loadCatalog = useCallback(async () => {
     if (!selectedDate) return;
