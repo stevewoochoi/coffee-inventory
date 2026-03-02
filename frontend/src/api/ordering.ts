@@ -177,6 +177,9 @@ export interface CategoryNode {
   id: number;
   name: string;
   displayOrder: number;
+  level?: number;
+  icon?: string;
+  children?: CategoryNode[];
 }
 
 // History types

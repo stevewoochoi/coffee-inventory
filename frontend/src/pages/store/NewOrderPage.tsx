@@ -178,7 +178,7 @@ export default function NewOrderPage() {
     if (qty === 0 && item.suggestedQty > 0) {
       setSuggestionItem(item);
     } else {
-      updateCartQty(item, packagingIdx, 1);
+      updateCartQty(item, packagingIdx, pkg.unitsPerPack);
     }
   }
 
@@ -190,7 +190,10 @@ export default function NewOrderPage() {
   }
 
   const totalCartItems = localCart.reduce((sum, c) => sum + c.quantity, 0);
-  const totalCartAmount = localCart.reduce((sum, c) => sum + c.unitPrice * c.quantity, 0);
+  const totalCartAmount = localCart.reduce((sum, c) => {
+    const perUnit = c.unitsPerPack > 0 ? c.unitPrice / c.unitsPerPack : c.unitPrice;
+    return sum + perUnit * c.quantity;
+  }, 0);
 
   const supplierGroups = useMemo(() => {
     const groups = new Map<number, { supplierId: number; supplierName: string; items: CartItem[]; subtotal: number }>();
@@ -200,7 +203,8 @@ export default function NewOrderPage() {
       }
       const g = groups.get(item.supplierId)!;
       g.items.push(item);
-      g.subtotal += item.unitPrice * item.quantity;
+      const perUnit = item.unitsPerPack > 0 ? item.unitPrice / item.unitsPerPack : item.unitPrice;
+      g.subtotal += perUnit * item.quantity;
     }
     return Array.from(groups.values());
   }, [localCart]);
@@ -214,7 +218,11 @@ export default function NewOrderPage() {
       const cartData = {
         storeId,
         deliveryDate: selectedDate!,
-        items: localCart.map(c => ({ itemId: c.itemId, packagingId: c.packagingId, quantity: c.quantity })),
+        items: localCart.map(c => ({
+          itemId: c.itemId,
+          packagingId: c.packagingId,
+          quantity: c.unitsPerPack > 0 ? Math.round(c.quantity / c.unitsPerPack) : c.quantity,
+        })),
       };
       const cartRes = await orderingApi.createCartWithDate(cartData);
       const cartId = cartRes.data.data.cartId;
@@ -391,26 +399,57 @@ export default function NewOrderPage() {
       )}
 
       {/* Category tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-        <button
-          onClick={() => setActiveCategory(null)}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[44px] ${
-            activeCategory === null ? 'bg-blue-800 text-white' : 'bg-gray-100 hover:bg-gray-200'
-          }`}
-        >
-          {t('ordering.catalog.allCategories')}
-        </button>
-        {categories.map(cat => (
+      <div className="space-y-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
           <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
+            onClick={() => setActiveCategory(null)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[44px] ${
-              activeCategory === cat.id ? 'bg-blue-800 text-white' : 'bg-gray-100 hover:bg-gray-200'
+              activeCategory === null ? 'bg-blue-800 text-white' : 'bg-gray-100 hover:bg-gray-200'
             }`}
           >
-            {cat.name}
+            {t('ordering.catalog.allCategories')}
           </button>
-        ))}
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[44px] ${
+                activeCategory === cat.id || cat.children?.some(c => c.id === activeCategory)
+                  ? 'bg-blue-800 text-white' : 'bg-gray-100 hover:bg-gray-200'
+              }`}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+        {/* Sub-category row */}
+        {categories.find(c => c.id === activeCategory || c.children?.some(ch => ch.id === activeCategory))?.children?.length ? (
+          <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+            {(() => {
+              const parent = categories.find(c => c.id === activeCategory || c.children?.some(ch => ch.id === activeCategory));
+              if (!parent?.children?.length) return null;
+              return (
+                <>
+                  <button
+                    onClick={() => setActiveCategory(parent.id)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                      activeCategory === parent.id ? 'bg-blue-100 text-blue-800 border border-blue-300' : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+                    }`}
+                  >{t('ordering.catalog.allCategories')}</button>
+                  {parent.children.map(sub => (
+                    <button
+                      key={sub.id}
+                      onClick={() => setActiveCategory(sub.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                        activeCategory === sub.id ? 'bg-blue-100 text-blue-800 border border-blue-300' : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+                      }`}
+                    >{sub.name}</button>
+                  ))}
+                </>
+              );
+            })()}
+          </div>
+        ) : null}
       </div>
 
       {/* Search & filters */}
@@ -472,22 +511,17 @@ export default function NewOrderPage() {
                         )}
                       </div>
                       <div className="text-xs text-gray-400 mt-0.5">
-                        {pkg.label} / {'\u20A9'}{pkg.unitPrice.toLocaleString()}
-                        <span className="ml-1.5 text-blue-600 font-medium">(1팩={formatPackUnit(pkg.unitsPerPack, item.unit)})</span>
+                        {pkg.label} / {'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}
+                        <span className="ml-1.5 text-blue-600 font-medium">(1팩={formatPackUnit(pkg.unitsPerPack, item.unit)} ₩{pkg.unitPrice.toLocaleString()})</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
-                        onClick={() => updateCartQty(item, 0, -1)} disabled={qty === 0}>-</Button>
-                      <Input type="number" value={qty}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value) || 0;
-                          if (pkg.maxOrderQty > 0 && val > pkg.maxOrderQty) {
-                            toast.error(`최대 주문 수량은 ${pkg.maxOrderQty}개입니다.`);
-                          }
-                          setCartQty(item, 0, val < 1 ? 1 : val);
-                        }}
-                        className="w-14 h-10 text-center text-sm" min={1} max={pkg.maxOrderQty > 0 ? pkg.maxOrderQty : undefined} />
+                        onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
+                      <div className="flex flex-col items-center w-16">
+                        <span className="text-sm font-bold">{qty}</span>
+                        {qty > 0 && <span className="text-[10px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}팩</span>}
+                      </div>
                       <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
                         onClick={() => handlePlusClick(item, 0)}>+</Button>
                     </div>
@@ -521,12 +555,15 @@ export default function NewOrderPage() {
                   </div>
                   <div>
                     <p className="font-medium text-xs truncate">{item.itemName}</p>
-                    <p className="text-xs text-gray-500">{'\u20A9'}{pkg.unitPrice.toLocaleString()}</p>
+                    <p className="text-xs text-gray-500">{'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}</p>
                     <p className="text-xs text-blue-600 font-medium">1팩={formatPackUnit(pkg.unitsPerPack, item.unit)}</p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -1)} disabled={qty === 0}>-</Button>
-                    <span className="w-8 text-center text-sm font-bold">{qty}</span>
+                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
+                    <div className="w-10 text-center">
+                      <span className="text-sm font-bold">{qty}</span>
+                      {qty > 0 && <span className="block text-[9px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}팩</span>}
+                    </div>
                     <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handlePlusClick(item, 0)}>+</Button>
                   </div>
                 </CardContent>
@@ -589,22 +626,27 @@ export default function NewOrderPage() {
                     <div key={`${item.itemId}-${item.packagingId}`} className="flex items-center justify-between py-2 border-b last:border-0">
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{item.itemName}</p>
-                        <p className="text-xs text-gray-500">{item.packLabel} / {'\u20A9'}{item.unitPrice.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">
+                          {item.packLabel} / {'\u20A9'}{Math.round(item.unitPrice / item.unitsPerPack).toLocaleString()}/{'\u00D7'}{item.quantity}
+                        </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <Button size="sm" variant="outline" className="h-9 w-9 p-0"
                           onClick={() => setLocalCart(prev => {
-                            const newQty = item.quantity - 1;
+                            const newQty = item.quantity - item.unitsPerPack;
                             if (newQty <= 0) return prev.filter(c => !(c.itemId === item.itemId && c.packagingId === item.packagingId));
                             return prev.map(c => c.itemId === item.itemId && c.packagingId === item.packagingId ? { ...c, quantity: newQty } : c);
                           })}>-</Button>
-                        <span className="w-8 text-center font-bold text-sm">{item.quantity}</span>
+                        <div className="w-12 text-center">
+                          <span className="font-bold text-sm">{item.quantity}</span>
+                          <span className="block text-[10px] text-blue-600">{Math.round(item.quantity / item.unitsPerPack)}팩</span>
+                        </div>
                         <Button size="sm" variant="outline" className="h-9 w-9 p-0"
                           onClick={() => setLocalCart(prev =>
-                            prev.map(c => c.itemId === item.itemId && c.packagingId === item.packagingId ? { ...c, quantity: c.quantity + 1 } : c)
+                            prev.map(c => c.itemId === item.itemId && c.packagingId === item.packagingId ? { ...c, quantity: c.quantity + c.unitsPerPack } : c)
                           )}>+</Button>
                         <span className="text-sm font-medium w-20 text-right">
-                          {'\u20A9'}{(item.unitPrice * item.quantity).toLocaleString()}
+                          {'\u20A9'}{Math.round((item.unitPrice / item.unitsPerPack) * item.quantity).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -727,13 +769,16 @@ export default function NewOrderPage() {
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => {
               if (suggestionItem) {
-                updateCartQty(suggestionItem, 0, 1);
+                const pkg = suggestionItem.packagings[0];
+                updateCartQty(suggestionItem, 0, pkg?.unitsPerPack ?? 1);
               }
               setSuggestionItem(null);
             }}>1팩만 추가</AlertDialogCancel>
             <AlertDialogAction className="bg-blue-800 hover:bg-blue-900" onClick={() => {
               if (suggestionItem) {
-                setCartQty(suggestionItem, 0, suggestionItem.suggestedQty);
+                const pkg = suggestionItem.packagings[0];
+                const unitsQty = suggestionItem.suggestedQty * (pkg?.unitsPerPack ?? 1);
+                setCartQty(suggestionItem, 0, unitsQty);
               }
               setSuggestionItem(null);
             }}>추천 수량 추가 ({suggestionItem?.suggestedQty}팩)</AlertDialogAction>
