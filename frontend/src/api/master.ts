@@ -80,6 +80,11 @@ export interface Supplier {
   brandId: number;
   name: string;
   email: string | null;
+  bizNo: string | null;
+  representative: string | null;
+  phone: string | null;
+  address: string | null;
+  memo: string | null;
   orderMethod: string;
   createdAt: string;
 }
@@ -88,6 +93,11 @@ export interface SupplierRequest {
   brandId: number;
   name: string;
   email?: string;
+  bizNo?: string;
+  representative?: string;
+  phone?: string;
+  address?: string;
+  memo?: string;
   orderMethod?: string;
 }
 

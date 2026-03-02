@@ -534,7 +534,13 @@
     "updated": "Supplier updated",
     "created": "Supplier created",
     "saveFailed": "Failed to save supplier",
-    "deleteFailed": "Failed to delete supplier"
+    "deleteFailed": "Failed to delete supplier",
+    "bizNo": "Business Reg. No.",
+    "representative": "Representative",
+    "phone": "Phone",
+    "address": "Address",
+    "memo": "Memo",
+    "searchPlaceholder": "Search by name, biz no, phone..."
   },
   "barcode": {
     "title": "Scan Barcode",
@@ -632,6 +638,18 @@
     "deleted": "Category deleted",
     "deleteFailed": "Failed to delete category",
     "deleteConfirm": "Delete this category?"
+  },
+  "orderAdmin": {
+    "orderList": "Order List",
+    "supplierSummary": "Supplier Summary",
+    "searchPlaceholder": "Search order ID, supplier...",
+    "allSuppliers": "All Suppliers",
+    "storeName": "Store",
+    "supplierName": "Supplier",
+    "deliveryDate": "Delivery Date",
+    "totalAmount": "Total Amount",
+    "orderCount": "Orders",
+    "countUnit": ""
   },
   "settings": {
     "themeTitle": "Theme Settings"

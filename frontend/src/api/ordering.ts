@@ -5,9 +5,21 @@ export interface OrderPlan {
   id: number;
   storeId: number;
   supplierId: number;
+  storeName?: string;
+  supplierName?: string;
   status: string;
   recommendedByAi: boolean;
+  deliveryDate?: string | null;
+  totalAmount?: number | null;
+  vatAmount?: number | null;
   createdAt: string;
+}
+
+export interface SupplierSummary {
+  supplierId: number;
+  supplierName: string;
+  orderCount: number;
+  totalAmount: number;
 }
 
 export interface OrderLineDto {
@@ -211,6 +223,12 @@ export interface OrderDetailedResponse {
 export const orderingApi = {
   getPlans: (storeId: number) =>
     client.get<ApiResponse<OrderPlan[]>>('/ordering/plans', { params: { storeId } }),
+
+  getAllPlans: (params: { brandId: number; supplierId?: number; status?: string }) =>
+    client.get<ApiResponse<OrderDetailedResponse[]>>('/ordering/plans/all', { params }),
+
+  getSupplierSummary: (brandId: number) =>
+    client.get<ApiResponse<SupplierSummary[]>>('/ordering/summary', { params: { brandId } }),
 
   getPlansFiltered: (params: {
     storeId: number;

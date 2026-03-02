@@ -534,7 +534,13 @@
     "updated": "공급사가 수정되었습니다",
     "created": "공급사가 등록되었습니다",
     "saveFailed": "공급사 저장에 실패했습니다",
-    "deleteFailed": "공급사 삭제에 실패했습니다"
+    "deleteFailed": "공급사 삭제에 실패했습니다",
+    "bizNo": "사업자번호",
+    "representative": "대표자",
+    "phone": "연락처",
+    "address": "주소",
+    "memo": "메모",
+    "searchPlaceholder": "이름, 사업자번호, 연락처 검색..."
   },
   "barcode": {
     "title": "바코드 스캔",
@@ -632,6 +638,18 @@
     "deleted": "카테고리가 삭제되었습니다",
     "deleteFailed": "카테고리 삭제에 실패했습니다",
     "deleteConfirm": "이 카테고리를 삭제하시겠습니까?"
+  },
+  "orderAdmin": {
+    "orderList": "발주 목록",
+    "supplierSummary": "공급사별 요약",
+    "searchPlaceholder": "주문번호, 공급사명 검색...",
+    "allSuppliers": "전체 공급사",
+    "storeName": "매장",
+    "supplierName": "공급사",
+    "deliveryDate": "납품일",
+    "totalAmount": "총 금액",
+    "orderCount": "발주 건수",
+    "countUnit": "건"
   },
   "settings": {
     "themeTitle": "테마 설정"

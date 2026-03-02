@@ -35,6 +35,20 @@ public class OrderingController {
     private final OrderPdfService orderPdfService;
     private final OrderCartService orderCartService;
 
+    @GetMapping("/plans/all")
+    public ResponseEntity<ApiResponse<List<OrderPlanDto.DetailedResponse>>> findAllByBrandId(
+            @RequestParam Long brandId,
+            @RequestParam(required = false) Long supplierId,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.findAllByBrandId(brandId, supplierId, status)));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<ApiResponse<List<OrderPlanDto.SummaryResponse>>> getSupplierSummary(
+            @RequestParam Long brandId) {
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.getSupplierSummary(brandId)));
+    }
+
     @GetMapping("/plans")
     public ResponseEntity<ApiResponse<List<OrderPlanDto.DetailedResponse>>> findByStoreId(
             @RequestParam Long storeId,

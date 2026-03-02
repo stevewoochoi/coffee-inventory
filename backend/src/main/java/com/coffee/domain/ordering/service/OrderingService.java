@@ -15,6 +15,8 @@ import com.coffee.domain.ordering.entity.*;
 import com.coffee.domain.ordering.repository.OrderDispatchLogRepository;
 import com.coffee.domain.ordering.repository.OrderLineRepository;
 import com.coffee.domain.ordering.repository.OrderPlanRepository;
+import com.coffee.domain.org.entity.Store;
+import com.coffee.domain.org.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,7 @@ public class OrderingService {
     private final PackagingRepository packagingRepository;
     private final ItemRepository itemRepository;
     private final SupplierItemRepository supplierItemRepository;
+    private final StoreRepository storeRepository;
     private final DeliveryPolicyService policyService;
 
     public List<OrderPlanDto.Response> findByStoreId(Long storeId) {
@@ -59,6 +64,7 @@ public class OrderingService {
 
     private OrderPlanDto.DetailedResponse toDetailedResponse(OrderPlan plan) {
         Supplier supplier = supplierRepository.findById(plan.getSupplierId()).orElse(null);
+        Store store = storeRepository.findById(plan.getStoreId()).orElse(null);
         List<OrderLine> lines = lineRepository.findByOrderPlanId(plan.getId());
 
         List<OrderPlanDto.HistoryLine> historyLines = lines.stream().map(line -> {
@@ -83,6 +89,7 @@ public class OrderingService {
         return OrderPlanDto.DetailedResponse.builder()
                 .id(plan.getId())
                 .storeId(plan.getStoreId())
+                .storeName(store != null ? store.getName() : "Unknown")
                 .supplierId(plan.getSupplierId())
                 .supplierName(supplier != null ? supplier.getName() : "Unknown")
                 .status(plan.getStatus().name())
@@ -242,6 +249,60 @@ public class OrderingService {
                             .createdAt(plan.getCreatedAt())
                             .build();
                 }).toList();
+    }
+
+    public List<OrderPlanDto.DetailedResponse> findAllByBrandId(Long brandId, Long supplierId, String status) {
+        List<Store> stores = storeRepository.findByBrandId(brandId);
+        List<Long> storeIds = stores.stream().map(Store::getId).toList();
+        if (storeIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<OrderPlan> plans;
+        if (supplierId != null) {
+            plans = planRepository.findBySupplierIdAndStoreIdIn(supplierId, storeIds);
+        } else {
+            plans = planRepository.findByStoreIdIn(storeIds);
+        }
+
+        if (status != null && !status.isEmpty()) {
+            OrderStatus orderStatus = OrderStatus.valueOf(status);
+            plans = plans.stream().filter(p -> p.getStatus() == orderStatus).toList();
+        }
+
+        return plans.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .map(this::toDetailedResponse)
+                .toList();
+    }
+
+    public List<OrderPlanDto.SummaryResponse> getSupplierSummary(Long brandId) {
+        List<Store> stores = storeRepository.findByBrandId(brandId);
+        List<Long> storeIds = stores.stream().map(Store::getId).toList();
+        if (storeIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<OrderPlan> plans = planRepository.findByStoreIdIn(storeIds);
+
+        Map<Long, List<OrderPlan>> grouped = plans.stream()
+                .collect(Collectors.groupingBy(OrderPlan::getSupplierId));
+
+        return grouped.entrySet().stream().map(entry -> {
+            Long sid = entry.getKey();
+            List<OrderPlan> supplierPlans = entry.getValue();
+            Supplier supplier = supplierRepository.findById(sid).orElse(null);
+            BigDecimal total = supplierPlans.stream()
+                    .map(OrderPlan::getTotalAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            return OrderPlanDto.SummaryResponse.builder()
+                    .supplierId(sid)
+                    .supplierName(supplier != null ? supplier.getName() : "Unknown")
+                    .orderCount((long) supplierPlans.size())
+                    .totalAmount(total)
+                    .build();
+        }).toList();
     }
 
     private OrderPlan getOrThrow(Long id) {

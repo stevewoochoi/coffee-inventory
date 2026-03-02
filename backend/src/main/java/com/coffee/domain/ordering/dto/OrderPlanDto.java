@@ -58,6 +58,7 @@ public class OrderPlanDto {
     public static class DetailedResponse {
         private Long id;
         private Long storeId;
+        private String storeName;
         private Long supplierId;
         private String supplierName;
         private String status;
@@ -93,6 +94,16 @@ public class OrderPlanDto {
     public static class ConfirmCartResponse {
         private List<Long> orderPlanIds;
         private int orderCount;
+        private BigDecimal totalAmount;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class SummaryResponse {
+        private Long supplierId;
+        private String supplierName;
+        private Long orderCount;
         private BigDecimal totalAmount;
     }
 
