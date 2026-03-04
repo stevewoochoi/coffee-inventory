@@ -24,7 +24,7 @@ const emptyForm: CategoryForm = { name: '', code: '', description: '', icon: '',
 export default function CategoriesPage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const brandId = user?.brandId;
+  const brandId = user?.brandId ?? 1;
 
   const [l1List, setL1List] = useState<ItemCategory[]>([]);
   const [l2List, setL2List] = useState<ItemCategory[]>([]);
