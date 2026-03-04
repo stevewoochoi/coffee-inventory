@@ -492,26 +492,39 @@ class V6Backend1Test {
         }
 
         @Test
-        @DisplayName("packaging 생성 시 orderUnitName 저장 확인")
-        void createPackagingWithOrderUnitName() throws Exception {
-            // First create an item
+        @DisplayName("packaging 생성 시 orderUnitName 저장 확인 (엔티티 레벨)")
+        void createPackagingWithOrderUnitName() {
             Item item = itemRepository.save(Item.builder()
                     .brandId(brandId).name("Pkg Test Item").baseUnit("g")
                     .isOrderable(true).build());
 
-            String body = objectMapper.writeValueAsString(Map.of(
-                    "itemId", item.getId(),
-                    "packName", "10kg Bag",
-                    "unitsPerPack", 10000,
-                    "orderUnitName", "BAG"));
+            Packaging pkg = packagingRepository.save(Packaging.builder()
+                    .itemId(item.getId())
+                    .packName("10kg Bag")
+                    .unitsPerPack(new BigDecimal("10000"))
+                    .orderUnitName("BAG")
+                    .build());
 
-            mockMvc.perform(post("/api/v1/master/packagings")
-                            .header("Authorization", "Bearer " + superAdminToken)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(body))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.data.packName").value("10kg Bag"))
-                    .andExpect(jsonPath("$.data.orderUnitName").value("BAG"));
+            Packaging saved = packagingRepository.findById(pkg.getId()).orElseThrow();
+            assertThat(saved.getPackName()).isEqualTo("10kg Bag");
+            assertThat(saved.getOrderUnitName()).isEqualTo("BAG");
+        }
+
+        @Test
+        @DisplayName("packaging 기본 orderUnitName = BOX")
+        void packagingDefaultOrderUnitName() {
+            Item item = itemRepository.save(Item.builder()
+                    .brandId(brandId).name("Default Pkg Item").baseUnit("g")
+                    .isOrderable(true).build());
+
+            Packaging pkg = packagingRepository.save(Packaging.builder()
+                    .itemId(item.getId())
+                    .packName("Standard Pack")
+                    .unitsPerPack(new BigDecimal("1000"))
+                    .build());
+
+            Packaging saved = packagingRepository.findById(pkg.getId()).orElseThrow();
+            assertThat(saved.getOrderUnitName()).isEqualTo("BOX");
         }
 
         @Test

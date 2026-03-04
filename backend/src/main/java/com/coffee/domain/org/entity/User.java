@@ -28,7 +28,7 @@ public class User {
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(30)")
     private Role role;
 
     @Column(name = "company_id")
@@ -45,7 +45,7 @@ public class User {
     private Boolean isActive = true;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_status")
+    @Column(name = "account_status", columnDefinition = "VARCHAR(30)")
     @Builder.Default
     private AccountStatus accountStatus = AccountStatus.PENDING_APPROVAL;
 
