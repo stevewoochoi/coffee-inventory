@@ -35,6 +35,10 @@ public class Packaging {
     @Builder.Default
     private PackagingStatus status = PackagingStatus.ACTIVE;
 
+    @Column(name = "order_unit_name", length = 20)
+    @Builder.Default
+    private String orderUnitName = "BOX";
+
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 

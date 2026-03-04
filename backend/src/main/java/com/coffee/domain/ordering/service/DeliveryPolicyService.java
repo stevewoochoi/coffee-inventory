@@ -2,6 +2,8 @@ package com.coffee.domain.ordering.service;
 
 import com.coffee.common.exception.ResourceNotFoundException;
 import com.coffee.domain.master.entity.Item;
+import com.coffee.domain.master.entity.ItemDeliverySchedule;
+import com.coffee.domain.master.repository.ItemDeliveryScheduleRepository;
 import com.coffee.domain.master.repository.ItemRepository;
 import com.coffee.domain.ordering.dto.DeliveryPolicyDto;
 import com.coffee.domain.ordering.entity.DeliveryHoliday;
@@ -33,6 +35,7 @@ public class DeliveryPolicyService {
     private final DeliveryHolidayRepository holidayRepository;
     private final StoreRepository storeRepository;
     private final ItemRepository itemRepository;
+    private final ItemDeliveryScheduleRepository scheduleRepository;
 
     public DeliveryPolicy getStorePolicy(Long storeId) {
         StoreDeliveryPolicy storePolicy = storePolicyRepository.findByStoreIdAndIsDefaultTrue(storeId)
@@ -142,23 +145,36 @@ public class DeliveryPolicyService {
             return false;
         }
 
+        DayOfWeek dow = deliveryDate.getDayOfWeek();
+
+        // Sunday always unavailable
+        if (dow == DayOfWeek.SUNDAY) {
+            return false;
+        }
+
         DeliveryPolicy policy = getStorePolicy(storeId);
         if (policy == null) {
             return false;
         }
 
-        // Check if delivery date is valid
-        Set<DayOfWeek> deliveryDays = parseDeliveryDays(policy.getDeliveryDays());
-        if (!deliveryDays.contains(deliveryDate.getDayOfWeek())) {
-            return false;
-        }
-        if (deliveryDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
-            return false;
-        }
-
+        // Holiday check
         Set<LocalDate> holidays = getHolidayDates(policy.getBrandId(), MAX_DISPLAY_DAYS);
         if (holidays.contains(deliveryDate)) {
             return false;
+        }
+
+        // Item-specific delivery schedule takes priority over policy
+        Optional<ItemDeliverySchedule> schedule = scheduleRepository.findByItemIdAndBrandId(itemId, item.getBrandId());
+        if (schedule.isPresent() && Boolean.TRUE.equals(schedule.get().getIsActive())) {
+            if (!schedule.get().isAvailable(dow)) {
+                return false;
+            }
+        } else {
+            // Fallback: policy-based delivery days
+            Set<DayOfWeek> deliveryDays = parseDeliveryDays(policy.getDeliveryDays());
+            if (!deliveryDays.contains(dow)) {
+                return false;
+            }
         }
 
         // Check item-specific lead time

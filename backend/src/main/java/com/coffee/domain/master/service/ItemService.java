@@ -51,6 +51,9 @@ public class ItemService {
                 .price(request.getPrice())
                 .vatInclusive(request.getVatInclusive() != null ? request.getVatInclusive() : true)
                 .supplierId(request.getSupplierId())
+                .itemCode(request.getItemCode())
+                .spec(request.getSpec())
+                .description(request.getDescription())
                 .build();
         return toResponse(itemRepository.save(item));
     }
@@ -70,6 +73,9 @@ public class ItemService {
             item.setVatInclusive(request.getVatInclusive());
         }
         item.setSupplierId(request.getSupplierId());
+        item.setItemCode(request.getItemCode());
+        item.setSpec(request.getSpec());
+        item.setDescription(request.getDescription());
         if (request.getMinStockQty() != null) {
             item.setMinStockQty(request.getMinStockQty());
         }
@@ -129,6 +135,9 @@ public class ItemService {
                 .minStockQty(item.getMinStockQty())
                 .imageUrl(item.getImageUrl())
                 .isActive(item.getIsActive())
+                .itemCode(item.getItemCode())
+                .spec(item.getSpec())
+                .description(item.getDescription())
                 .createdAt(item.getCreatedAt())
                 .build();
     }

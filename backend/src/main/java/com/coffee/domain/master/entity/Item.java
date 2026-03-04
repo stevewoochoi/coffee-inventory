@@ -73,6 +73,15 @@ public class Item {
     @Builder.Default
     private Boolean isOrderable = true;
 
+    @Column(name = "item_code", length = 50)
+    private String itemCode;
+
+    @Column(name = "spec", length = 200)
+    private String spec;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

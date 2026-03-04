@@ -36,6 +36,9 @@ public class ItemDto {
         private Boolean vatInclusive;
         private Long supplierId;
         private BigDecimal minStockQty;
+        private String itemCode;
+        private String spec;
+        private String description;
     }
 
     @Getter
@@ -63,6 +66,9 @@ public class ItemDto {
         private BigDecimal minStockQty;
         private String imageUrl;
         private Boolean isActive;
+        private String itemCode;
+        private String spec;
+        private String description;
         private LocalDateTime createdAt;
     }
 }

@@ -16,6 +16,8 @@ public class CatalogDto {
     public static class CatalogItem {
         private Long itemId;
         private String itemName;
+        private String itemCode;
+        private String spec;
         private Long categoryId;
         private String categoryName;
         private String imageUrl;
@@ -24,6 +26,7 @@ public class CatalogDto {
         private String unit;
         private BigDecimal minStock;
         private boolean isLowStock;
+        private String deliveryDays;
         private List<PackagingOption> packagings;
         private LastOrderInfo lastOrder;
         private int suggestedQty;
@@ -37,6 +40,7 @@ public class CatalogDto {
     public static class PackagingOption {
         private Long packagingId;
         private String label;
+        private String orderUnitName;
         private BigDecimal unitsPerPack;
         private BigDecimal unitPrice;
         private Long supplierId;

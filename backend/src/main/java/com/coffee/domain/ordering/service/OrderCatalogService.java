@@ -2,6 +2,7 @@ package com.coffee.domain.ordering.service;
 
 import com.coffee.domain.master.entity.*;
 import com.coffee.domain.master.repository.*;
+import com.coffee.domain.master.repository.ItemDeliveryScheduleRepository;
 import com.coffee.domain.ordering.dto.CatalogDto;
 import com.coffee.domain.ordering.entity.OrderLine;
 import com.coffee.domain.ordering.entity.OrderPlan;
@@ -32,6 +33,7 @@ public class OrderCatalogService {
     private final OrderLineRepository orderLineRepository;
     private final DeliveryPolicyService policyService;
     private final OrderRecommendationService recommendationService;
+    private final ItemDeliveryScheduleRepository scheduleRepository;
 
     public Page<CatalogDto.CatalogItem> getCatalog(Long storeId, LocalDate deliveryDate,
                                                      Long categoryId, String keyword,
@@ -126,6 +128,7 @@ public class OrderCatalogService {
                     return CatalogDto.PackagingOption.builder()
                             .packagingId(pkg.getId())
                             .label(pkg.getPackName())
+                            .orderUnitName(pkg.getOrderUnitName())
                             .unitsPerPack(pkg.getUnitsPerPack())
                             .unitPrice(si.getPrice() != null ? si.getPrice() : BigDecimal.ZERO)
                             .supplierId(si.getSupplierId())
@@ -160,9 +163,21 @@ public class OrderCatalogService {
         // Last order info
         CatalogDto.LastOrderInfo lastOrder = getLastOrderInfo(storeId, item.getId());
 
+        // Get delivery schedule display
+        String deliveryDays = null;
+        if (item.getBrandId() != null) {
+            deliveryDays = scheduleRepository.findByItemIdAndBrandId(item.getId(), item.getBrandId())
+                    .filter(s -> Boolean.TRUE.equals(s.getIsActive()))
+                    .map(ItemDeliverySchedule::getDisplayDays)
+                    .orElse(null);
+        }
+
         return CatalogDto.CatalogItem.builder()
                 .itemId(item.getId())
                 .itemName(item.getName())
+                .itemCode(item.getItemCode())
+                .spec(item.getSpec())
+                .deliveryDays(deliveryDays)
                 .categoryId(item.getCategoryId())
                 .categoryName(categoryName)
                 .imageUrl(item.getImageUrl())

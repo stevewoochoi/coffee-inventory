@@ -34,6 +34,15 @@ import NewClaimPage from '@/pages/store/NewClaimPage';
 import ClaimDetailPage from '@/pages/store/ClaimDetailPage';
 import AuditListPage from '@/pages/store/AuditListPage';
 import AuditDetailPage from '@/pages/store/AuditDetailPage';
+import CutoffPage from '@/pages/admin/CutoffPage';
+import OrderCalendarPage from '@/pages/admin/OrderCalendarPage';
+import FinanceDashboardPage from '@/pages/admin/finance/FinanceDashboardPage';
+import PurchasePage from '@/pages/admin/finance/PurchasePage';
+import InventoryValuePage from '@/pages/admin/finance/InventoryValuePage';
+import ClosingPage from '@/pages/admin/finance/ClosingPage';
+import BulkUploadPage from '@/pages/admin/BulkUploadPage';
+import SupplierOrdersPage from '@/pages/supplier/SupplierOrdersPage';
+import SupplierOrderDetailPage from '@/pages/supplier/SupplierOrderDetailPage';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -63,6 +72,25 @@ function App() {
             <Route path="/admin/expiry" element={<AdminExpiryPage />} />
             <Route path="/admin/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="/admin/settings/users" element={<UsersPage />} />
+          </Route>
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'BRAND_ADMIN', 'KR_INVENTORY', 'KR_FINANCE', 'FULFILLMENT']} />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/ordering/cutoff" element={<CutoffPage />} />
+            <Route path="/admin/ordering/calendar" element={<OrderCalendarPage />} />
+            <Route path="/admin/finance/dashboard" element={<FinanceDashboardPage />} />
+            <Route path="/admin/finance/purchase" element={<PurchasePage />} />
+            <Route path="/admin/finance/inventory-value" element={<InventoryValuePage />} />
+            <Route path="/admin/finance/closing" element={<ClosingPage />} />
+            <Route path="/admin/bulk-upload" element={<BulkUploadPage />} />
+          </Route>
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN', 'BRAND_ADMIN', 'SUPPLIER']} />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/supplier-portal/orders" element={<SupplierOrdersPage />} />
+            <Route path="/supplier-portal/orders/:id" element={<SupplierOrderDetailPage />} />
           </Route>
         </Route>
 

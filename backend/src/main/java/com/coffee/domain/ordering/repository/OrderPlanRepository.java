@@ -4,6 +4,7 @@ import com.coffee.domain.ordering.entity.OrderPlan;
 import com.coffee.domain.ordering.entity.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,4 +30,10 @@ public interface OrderPlanRepository extends JpaRepository<OrderPlan, Long> {
     List<OrderPlan> findByStoreIdIn(List<Long> storeIds);
 
     List<OrderPlan> findBySupplierIdAndStoreIdIn(Long supplierId, List<Long> storeIds);
+
+    List<OrderPlan> findByDeliveryDateAndStatus(LocalDate deliveryDate, OrderStatus status);
+
+    List<OrderPlan> findByDeliveryDate(LocalDate deliveryDate);
+
+    List<OrderPlan> findBySupplierIdAndStatusOrderByCreatedAtDesc(Long supplierId, OrderStatus status);
 }

@@ -35,6 +35,12 @@ public class ItemCategory {
     @Builder.Default
     private Integer displayOrder = 0;
 
+    @Column(name = "code", length = 20)
+    private String code;
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "icon", length = 50)
     private String icon;
 
