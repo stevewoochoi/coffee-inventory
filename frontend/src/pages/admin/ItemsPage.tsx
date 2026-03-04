@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { masterApi, type Item, type ItemRequest, type Supplier } from '@/api/master';
+import { categoryApi, type CategoryTreeNode } from '@/api/category';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,12 +28,23 @@ export default function ItemsPage() {
   const brandId = user?.brandId ?? 1;
   const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [categoryTree, setCategoryTree] = useState<CategoryTreeNode[]>([]);
+  const [selL1, setSelL1] = useState<number | ''>('');
+  const [selL2, setSelL2] = useState<number | ''>('');
+  const [selL3, setSelL3] = useState<number | ''>('');
   const [form, setForm] = useState<ItemRequest>({ brandId, name: '', baseUnit: 'g' });
 
   const loadSuppliers = useCallback(async () => {
     try {
       const res = await masterApi.getSuppliers(brandId);
       setSuppliers(res.data.data);
+    } catch { /* non-critical */ }
+  }, [brandId]);
+
+  const loadCategoryTree = useCallback(async () => {
+    try {
+      const res = await categoryApi.getCategoryTree(brandId);
+      setCategoryTree(res.data.data);
     } catch { /* non-critical */ }
   }, [brandId]);
 
@@ -46,10 +58,14 @@ export default function ItemsPage() {
 
   useEffect(() => { loadItems(); }, [loadItems]);
   useEffect(() => { loadSuppliers(); }, [loadSuppliers]);
+  useEffect(() => { loadCategoryTree(); }, [loadCategoryTree]);
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ brandId, name: '', baseUnit: 'g', category: '', lossRate: 0, price: undefined, vatInclusive: true, supplierId: undefined });
+    setForm({ brandId, name: '', baseUnit: 'g', category: '', categoryId: undefined, lossRate: 0, price: undefined, vatInclusive: true, supplierId: undefined });
+    setSelL1('');
+    setSelL2('');
+    setSelL3('');
     setDialogOpen(true);
   };
 
@@ -60,11 +76,15 @@ export default function ItemsPage() {
       name: item.name,
       baseUnit: item.baseUnit,
       category: item.category || '',
+      categoryId: undefined,
       lossRate: item.lossRate,
       price: item.price ?? undefined,
       vatInclusive: item.vatInclusive ?? true,
       supplierId: item.supplierId ?? undefined,
     });
+    setSelL1('');
+    setSelL2('');
+    setSelL3('');
     setDialogOpen(true);
   };
 
@@ -268,24 +288,94 @@ export default function ItemsPage() {
               <Label>{t('common.name')}</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t('items.category')}</Label>
-                <Input value={form.category || ''} onChange={(e) => setForm({ ...form, category: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>{t('items.supplier')}</Label>
+            <div className="space-y-2">
+              <Label>{t('items.category')}</Label>
+              <div className="grid grid-cols-3 gap-2">
                 <select
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  value={form.supplierId ?? ''}
-                  onChange={(e) => setForm({ ...form, supplierId: e.target.value ? Number(e.target.value) : undefined })}
+                  value={selL1}
+                  onChange={(e) => {
+                    const v = e.target.value ? Number(e.target.value) : '';
+                    setSelL1(v);
+                    setSelL2('');
+                    setSelL3('');
+                    if (v) {
+                      const node = categoryTree.find(c => c.id === v);
+                      const catName = node?.name || '';
+                      setForm({ ...form, category: catName, categoryId: v as number });
+                    } else {
+                      setForm({ ...form, category: '', categoryId: undefined });
+                    }
+                  }}
                 >
-                  <option value="">{t('items.selectSupplier')}</option>
-                  {suppliers.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
+                  <option value="">{t('categories.selectLevel1')}</option>
+                  {categoryTree.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={selL2}
+                  disabled={!selL1}
+                  onChange={(e) => {
+                    const v = e.target.value ? Number(e.target.value) : '';
+                    setSelL2(v);
+                    setSelL3('');
+                    if (v) {
+                      const l1 = categoryTree.find(c => c.id === selL1);
+                      const l2 = l1?.children.find(c => c.id === v);
+                      const catName = l2?.name || '';
+                      setForm({ ...form, category: catName, categoryId: v as number });
+                    } else if (selL1) {
+                      const node = categoryTree.find(c => c.id === selL1);
+                      setForm({ ...form, category: node?.name || '', categoryId: selL1 as number });
+                    }
+                  }}
+                >
+                  <option value="">{t('categories.selectLevel2')}</option>
+                  {selL1 && categoryTree.find(c => c.id === selL1)?.children.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={selL3}
+                  disabled={!selL2}
+                  onChange={(e) => {
+                    const v = e.target.value ? Number(e.target.value) : '';
+                    setSelL3(v);
+                    if (v) {
+                      const l1 = categoryTree.find(c => c.id === selL1);
+                      const l2 = l1?.children.find(c => c.id === selL2);
+                      const l3 = l2?.children.find(c => c.id === v);
+                      const catName = l3?.name || '';
+                      setForm({ ...form, category: catName, categoryId: v as number });
+                    } else if (selL2) {
+                      const l1 = categoryTree.find(c => c.id === selL1);
+                      const l2 = l1?.children.find(c => c.id === selL2);
+                      setForm({ ...form, category: l2?.name || '', categoryId: selL2 as number });
+                    }
+                  }}
+                >
+                  <option value="">{t('categories.selectLevel3', { defaultValue: '-' })}</option>
+                  {selL2 && categoryTree.find(c => c.id === selL1)?.children.find(c => c.id === selL2)?.children.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>{t('items.supplier')}</Label>
+              <select
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={form.supplierId ?? ''}
+                onChange={(e) => setForm({ ...form, supplierId: e.target.value ? Number(e.target.value) : undefined })}
+              >
+                <option value="">{t('items.selectSupplier')}</option>
+                {suppliers.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

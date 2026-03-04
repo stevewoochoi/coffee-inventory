@@ -649,7 +649,20 @@
     "saveFailed": "카테고리 저장에 실패했습니다",
     "deleted": "카테고리가 삭제되었습니다",
     "deleteFailed": "카테고리 삭제에 실패했습니다",
-    "deleteConfirm": "이 카테고리를 삭제하시겠습니까?"
+    "deleteConfirm": "이 카테고리를 삭제하시겠습니까?",
+    "level1": "대분류",
+    "level2": "중분류",
+    "level3": "소분류",
+    "code": "코드",
+    "description": "설명",
+    "icon": "아이콘",
+    "addChild": "추가",
+    "deleteWithChildren": "하위 카테고리도 함께 삭제됩니다. 삭제하시겠습니까?",
+    "selectLevel1": "대분류 선택",
+    "selectLevel2": "중분류 선택",
+    "selectLevel3": "소분류 선택",
+    "maxLevelError": "최대 3단계까지만 생성 가능합니다",
+    "noSubcategories": "하위 카테고리가 없습니다"
   },
   "orderAdmin": {
     "orderList": "발주 목록",

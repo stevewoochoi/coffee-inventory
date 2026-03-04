@@ -649,7 +649,20 @@
     "saveFailed": "Failed to save category",
     "deleted": "Category deleted",
     "deleteFailed": "Failed to delete category",
-    "deleteConfirm": "Delete this category?"
+    "deleteConfirm": "Delete this category?",
+    "level1": "Main Category",
+    "level2": "Sub Category",
+    "level3": "Detail Category",
+    "code": "Code",
+    "description": "Description",
+    "icon": "Icon",
+    "addChild": "Add",
+    "deleteWithChildren": "Subcategories will also be deleted. Continue?",
+    "selectLevel1": "Select main category",
+    "selectLevel2": "Select sub category",
+    "selectLevel3": "Select detail category",
+    "maxLevelError": "Maximum 3 levels allowed",
+    "noSubcategories": "No subcategories"
   },
   "orderAdmin": {
     "orderList": "Order List",

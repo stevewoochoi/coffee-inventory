@@ -2,27 +2,54 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
-import { categoryApi, type ItemCategory } from '@/api/category';
+import { categoryApi, type ItemCategory, type CategoryRequest } from '@/api/category';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog';
+
+interface CategoryForm {
+  name: string;
+  code: string;
+  description: string;
+  icon: string;
+  displayOrder: number;
+}
+
+const emptyForm: CategoryForm = { name: '', code: '', description: '', icon: '', displayOrder: 0 };
 
 export default function CategoriesPage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const brandId = user?.brandId;
 
-  const [categories, setCategories] = useState<ItemCategory[]>([]);
+  const [l1List, setL1List] = useState<ItemCategory[]>([]);
+  const [l2List, setL2List] = useState<ItemCategory[]>([]);
+  const [l3List, setL3List] = useState<ItemCategory[]>([]);
+
+  const [selectedL1, setSelectedL1] = useState<ItemCategory | null>(null);
+  const [selectedL2, setSelectedL2] = useState<ItemCategory | null>(null);
+
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editId, setEditId] = useState<number | null>(null);
-  const [form, setForm] = useState({ name: '', displayOrder: 0 });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<ItemCategory | null>(null);
+  const [dialogLevel, setDialogLevel] = useState(1);
+  const [form, setForm] = useState<CategoryForm>(emptyForm);
+
+  // Mobile: breadcrumb navigation
+  const [mobileLevel, setMobileLevel] = useState(1);
 
   useEffect(() => {
-    if (brandId) loadCategories();
+    if (brandId) loadL1();
   }, [brandId]);
 
-  async function loadCategories() {
+  async function loadL1() {
     try {
-      const res = await categoryApi.getAllCategories(brandId!);
-      setCategories(res.data.data);
+      const res = await categoryApi.getCategories(brandId!, 1);
+      setL1List(res.data.data);
     } catch {
       toast.error(t('categories.loadFailed'));
     } finally {
@@ -30,135 +57,347 @@ export default function CategoriesPage() {
     }
   }
 
+  async function loadL2(parentId: number) {
+    try {
+      const res = await categoryApi.getCategories(brandId!, undefined, parentId);
+      setL2List(res.data.data);
+    } catch {
+      toast.error(t('categories.loadFailed'));
+    }
+  }
+
+  async function loadL3(parentId: number) {
+    try {
+      const res = await categoryApi.getCategories(brandId!, undefined, parentId);
+      setL3List(res.data.data);
+    } catch {
+      toast.error(t('categories.loadFailed'));
+    }
+  }
+
+  function selectL1(cat: ItemCategory) {
+    setSelectedL1(cat);
+    setSelectedL2(null);
+    setL3List([]);
+    loadL2(cat.id);
+    setMobileLevel(2);
+  }
+
+  function selectL2(cat: ItemCategory) {
+    setSelectedL2(cat);
+    loadL3(cat.id);
+    setMobileLevel(3);
+  }
+
+  function openCreateDialog(level: number) {
+    setEditTarget(null);
+    setDialogLevel(level);
+    setForm(emptyForm);
+    setDialogOpen(true);
+  }
+
+  function openEditDialog(cat: ItemCategory, level: number) {
+    setEditTarget(cat);
+    setDialogLevel(level);
+    setForm({
+      name: cat.name,
+      code: cat.code || '',
+      description: cat.description || '',
+      icon: cat.icon || '',
+      displayOrder: cat.displayOrder,
+    });
+    setDialogOpen(true);
+  }
+
   async function handleSave() {
     if (!brandId || !form.name.trim()) return;
+
+    let parentId: number | undefined;
+    if (dialogLevel === 2) parentId = selectedL1?.id;
+    if (dialogLevel === 3) parentId = selectedL2?.id;
+
+    const data: CategoryRequest = {
+      brandId,
+      name: form.name,
+      parentId: parentId ?? null,
+      code: form.code || undefined,
+      description: form.description || undefined,
+      icon: form.icon || undefined,
+      displayOrder: form.displayOrder,
+    };
+
     try {
-      if (editId) {
-        await categoryApi.updateCategory(editId, { brandId, name: form.name, displayOrder: form.displayOrder });
+      if (editTarget) {
+        await categoryApi.updateCategory(editTarget.id, data);
         toast.success(t('categories.updated'));
       } else {
-        await categoryApi.createCategory({ brandId, name: form.name, displayOrder: form.displayOrder });
+        await categoryApi.createCategory(data);
         toast.success(t('categories.created'));
       }
-      setShowForm(false);
-      setEditId(null);
-      setForm({ name: '', displayOrder: 0 });
-      loadCategories();
+      setDialogOpen(false);
+      refreshLevel(dialogLevel);
     } catch {
       toast.error(t('categories.saveFailed'));
     }
   }
 
-  async function handleDelete(id: number) {
-    if (!confirm(t('categories.deleteConfirm'))) return;
+  async function handleDelete(cat: ItemCategory, level: number) {
+    const children = level === 1 ? l2List : level === 2 ? l3List : [];
+    const msg = children.length > 0 ? t('categories.deleteWithChildren') : t('categories.deleteConfirm');
+    if (!confirm(msg)) return;
+
     try {
-      await categoryApi.deleteCategory(id);
+      await categoryApi.deleteCategory(cat.id);
       toast.success(t('categories.deleted'));
-      loadCategories();
+
+      if (level === 1) {
+        setSelectedL1(null);
+        setSelectedL2(null);
+        setL2List([]);
+        setL3List([]);
+        loadL1();
+      } else if (level === 2) {
+        setSelectedL2(null);
+        setL3List([]);
+        loadL2(selectedL1!.id);
+      } else {
+        loadL3(selectedL2!.id);
+      }
     } catch {
       toast.error(t('categories.deleteFailed'));
     }
   }
 
-  function startEdit(cat: ItemCategory) {
-    setEditId(cat.id);
-    setForm({ name: cat.name, displayOrder: cat.displayOrder });
-    setShowForm(true);
+  function refreshLevel(level: number) {
+    if (level === 1) loadL1();
+    else if (level === 2 && selectedL1) loadL2(selectedL1.id);
+    else if (level === 3 && selectedL2) loadL3(selectedL2.id);
   }
+
+  const levelLabel = (level: number) =>
+    level === 1 ? t('categories.level1') : level === 2 ? t('categories.level2') : t('categories.level3');
 
   if (loading) return <div className="p-6">{t('common.loading')}</div>;
 
+  // --- Panel component ---
+  function CategoryPanel({
+    title, items, selectedId, onSelect, onAdd, onEdit, onDelete, level,
+  }: {
+    title: string;
+    items: ItemCategory[];
+    selectedId?: number | null;
+    onSelect?: (cat: ItemCategory) => void;
+    onAdd: () => void;
+    onEdit: (cat: ItemCategory) => void;
+    onDelete: (cat: ItemCategory) => void;
+    level: number;
+  }) {
+    return (
+      <div className="bg-white border rounded-lg shadow-sm flex flex-col h-full">
+        <div className="flex justify-between items-center px-4 py-3 border-b">
+          <h3 className="font-semibold text-sm">{title}</h3>
+          <Button size="sm" onClick={onAdd} className="bg-blue-800 hover:bg-blue-900 text-xs h-7 px-2">
+            + {t('categories.addChild')}
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {items.length === 0 ? (
+            <div className="p-4 text-center text-gray-400 text-sm">
+              {level === 1 ? t('categories.noCategories') : t('categories.noSubcategories')}
+            </div>
+          ) : (
+            items.map(cat => (
+              <div
+                key={cat.id}
+                className={`flex items-center justify-between px-4 py-2.5 border-b last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors ${
+                  selectedId === cat.id ? 'bg-blue-50 border-l-2 border-l-blue-600' : ''
+                }`}
+                onClick={() => onSelect?.(cat)}
+              >
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  {cat.icon && <span className="text-sm">{cat.icon}</span>}
+                  <span className="font-medium text-sm truncate">{cat.name}</span>
+                  {cat.code && <Badge variant="secondary" className="text-xs shrink-0">{cat.code}</Badge>}
+                </div>
+                <div className="flex gap-1 ml-2 shrink-0" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => onEdit(cat)} className="text-blue-600 hover:underline text-xs px-1">
+                    {t('common.edit')}
+                  </button>
+                  <button onClick={() => onDelete(cat)} className="text-red-600 hover:underline text-xs px-1">
+                    {t('common.delete')}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">{t('categories.title')}</h1>
-        <button
-          onClick={() => { setShowForm(true); setEditId(null); setForm({ name: '', displayOrder: 0 }); }}
-          className="px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-900"
-        >
-          {t('categories.addCategory')}
-        </button>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">{t('categories.title')}</h1>
+
+      {/* Desktop: 3-column layout */}
+      <div className="hidden md:grid md:grid-cols-3 gap-4" style={{ minHeight: '500px' }}>
+        <CategoryPanel
+          title={levelLabel(1)}
+          items={l1List}
+          selectedId={selectedL1?.id}
+          onSelect={selectL1}
+          onAdd={() => openCreateDialog(1)}
+          onEdit={cat => openEditDialog(cat, 1)}
+          onDelete={cat => handleDelete(cat, 1)}
+          level={1}
+        />
+        <CategoryPanel
+          title={levelLabel(2)}
+          items={l2List}
+          selectedId={selectedL2?.id}
+          onSelect={selectL2}
+          onAdd={() => openCreateDialog(2)}
+          onEdit={cat => openEditDialog(cat, 2)}
+          onDelete={cat => handleDelete(cat, 2)}
+          level={2}
+        />
+        <CategoryPanel
+          title={levelLabel(3)}
+          items={l3List}
+          onAdd={() => openCreateDialog(3)}
+          onEdit={cat => openEditDialog(cat, 3)}
+          onDelete={cat => handleDelete(cat, 3)}
+          level={3}
+        />
       </div>
 
-      {showForm && (
-        <div className="bg-white border rounded-lg p-4 mb-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-3">
-            {editId ? t('categories.editTitle') : t('categories.addTitle')}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">{t('common.name')}</label>
-              <input
+      {/* Mobile: Tab-based with breadcrumb */}
+      <div className="md:hidden">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-1 text-sm mb-3 text-gray-500">
+          <button
+            className={`${mobileLevel === 1 ? 'text-blue-700 font-semibold' : 'hover:text-blue-600'}`}
+            onClick={() => { setMobileLevel(1); }}
+          >
+            {levelLabel(1)}
+          </button>
+          {selectedL1 && (
+            <>
+              <span>/</span>
+              <button
+                className={`${mobileLevel === 2 ? 'text-blue-700 font-semibold' : 'hover:text-blue-600'}`}
+                onClick={() => { setMobileLevel(2); }}
+              >
+                {selectedL1.name}
+              </button>
+            </>
+          )}
+          {selectedL2 && (
+            <>
+              <span>/</span>
+              <button
+                className={`${mobileLevel === 3 ? 'text-blue-700 font-semibold' : 'hover:text-blue-600'}`}
+                onClick={() => { setMobileLevel(3); }}
+              >
+                {selectedL2.name}
+              </button>
+            </>
+          )}
+        </div>
+
+        {mobileLevel === 1 && (
+          <CategoryPanel
+            title={levelLabel(1)}
+            items={l1List}
+            selectedId={selectedL1?.id}
+            onSelect={selectL1}
+            onAdd={() => openCreateDialog(1)}
+            onEdit={cat => openEditDialog(cat, 1)}
+            onDelete={cat => handleDelete(cat, 1)}
+            level={1}
+          />
+        )}
+        {mobileLevel === 2 && selectedL1 && (
+          <CategoryPanel
+            title={levelLabel(2)}
+            items={l2List}
+            selectedId={selectedL2?.id}
+            onSelect={selectL2}
+            onAdd={() => openCreateDialog(2)}
+            onEdit={cat => openEditDialog(cat, 2)}
+            onDelete={cat => handleDelete(cat, 2)}
+            level={2}
+          />
+        )}
+        {mobileLevel === 3 && selectedL2 && (
+          <CategoryPanel
+            title={levelLabel(3)}
+            items={l3List}
+            onAdd={() => openCreateDialog(3)}
+            onEdit={cat => openEditDialog(cat, 3)}
+            onDelete={cat => handleDelete(cat, 3)}
+            level={3}
+          />
+        )}
+      </div>
+
+      {/* Create/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editTarget ? t('categories.editTitle') : t('categories.addTitle')} ({levelLabel(dialogLevel)})
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>{t('common.name')}</Label>
+              <Input
                 value={form.name}
                 onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full border rounded px-3 py-2"
                 placeholder={t('categories.namePlaceholder')}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t('categories.displayOrder')}</label>
-              <input
-                type="number"
-                value={form.displayOrder}
-                onChange={e => setForm(prev => ({ ...prev, displayOrder: parseInt(e.target.value) || 0 }))}
-                className="w-full border rounded px-3 py-2"
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{t('categories.code')}</Label>
+                <Input
+                  value={form.code}
+                  onChange={e => setForm(prev => ({ ...prev, code: e.target.value }))}
+                  placeholder="e.g. BEAN"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('categories.displayOrder')}</Label>
+                <Input
+                  type="number"
+                  value={form.displayOrder}
+                  onChange={e => setForm(prev => ({ ...prev, displayOrder: parseInt(e.target.value) || 0 }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>{t('categories.icon')}</Label>
+              <Input
+                value={form.icon}
+                onChange={e => setForm(prev => ({ ...prev, icon: e.target.value }))}
+                placeholder="☕"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t('categories.description')}</Label>
+              <Input
+                value={form.description}
+                onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
               />
             </div>
           </div>
-          <div className="flex gap-2 mt-4">
-            <button onClick={handleSave} className="px-4 py-2 bg-blue-800 text-white rounded hover:bg-blue-900">
-              {t('common.save')}
-            </button>
-            <button onClick={() => { setShowForm(false); setEditId(null); }} className="px-4 py-2 border rounded hover:bg-gray-50">
-              {t('common.cancel')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-white border rounded-lg shadow-sm overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium">{t('common.id')}</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">{t('common.name')}</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">{t('categories.displayOrder')}</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">{t('common.status')}</th>
-              <th className="px-4 py-3 text-left text-sm font-medium">{t('common.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.length === 0 ? (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500">{t('categories.noCategories')}</td></tr>
-            ) : (
-              categories.map(cat => (
-                <tr key={cat.id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-3">{cat.id}</td>
-                  <td className="px-4 py-3 font-medium">{cat.name}</td>
-                  <td className="px-4 py-3">{cat.displayOrder}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${cat.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                      {cat.isActive ? t('common.active') : t('common.inactive')}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <button onClick={() => startEdit(cat)} className="text-blue-600 hover:underline text-sm">
-                        {t('common.edit')}
-                      </button>
-                      {cat.isActive && (
-                        <button onClick={() => handleDelete(cat.id)} className="text-red-600 hover:underline text-sm">
-                          {t('common.delete')}
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
+            <Button onClick={handleSave} className="bg-blue-800 hover:bg-blue-900">{t('common.save')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

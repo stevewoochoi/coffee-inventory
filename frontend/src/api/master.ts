@@ -22,6 +22,7 @@ export interface ItemRequest {
   brandId: number;
   name: string;
   category?: string;
+  categoryId?: number;
   baseUnit: string;
   lossRate?: number;
   price?: number;

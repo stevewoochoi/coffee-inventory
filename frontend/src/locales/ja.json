@@ -632,7 +632,20 @@
     "saveFailed": "カテゴリーの保存に失敗しました",
     "deleted": "カテゴリーが削除されました",
     "deleteFailed": "カテゴリーの削除に失敗しました",
-    "deleteConfirm": "このカテゴリーを削除しますか？"
+    "deleteConfirm": "このカテゴリーを削除しますか？",
+    "level1": "大分類",
+    "level2": "中分類",
+    "level3": "小分類",
+    "code": "コード",
+    "description": "説明",
+    "icon": "アイコン",
+    "addChild": "追加",
+    "deleteWithChildren": "下位カテゴリーも一緒に削除されます。削除しますか？",
+    "selectLevel1": "大分類を選択",
+    "selectLevel2": "中分類を選択",
+    "selectLevel3": "小分類を選択",
+    "maxLevelError": "最大3階層まで作成可能です",
+    "noSubcategories": "下位カテゴリーがありません"
   },
   "settings": {
     "themeTitle": "テーマ設定"

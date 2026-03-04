@@ -21,8 +21,16 @@ public class ItemCategoryController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ItemCategoryDto.Response>>> findByBrandId(
+            @RequestParam Long brandId,
+            @RequestParam(required = false) Integer level,
+            @RequestParam(required = false) Long parentId) {
+        return ResponseEntity.ok(ApiResponse.ok(categoryService.findByBrandId(brandId, level, parentId)));
+    }
+
+    @GetMapping("/tree")
+    public ResponseEntity<ApiResponse<List<ItemCategoryDto.TreeResponse>>> getCategoryTree(
             @RequestParam Long brandId) {
-        return ResponseEntity.ok(ApiResponse.ok(categoryService.findByBrandId(brandId)));
+        return ResponseEntity.ok(ApiResponse.ok(categoryService.getCategoryTree(brandId)));
     }
 
     @GetMapping("/all")
