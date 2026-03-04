@@ -45,10 +45,17 @@
   },
   "nav": {
     "dashboard": "대시보드",
-    "inventory": "재고",
+    "group": {
+      "product": "상품관리",
+      "ordering": "발주운영",
+      "inventory": "재고",
+      "finance": "재무",
+      "settings": "설정"
+    },
+    "inventory": "재고 현황",
     "receiving": "입고",
     "waste": "폐기",
-    "ordering": "발주",
+    "ordering": "발주 현황",
     "expiry": "유통기한",
     "count": "실사",
     "claims": "클레임",
@@ -57,15 +64,18 @@
     "packagings": "포장단위",
     "suppliers": "공급사",
     "settings": "설정",
-    "users": "사용자",
+    "users": "사용자 관리",
     "categories": "카테고리",
     "orderCalendar": "발주 달력",
     "cutoff": "마감 관리",
+    "supplierOrders": "수주 관리",
     "financeDashboard": "재무 대시보드",
     "purchase": "매입 관리",
-    "inventoryValue": "재고자산",
+    "inventoryValue": "재고자산 평가",
     "closing": "월마감",
-    "bulkUpload": "일괄 업로드"
+    "bulkUpload": "일괄 업로드",
+    "theme": "테마 설정",
+    "deliveryPolicy": "배송 정책"
   },
   "auth": {
     "appTitle": "Coffee Inventory",
