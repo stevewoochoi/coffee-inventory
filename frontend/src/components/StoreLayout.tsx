@@ -1,25 +1,16 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useThemeStore } from '@/store/themeStore';
 import NotificationBanner from '@/components/NotificationBanner';
-
-const navKeys = [
-  { to: '/store/dashboard', key: 'nav.dashboard' },
-  { to: '/store/inventory', key: 'nav.inventory' },
-  { to: '/store/receiving', key: 'nav.receiving' },
-  { to: '/store/waste', key: 'nav.waste' },
-  { to: '/store/ordering', key: 'nav.ordering' },
-  { to: '/store/expiry', key: 'nav.expiry' },
-  { to: '/store/claims', key: 'nav.claims' },
-  { to: '/store/physical-count', key: 'nav.count' },
-  { to: '/store/reports', key: 'nav.reports' },
-];
+import { storeNavGroups, storeBottomTabs } from '@/config/storeNavigation';
+import { StoreDesktopDropdown } from './nav/StoreDesktopDropdown';
 
 export function StoreLayout() {
   const { logout, user } = useAuthStore();
   const { t, i18n } = useTranslation();
   const { theme } = useThemeStore();
+  const location = useLocation();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -32,19 +23,14 @@ export function StoreLayout() {
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-bold">{t('auth.storeTitle')}</h1>
-            <nav className="hidden md:flex gap-1">
-              {navKeys.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    `px-4 py-2 rounded-lg text-base font-medium transition-colors ${
-                      isActive ? `${theme.headerHover} text-white` : `${theme.headerText} hover:bg-white/10`
-                    }`
-                  }
-                >
-                  {t(item.key)}
-                </NavLink>
+            <nav className="hidden md:flex gap-1 items-center">
+              {storeNavGroups.map((group) => (
+                <StoreDesktopDropdown
+                  key={group.key}
+                  group={group}
+                  headerHover={theme.headerHover}
+                  headerText={theme.headerText}
+                />
               ))}
             </nav>
           </div>
@@ -75,24 +61,31 @@ export function StoreLayout() {
         <Outlet />
       </main>
 
-      {/* Mobile bottom navigation */}
+      {/* Mobile bottom navigation — 4 tabs */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom">
-        <div className="flex overflow-x-auto">
-          {navKeys.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `flex-1 min-w-[60px] py-3 text-center text-xs font-medium transition-colors ${
+        <div className="flex">
+          {storeBottomTabs.map((tab) => {
+            const isActive = tab.to === '/store/menu'
+              ? location.pathname === '/store/menu'
+              : tab.to === '/store/dashboard'
+                ? location.pathname === '/store/dashboard'
+                : location.pathname.startsWith(tab.to) && tab.to !== '/store/dashboard';
+
+            return (
+              <NavLink
+                key={tab.to}
+                to={tab.to}
+                className={`flex-1 flex flex-col items-center justify-center py-2 min-h-[56px] text-xs font-medium transition-colors ${
                   isActive
                     ? 'text-[hsl(var(--primary))] border-t-2 border-[hsl(var(--primary))] bg-[hsl(var(--accent))]'
                     : 'text-gray-500 hover:text-gray-700'
-                }`
-              }
-            >
-              {t(item.key)}
-            </NavLink>
-          ))}
+                }`}
+              >
+                <tab.icon className="w-5 h-5 mb-0.5" />
+                {t(tab.key)}
+              </NavLink>
+            );
+          })}
         </div>
       </nav>
     </div>

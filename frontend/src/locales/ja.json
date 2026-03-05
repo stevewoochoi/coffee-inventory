@@ -75,7 +75,23 @@
     "closing": "月次締め",
     "bulkUpload": "一括アップロード",
     "theme": "テーマ設定",
-    "deliveryPolicy": "配送ポリシー"
+    "deliveryPolicy": "配送ポリシー",
+    "store": {
+      "home": "ホーム",
+      "newOrder": "発注",
+      "orderHistory": "注文履歴",
+      "more": "その他",
+      "group": {
+        "ordering": "受発注管理",
+        "inventory": "在庫管理"
+      }
+    }
+  },
+  "storeMenu": {
+    "title": "全メニュー",
+    "ordering": "受発注管理",
+    "inventory": "在庫管理",
+    "reports": "レポート"
   },
   "auth": {
     "appTitle": "Coffee Inventory",

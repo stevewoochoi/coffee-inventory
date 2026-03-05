@@ -43,6 +43,7 @@ import ClosingPage from '@/pages/admin/finance/ClosingPage';
 import BulkUploadPage from '@/pages/admin/BulkUploadPage';
 import SupplierOrdersPage from '@/pages/supplier/SupplierOrdersPage';
 import SupplierOrderDetailPage from '@/pages/supplier/SupplierOrderDetailPage';
+import StoreMenuPage from '@/pages/store/StoreMenuPage';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -114,6 +115,7 @@ function App() {
             <Route path="/store/inventory/audit/:id" element={<AuditDetailPage />} />
             <Route path="/store/physical-count" element={<PhysicalCountPage />} />
             <Route path="/store/physical-count/:id" element={<PhysicalCountDetailPage />} />
+            <Route path="/store/menu" element={<StoreMenuPage />} />
           </Route>
         </Route>
 

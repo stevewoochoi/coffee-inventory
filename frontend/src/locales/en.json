@@ -75,7 +75,23 @@
     "closing": "Monthly Close",
     "bulkUpload": "Bulk Upload",
     "theme": "Theme",
-    "deliveryPolicy": "Delivery Policy"
+    "deliveryPolicy": "Delivery Policy",
+    "store": {
+      "home": "Home",
+      "newOrder": "Order",
+      "orderHistory": "History",
+      "more": "More",
+      "group": {
+        "ordering": "Order Mgmt",
+        "inventory": "Inventory"
+      }
+    }
+  },
+  "storeMenu": {
+    "title": "All Menu",
+    "ordering": "Order Management",
+    "inventory": "Inventory Management",
+    "reports": "Reports"
   },
   "auth": {
     "appTitle": "Coffee Inventory",
