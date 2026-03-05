@@ -45,6 +45,16 @@ export default function ReceivingPage() {
   const [receiveLines, setReceiveLines] = useState<ReceiveLine[]>([]);
   const [receiving, setReceiving] = useState(false);
 
+  // History filter state
+  const today = new Date();
+  const weekAgo = new Date(today);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const [dateFrom, setDateFrom] = useState(weekAgo.toISOString().split('T')[0]);
+  const [dateTo, setDateTo] = useState(today.toISOString().split('T')[0]);
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [historyDeliveries, setHistoryDeliveries] = useState<Delivery[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
   const { user } = useAuthStore();
   const storeId = user?.storeId ?? 1;
   const { t } = useTranslation();
@@ -79,6 +89,13 @@ export default function ReceivingPage() {
       setPendingOrders(res.data.data);
     } catch { toast.error(t('receiving.fromOrder.loadFailed')); }
   }, [storeId, t]);
+
+  const loadHistory = useCallback(async () => {
+    try {
+      const res = await inventoryApi.getDeliveryHistory(storeId, dateFrom, dateTo, statusFilter || undefined);
+      setHistoryDeliveries(res.data.data);
+    } catch { /* silent */ }
+  }, [storeId, dateFrom, dateTo, statusFilter]);
 
   useEffect(() => { loadDeliveries(); loadPendingOrders(); }, [loadDeliveries, loadPendingOrders]);
 
@@ -509,6 +526,82 @@ export default function ReceivingPage() {
         ))}
         {deliveries.length === 0 && pendingOrders.length === 0 && (
           <p className="text-center text-gray-500 py-12">{t('receiving.noDeliveries')}</p>
+        )}
+      </div>
+
+      {/* Delivery History Section */}
+      <div className="mt-6">
+        <div
+          className="flex items-center justify-between cursor-pointer mb-3"
+          onClick={() => { setShowHistory(!showHistory); if (!showHistory) loadHistory(); }}
+        >
+          <h3 className="text-lg font-semibold">{t('receiving.history')}</h3>
+          <span className="text-gray-400 text-sm">{showHistory ? '▲' : '▼'}</span>
+        </div>
+        {showHistory && (
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2 items-end">
+              <div>
+                <Label className="text-xs text-gray-500">{t('common.from')}</Label>
+                <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-10 w-36" />
+              </div>
+              <div>
+                <Label className="text-xs text-gray-500">{t('common.to')}</Label>
+                <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-10 w-36" />
+              </div>
+              <div>
+                <Label className="text-xs text-gray-500">{t('common.status')}</Label>
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  className="h-10 rounded-md border border-input px-3 text-sm bg-background"
+                >
+                  <option value="">{t('ordering.status.all')}</option>
+                  <option value="COMPLETED">{t('receiving.statusFilter.confirmed')}</option>
+                  <option value="PENDING">{t('receiving.statusFilter.unconfirmed')}</option>
+                  <option value="IN_PROGRESS">{t('receiving.statusFilter.ordered')}</option>
+                  <option value="CANCELLED">{t('receiving.statusFilter.returned')}</option>
+                </select>
+              </div>
+              <Button onClick={loadHistory} className="h-10 min-h-[40px]">{t('common.search')}</Button>
+            </div>
+
+            <div className="space-y-2">
+              {historyDeliveries.map((d) => {
+                const statusBadge: Record<string, string> = {
+                  COMPLETED: 'bg-green-100 text-green-800',
+                  PENDING: 'bg-yellow-100 text-yellow-800',
+                  IN_PROGRESS: 'bg-blue-100 text-blue-800',
+                  CANCELLED: 'bg-red-100 text-red-800',
+                };
+                return (
+                  <Card key={d.id} className="cursor-pointer" onClick={() => openScanView(d)}>
+                    <CardContent className="py-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="font-bold">{t('receiving.deliveryPrefix', { id: d.id })}</span>
+                          <span className="text-gray-500 ml-2">{t('ordering.supplier')} #{d.supplierId}</span>
+                        </div>
+                        <Badge className={statusBadge[d.status] || 'bg-gray-100'}>
+                          {d.status === 'COMPLETED' ? t('receiving.statusFilter.confirmed') :
+                           d.status === 'PENDING' ? t('receiving.statusFilter.unconfirmed') :
+                           d.status === 'IN_PROGRESS' ? t('receiving.statusFilter.ordered') :
+                           t('receiving.statusFilter.returned')}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-gray-500 mt-1">
+                        {new Date(d.createdAt).toLocaleDateString()}
+                        {d.expectedAt && ` | ${t('ordering.steps.deliveryDate')}: ${d.expectedAt}`}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+              {historyDeliveries.length === 0 && (
+                <p className="text-center text-gray-400 py-6">{t('receiving.noDeliveries')}</p>
+              )}
+            </div>
+          </div>
         )}
       </div>
 

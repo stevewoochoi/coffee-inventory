@@ -232,6 +232,13 @@
     "confirmFailed": "입고 확정에 실패했습니다",
     "created": "입고가 생성되었습니다",
     "createFailed": "입고 생성에 실패했습니다",
+    "history": "입고 이력",
+    "statusFilter": {
+      "confirmed": "출고확정",
+      "unconfirmed": "미확정",
+      "ordered": "진행중",
+      "returned": "취소"
+    },
     "fromOrder": {
       "title": "입고 대기 발주",
       "noOrders": "대기 중인 발주 없음",

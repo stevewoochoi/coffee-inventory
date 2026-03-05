@@ -232,6 +232,13 @@
     "confirmFailed": "Failed to confirm delivery",
     "created": "Delivery created",
     "createFailed": "Failed to create delivery",
+    "history": "Delivery History",
+    "statusFilter": {
+      "confirmed": "Confirmed",
+      "unconfirmed": "Pending",
+      "ordered": "In Progress",
+      "returned": "Cancelled"
+    },
     "fromOrder": {
       "title": "Pending Orders",
       "noOrders": "No pending orders",

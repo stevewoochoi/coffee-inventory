@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -25,6 +26,15 @@ public class DeliveryController {
     public ResponseEntity<ApiResponse<List<DeliveryDto.Response>>> findByStoreId(
             @RequestParam Long storeId) {
         return ResponseEntity.ok(ApiResponse.ok(deliveryService.findByStoreId(storeId)));
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<ApiResponse<List<DeliveryDto.Response>>> history(
+            @RequestParam Long storeId,
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(ApiResponse.ok(deliveryService.findHistory(storeId, from, to, status)));
     }
 
     @GetMapping("/{id}")

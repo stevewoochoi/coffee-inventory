@@ -130,6 +130,8 @@ export const inventoryApi = {
   // Delivery
   getDeliveries: (storeId: number) =>
     client.get<ApiResponse<Delivery[]>>('/receiving/deliveries', { params: { storeId } }),
+  getDeliveryHistory: (storeId: number, from: string, to: string, status?: string) =>
+    client.get<ApiResponse<Delivery[]>>('/receiving/deliveries/history', { params: { storeId, from, to, ...(status ? { status } : {}) } }),
   createDelivery: (data: { storeId: number; supplierId: number; expectedAt?: string }) =>
     client.post<ApiResponse<Delivery>>('/receiving/deliveries', data),
   getDelivery: (id: number) =>

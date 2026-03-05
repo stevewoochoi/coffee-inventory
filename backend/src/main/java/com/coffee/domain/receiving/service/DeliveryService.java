@@ -52,6 +52,23 @@ public class DeliveryService {
                 .toList();
     }
 
+    public List<DeliveryDto.Response> findHistory(Long storeId, java.time.LocalDate from, java.time.LocalDate to, String status) {
+        java.time.LocalDateTime fromDt = from.atStartOfDay();
+        java.time.LocalDateTime toDt = to.plusDays(1).atStartOfDay();
+
+        List<Delivery> deliveries;
+        if (status != null && !status.isEmpty()) {
+            DeliveryStatus deliveryStatus = DeliveryStatus.valueOf(status);
+            deliveries = deliveryRepository.findByStoreIdAndStatusAndCreatedAtBetweenOrderByCreatedAtDesc(
+                    storeId, deliveryStatus, fromDt, toDt);
+        } else {
+            deliveries = deliveryRepository.findByStoreIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+                    storeId, fromDt, toDt);
+        }
+
+        return deliveries.stream().map(this::toResponse).toList();
+    }
+
     public DeliveryDto.Response findById(Long id) {
         return toResponse(getOrThrow(id));
     }

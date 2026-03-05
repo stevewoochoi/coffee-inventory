@@ -232,6 +232,13 @@
     "confirmFailed": "入荷の確定に失敗しました",
     "created": "入荷が作成されました",
     "createFailed": "入荷の作成に失敗しました",
+    "history": "入荷履歴",
+    "statusFilter": {
+      "confirmed": "出荷確定",
+      "unconfirmed": "未確定",
+      "ordered": "進行中",
+      "returned": "キャンセル"
+    },
     "fromOrder": {
       "title": "入荷待ち発注",
       "noOrders": "入荷待ちの発注なし",
