@@ -746,11 +746,21 @@
     "type": {
       "DEFECTIVE": "불량",
       "WRONG_ITEM": "오배송",
-      "SHORTAGE": "수량부족",
+      "SHORTAGE": "미입고/수량부족",
       "DAMAGE": "파손",
       "QUALITY": "품질문제",
-      "OTHER": "기타"
+      "OTHER": "기타",
+      "EXPIRY_ISSUE": "유통기한",
+      "LABELING": "표시사항",
+      "ORDER_ERROR": "발주오류",
+      "DEFECTIVE_FOOD": "식품 불량품",
+      "DEFECTIVE_NONFOOD": "비식 불량품",
+      "FOREIGN_MATTER": "이물질",
+      "OVER_DELIVERY": "과입고"
     },
+    "estimatedResolveDate": "조치예정일",
+    "monthFilter": "월별 조회",
+    "takePhoto": "사진 촬영",
     "new": {
       "title": "클레임 등록",
       "step1": "발주 선택",

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -69,6 +70,7 @@ public class ClaimDto {
         private Long resolvedBy;
         private LocalDateTime resolvedAt;
         private String resolutionNote;
+        private LocalDate estimatedResolveDate;
         private List<ClaimLineResponse> lines;
         private List<ClaimImageResponse> images;
         private LocalDateTime createdAt;

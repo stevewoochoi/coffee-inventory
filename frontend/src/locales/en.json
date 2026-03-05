@@ -749,8 +749,18 @@
       "SHORTAGE": "Shortage",
       "DAMAGE": "Damage",
       "QUALITY": "Quality Issue",
-      "OTHER": "Other"
+      "OTHER": "Other",
+      "EXPIRY_ISSUE": "Expiry Issue",
+      "LABELING": "Labeling",
+      "ORDER_ERROR": "Order Error",
+      "DEFECTIVE_FOOD": "Defective Food",
+      "DEFECTIVE_NONFOOD": "Defective Non-food",
+      "FOREIGN_MATTER": "Foreign Matter",
+      "OVER_DELIVERY": "Over Delivery"
     },
+    "estimatedResolveDate": "Est. Resolution Date",
+    "monthFilter": "Monthly Filter",
+    "takePhoto": "Take Photo",
     "new": {
       "title": "New Claim",
       "step1": "Select Order",

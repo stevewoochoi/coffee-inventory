@@ -190,6 +190,7 @@ public class ClaimService {
                 .resolvedBy(claim.getResolvedBy())
                 .resolvedAt(claim.getResolvedAt())
                 .resolutionNote(claim.getResolutionNote())
+                .estimatedResolveDate(claim.getEstimatedResolveDate())
                 .lines(lineResponses)
                 .images(imageResponses)
                 .createdAt(claim.getCreatedAt())

@@ -716,11 +716,21 @@
     "type": {
       "DEFECTIVE": "不良品",
       "WRONG_ITEM": "誤配送",
-      "SHORTAGE": "数量不足",
+      "SHORTAGE": "未入荷/数量不足",
       "DAMAGE": "破損",
       "QUALITY": "品質問題",
-      "OTHER": "その他"
+      "OTHER": "その他",
+      "EXPIRY_ISSUE": "賞味期限",
+      "LABELING": "表示事項",
+      "ORDER_ERROR": "発注ミス",
+      "DEFECTIVE_FOOD": "食品不良品",
+      "DEFECTIVE_NONFOOD": "非食品不良品",
+      "FOREIGN_MATTER": "異物混入",
+      "OVER_DELIVERY": "過入荷"
     },
+    "estimatedResolveDate": "対応予定日",
+    "monthFilter": "月別検索",
+    "takePhoto": "写真撮影",
     "new": {
       "title": "クレーム登録",
       "step1": "発注選択",

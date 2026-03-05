@@ -3,6 +3,7 @@ package com.coffee.domain.claim.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -53,6 +54,9 @@ public class Claim {
 
     @Column(name = "resolution_note", columnDefinition = "TEXT")
     private String resolutionNote;
+
+    @Column(name = "estimated_resolve_date")
+    private LocalDate estimatedResolveDate;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

@@ -21,6 +21,13 @@ const claimTypeColor: Record<string, string> = {
   SHORTAGE: 'bg-amber-100 text-amber-800',
   DAMAGE: 'bg-rose-100 text-rose-800',
   QUALITY: 'bg-purple-100 text-purple-800',
+  EXPIRY_ISSUE: 'bg-yellow-100 text-yellow-800',
+  LABELING: 'bg-indigo-100 text-indigo-800',
+  ORDER_ERROR: 'bg-orange-100 text-orange-800',
+  DEFECTIVE_FOOD: 'bg-red-100 text-red-800',
+  DEFECTIVE_NONFOOD: 'bg-pink-100 text-pink-800',
+  FOREIGN_MATTER: 'bg-violet-100 text-violet-800',
+  OVER_DELIVERY: 'bg-teal-100 text-teal-800',
   OTHER: 'bg-gray-100 text-gray-800',
 };
 
@@ -36,6 +43,8 @@ export default function ClaimsPage() {
   const [summary, setSummary] = useState<ClaimSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('all');
+  const currentMonth = new Date().toISOString().substring(0, 7);
+  const [monthFilter, setMonthFilter] = useState<string>('');
 
   useEffect(() => {
     loadClaims();
@@ -63,9 +72,13 @@ export default function ClaimsPage() {
     }
   }
 
+  const monthFiltered = monthFilter
+    ? claims.filter(c => c.createdAt.substring(0, 7) === monthFilter)
+    : claims;
+
   const filteredClaims = activeTab === 'all'
-    ? claims
-    : claims.filter(c => c.status === activeTab);
+    ? monthFiltered
+    : monthFiltered.filter(c => c.status === activeTab);
 
   const statusCounts = claims.reduce((acc, c) => {
     acc[c.status] = (acc[c.status] || 0) + 1;
@@ -113,6 +126,22 @@ export default function ClaimsPage() {
           </Card>
         </div>
       )}
+
+      {/* Month filter */}
+      <div className="flex items-center gap-2">
+        <label className="text-sm text-gray-500">{t('claims.monthFilter')}:</label>
+        <input
+          type="month"
+          value={monthFilter}
+          onChange={e => setMonthFilter(e.target.value)}
+          className="h-9 rounded-md border border-input px-3 text-sm bg-background"
+        />
+        {monthFilter && (
+          <button onClick={() => setMonthFilter('')} className="text-sm text-gray-400 hover:text-gray-600">
+            {t('common.reset')}
+          </button>
+        )}
+      </div>
 
       {/* Status tabs */}
       <div className="flex gap-1 overflow-x-auto pb-1">
