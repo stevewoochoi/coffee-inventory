@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
-import { masterApi, type Item, type ItemRequest, type Supplier } from '@/api/master';
+import { masterApi, type Item, type ItemRequest, type Supplier, type DeliveryScheduleRequest } from '@/api/master';
 import { categoryApi, type CategoryTreeNode } from '@/api/category';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,9 @@ export default function ItemsPage() {
   const [selL2, setSelL2] = useState<number | ''>('');
   const [selL3, setSelL3] = useState<number | ''>('');
   const [form, setForm] = useState<ItemRequest>({ brandId, name: '', baseUnit: 'g' });
+  const emptySchedule: DeliveryScheduleRequest = { mon: false, tue: false, wed: false, thu: false, fri: false, sat: false, sun: false };
+  const [deliverySchedule, setDeliverySchedule] = useState<DeliveryScheduleRequest>(emptySchedule);
+  const [hasExistingSchedule, setHasExistingSchedule] = useState(false);
 
   const loadSuppliers = useCallback(async () => {
     try {
@@ -66,10 +69,12 @@ export default function ItemsPage() {
     setSelL1('');
     setSelL2('');
     setSelL3('');
+    setDeliverySchedule(emptySchedule);
+    setHasExistingSchedule(false);
     setDialogOpen(true);
   };
 
-  const openEdit = (item: Item) => {
+  const openEdit = async (item: Item) => {
     setEditItem(item);
     setForm({
       brandId: item.brandId,
@@ -85,6 +90,21 @@ export default function ItemsPage() {
     setSelL1('');
     setSelL2('');
     setSelL3('');
+    // Load delivery schedule
+    try {
+      const res = await masterApi.getDeliverySchedule(item.id);
+      const s = res.data.data;
+      if (s) {
+        setDeliverySchedule({ mon: s.mon, tue: s.tue, wed: s.wed, thu: s.thu, fri: s.fri, sat: s.sat, sun: s.sun });
+        setHasExistingSchedule(true);
+      } else {
+        setDeliverySchedule(emptySchedule);
+        setHasExistingSchedule(false);
+      }
+    } catch {
+      setDeliverySchedule(emptySchedule);
+      setHasExistingSchedule(false);
+    }
     setDialogOpen(true);
   };
 
@@ -104,10 +124,22 @@ export default function ItemsPage() {
 
   const handleSave = async () => {
     try {
+      let itemId: number;
       if (editItem) {
         await masterApi.updateItem(editItem.id, form);
+        itemId = editItem.id;
       } else {
-        await masterApi.createItem(form);
+        const res = await masterApi.createItem(form);
+        itemId = res.data.data.id;
+      }
+      // Save delivery schedule
+      const hasAnyDay = Object.values(deliverySchedule).some(v => v === true);
+      if (hasAnyDay) {
+        if (hasExistingSchedule) {
+          await masterApi.updateDeliverySchedule(itemId, deliverySchedule);
+        } else {
+          await masterApi.createDeliverySchedule(itemId, deliverySchedule);
+        }
       }
       toast.success(editItem ? t('items.updated') : t('items.created'));
       setDialogOpen(false);
@@ -411,6 +443,22 @@ export default function ItemsPage() {
                 <Input readOnly
                   value={form.price && form.vatInclusive ? `₩${Math.round(form.price * 0.1).toLocaleString()}` : '-'}
                   className="bg-gray-50" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>{t('catalog.deliveryDays', { defaultValue: '납품 가능일' })}</Label>
+              <div className="flex flex-wrap gap-2">
+                {(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const).map((day) => (
+                  <label key={day} className="flex items-center gap-1.5">
+                    <input
+                      type="checkbox"
+                      checked={deliverySchedule[day]}
+                      onChange={(e) => setDeliverySchedule({ ...deliverySchedule, [day]: e.target.checked })}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <span className="text-sm">{t(`days.${day}`)}</span>
+                  </label>
+                ))}
               </div>
             </div>
           </div>

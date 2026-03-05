@@ -119,6 +119,34 @@ export interface SupplierItemRequest {
   price?: number;
 }
 
+// Delivery Schedule types
+export interface DeliverySchedule {
+  id: number;
+  itemId: number;
+  brandId: number;
+  mon: boolean;
+  tue: boolean;
+  wed: boolean;
+  thu: boolean;
+  fri: boolean;
+  sat: boolean;
+  sun: boolean;
+  isActive: boolean;
+  displayDays: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DeliveryScheduleRequest {
+  mon: boolean;
+  tue: boolean;
+  wed: boolean;
+  thu: boolean;
+  fri: boolean;
+  sat: boolean;
+  sun: boolean;
+}
+
 export const masterApi = {
   // Items
   getItems: (brandId?: number, page = 0, size = 20) =>
@@ -173,4 +201,12 @@ export const masterApi = {
     client.post<ApiResponse<SupplierItem>>(`/master/suppliers/${supplierId}/items`, data),
   deleteSupplierItem: (supplierId: number, itemId: number) =>
     client.delete<ApiResponse<void>>(`/master/suppliers/${supplierId}/items/${itemId}`),
+
+  // Delivery Schedule
+  getDeliverySchedule: (itemId: number) =>
+    client.get<ApiResponse<DeliverySchedule | null>>(`/master/items/${itemId}/delivery-schedule`),
+  createDeliverySchedule: (itemId: number, data: DeliveryScheduleRequest) =>
+    client.post<ApiResponse<DeliverySchedule>>(`/master/items/${itemId}/delivery-schedule`, data),
+  updateDeliverySchedule: (itemId: number, data: DeliveryScheduleRequest) =>
+    client.put<ApiResponse<DeliverySchedule>>(`/master/items/${itemId}/delivery-schedule`, data),
 };
