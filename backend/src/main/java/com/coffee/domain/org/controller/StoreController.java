@@ -1,6 +1,7 @@
 package com.coffee.domain.org.controller;
 
 import com.coffee.common.response.ApiResponse;
+import com.coffee.config.CustomUserDetails;
 import com.coffee.domain.org.dto.StoreDto;
 import com.coffee.domain.org.service.StoreService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +24,12 @@ public class StoreController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<StoreDto.Response>>> findAll(
-            @RequestParam(required = false) Long brandId) {
+            @RequestParam(required = false) Long brandId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        // BRAND_ADMIN can only see stores of their own brand
+        if ("BRAND_ADMIN".equals(userDetails.getRole()) && userDetails.getBrandId() != null) {
+            return ResponseEntity.ok(ApiResponse.ok(storeService.findByBrandId(userDetails.getBrandId())));
+        }
         List<StoreDto.Response> stores = brandId != null
                 ? storeService.findByBrandId(brandId)
                 : storeService.findAll();
@@ -35,7 +42,13 @@ public class StoreController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<StoreDto.Response>> create(@Valid @RequestBody StoreDto.Request request) {
+    public ResponseEntity<ApiResponse<StoreDto.Response>> create(
+            @Valid @RequestBody StoreDto.Request request,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        // BRAND_ADMIN can only create stores for their own brand
+        if ("BRAND_ADMIN".equals(userDetails.getRole()) && userDetails.getBrandId() != null) {
+            request.setBrandId(userDetails.getBrandId());
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok(storeService.create(request), "Store created"));
     }
