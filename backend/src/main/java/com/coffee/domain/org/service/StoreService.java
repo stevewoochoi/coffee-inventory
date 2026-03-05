@@ -44,6 +44,11 @@ public class StoreService {
                 .brandId(request.getBrandId())
                 .name(request.getName())
                 .timezone(request.getTimezone() != null ? request.getTimezone() : "Asia/Tokyo")
+                .status(request.getStatus() != null ? request.getStatus() : "ACTIVE")
+                .address(request.getAddress())
+                .phone(request.getPhone())
+                .openDate(request.getOpenDate())
+                .memo(request.getMemo())
                 .build();
         return toResponse(storeRepository.save(store));
     }
@@ -60,13 +65,21 @@ public class StoreService {
         if (request.getTimezone() != null) {
             store.setTimezone(request.getTimezone());
         }
+        if (request.getStatus() != null) {
+            store.setStatus(request.getStatus());
+        }
+        store.setAddress(request.getAddress());
+        store.setPhone(request.getPhone());
+        store.setOpenDate(request.getOpenDate());
+        store.setMemo(request.getMemo());
         return toResponse(storeRepository.save(store));
     }
 
     @Transactional
     public void delete(Long id) {
-        getStoreOrThrow(id);
-        storeRepository.deleteById(id);
+        Store store = getStoreOrThrow(id);
+        store.setStatus("INACTIVE");
+        storeRepository.save(store);
     }
 
     private Store getStoreOrThrow(Long id) {
@@ -80,6 +93,11 @@ public class StoreService {
                 .brandId(store.getBrandId())
                 .name(store.getName())
                 .timezone(store.getTimezone())
+                .status(store.getStatus())
+                .address(store.getAddress())
+                .phone(store.getPhone())
+                .openDate(store.getOpenDate())
+                .memo(store.getMemo())
                 .createdAt(store.getCreatedAt())
                 .build();
     }

@@ -32,6 +32,7 @@ public class CatalogDto {
         private int suggestedQty;
         private boolean suggestedByAi;
         private Double daysUntilEmpty;
+        private boolean orderable;
     }
 
     @Getter

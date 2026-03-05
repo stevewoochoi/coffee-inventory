@@ -73,6 +73,12 @@ public class ItemDeliverySchedule {
         };
     }
 
+    public boolean hasAnyDay() {
+        return Boolean.TRUE.equals(mon) || Boolean.TRUE.equals(tue) || Boolean.TRUE.equals(wed)
+                || Boolean.TRUE.equals(thu) || Boolean.TRUE.equals(fri) || Boolean.TRUE.equals(sat)
+                || Boolean.TRUE.equals(sun);
+    }
+
     public String getDisplayDays() {
         StringBuilder sb = new StringBuilder();
         if (Boolean.TRUE.equals(mon)) sb.append("월");

@@ -3,6 +3,7 @@ package com.coffee.domain.org.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,6 +28,22 @@ public class Store {
     @Column(length = 50)
     @Builder.Default
     private String timezone = "Asia/Tokyo";
+
+    @Column(length = 20)
+    @Builder.Default
+    private String status = "ACTIVE";
+
+    @Column(length = 300)
+    private String address;
+
+    @Column(length = 30)
+    private String phone;
+
+    @Column(name = "open_date")
+    private LocalDate openDate;
+
+    @Column(columnDefinition = "TEXT")
+    private String memo;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

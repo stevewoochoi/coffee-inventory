@@ -75,6 +75,7 @@
     "closing": "월마감",
     "bulkUpload": "일괄 업로드",
     "theme": "테마 설정",
+    "stores": "매장 관리",
     "deliveryPolicy": "배송 정책",
     "store": {
       "home": "홈",
@@ -327,7 +328,10 @@
       "allCategories": "전체 카테고리",
       "allSuppliers": "전체 공급사",
       "qty": "수량",
-      "packaging": "포장단위"
+      "packaging": "포장단위",
+      "orderableOnly": "주문가능만",
+      "notOrderable": "이 납품일에 주문 불가",
+      "deliveryDays": "납품 가능일"
     },
     "cart": {
       "title": "장바구니",
@@ -983,6 +987,38 @@
     "statusPartial": "부분완료",
     "statusFailed": "실패",
     "statusPending": "대기"
+  },
+  "stores": {
+    "title": "매장 관리",
+    "addStore": "+ 매장 등록",
+    "addTitle": "매장 등록",
+    "editTitle": "매장 수정",
+    "noStores": "등록된 매장이 없습니다.",
+    "loadFailed": "매장을 불러오지 못했습니다",
+    "created": "매장이 등록되었습니다",
+    "updated": "매장이 수정되었습니다",
+    "saveFailed": "매장 저장에 실패했습니다",
+    "deleted": "매장이 비활성화되었습니다",
+    "deleteFailed": "매장 비활성화에 실패했습니다",
+    "deleteConfirm": "이 매장을 비활성화하시겠습니까?",
+    "name": "매장명",
+    "address": "주소",
+    "phone": "연락처",
+    "openDate": "오픈일",
+    "memo": "메모",
+    "status": "상태",
+    "searchPlaceholder": "매장명, 주소, 연락처 검색...",
+    "statusActive": "운영중",
+    "statusInactive": "비활성"
+  },
+  "days": {
+    "mon": "월",
+    "tue": "화",
+    "wed": "수",
+    "thu": "목",
+    "fri": "금",
+    "sat": "토",
+    "sun": "일"
   },
   "supplierPortal": {
     "title": "공급사 포탈",

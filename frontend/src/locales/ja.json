@@ -75,6 +75,7 @@
     "closing": "月次締め",
     "bulkUpload": "一括アップロード",
     "theme": "テーマ設定",
+    "stores": "店舗管理",
     "deliveryPolicy": "配送ポリシー",
     "store": {
       "home": "ホーム",
@@ -327,7 +328,10 @@
       "allCategories": "全カテゴリー",
       "allSuppliers": "全取引先",
       "qty": "数量",
-      "packaging": "包装単位"
+      "packaging": "包装単位",
+      "orderableOnly": "注文可能のみ",
+      "notOrderable": "この納品日は注文不可",
+      "deliveryDays": "納品可能日"
     },
     "cart": {
       "title": "カート",
@@ -953,6 +957,38 @@
     "statusPartial": "一部完了",
     "statusFailed": "失敗",
     "statusPending": "待機"
+  },
+  "stores": {
+    "title": "店舗管理",
+    "addStore": "+ 店舗登録",
+    "addTitle": "店舗登録",
+    "editTitle": "店舗編集",
+    "noStores": "登録された店舗がありません。",
+    "loadFailed": "店舗の読み込みに失敗しました",
+    "created": "店舗が登録されました",
+    "updated": "店舗が更新されました",
+    "saveFailed": "店舗の保存に失敗しました",
+    "deleted": "店舗が無効化されました",
+    "deleteFailed": "店舗の無効化に失敗しました",
+    "deleteConfirm": "この店舗を無効化しますか？",
+    "name": "店舗名",
+    "address": "住所",
+    "phone": "電話番号",
+    "openDate": "オープン日",
+    "memo": "メモ",
+    "status": "ステータス",
+    "searchPlaceholder": "店舗名、住所、電話番号で検索...",
+    "statusActive": "営業中",
+    "statusInactive": "無効"
+  },
+  "days": {
+    "mon": "月",
+    "tue": "火",
+    "wed": "水",
+    "thu": "木",
+    "fri": "金",
+    "sat": "土",
+    "sun": "日"
   },
   "supplierPortal": {
     "title": "取引先ポータル",

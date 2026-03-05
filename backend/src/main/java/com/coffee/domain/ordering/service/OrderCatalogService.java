@@ -54,21 +54,48 @@ public class OrderCatalogService {
         Map<Long, BigDecimal> stockMap = recommendationService.getCurrentStockMap(storeId);
         Map<Long, BigDecimal> usageMap = recommendationService.getDailyUsageMap(storeId);
 
-        // Filter items
+        // Filter items — 모든 상품 반환, orderable 플래그로 구분
+        final LocalDate finalDeliveryDate = deliveryDate;
         List<CatalogDto.CatalogItem> catalogItems = allItems.stream()
                 .filter(item -> Boolean.TRUE.equals(item.getIsOrderable()))
                 .filter(item -> categoryId == null || categoryId.equals(item.getCategoryId()))
                 .filter(item -> keyword == null || keyword.isEmpty()
                         || item.getName().toLowerCase().contains(keyword.toLowerCase()))
-                .filter(item -> {
-                    if (deliveryDate != null) {
-                        return policyService.isItemOrderableForDate(item.getId(), deliveryDate, storeId);
+                .map(item -> {
+                    CatalogDto.CatalogItem ci = buildCatalogItem(item, storeId, stockMap, usageMap);
+                    if (finalDeliveryDate != null) {
+                        boolean orderable = policyService.isItemOrderableForDate(item.getId(), finalDeliveryDate, storeId);
+                        return CatalogDto.CatalogItem.builder()
+                                .itemId(ci.getItemId()).itemName(ci.getItemName())
+                                .itemCode(ci.getItemCode()).spec(ci.getSpec())
+                                .categoryId(ci.getCategoryId()).categoryName(ci.getCategoryName())
+                                .imageUrl(ci.getImageUrl()).temperatureZone(ci.getTemperatureZone())
+                                .currentStock(ci.getCurrentStock()).unit(ci.getUnit())
+                                .minStock(ci.getMinStock()).isLowStock(ci.isLowStock())
+                                .deliveryDays(ci.getDeliveryDays())
+                                .packagings(ci.getPackagings()).lastOrder(ci.getLastOrder())
+                                .suggestedQty(ci.getSuggestedQty()).suggestedByAi(ci.isSuggestedByAi())
+                                .daysUntilEmpty(ci.getDaysUntilEmpty())
+                                .orderable(orderable)
+                                .build();
                     }
-                    return true;
+                    return CatalogDto.CatalogItem.builder()
+                            .itemId(ci.getItemId()).itemName(ci.getItemName())
+                            .itemCode(ci.getItemCode()).spec(ci.getSpec())
+                            .categoryId(ci.getCategoryId()).categoryName(ci.getCategoryName())
+                            .imageUrl(ci.getImageUrl()).temperatureZone(ci.getTemperatureZone())
+                            .currentStock(ci.getCurrentStock()).unit(ci.getUnit())
+                            .minStock(ci.getMinStock()).isLowStock(ci.isLowStock())
+                            .deliveryDays(ci.getDeliveryDays())
+                            .packagings(ci.getPackagings()).lastOrder(ci.getLastOrder())
+                            .suggestedQty(ci.getSuggestedQty()).suggestedByAi(ci.isSuggestedByAi())
+                            .daysUntilEmpty(ci.getDaysUntilEmpty())
+                            .orderable(true)
+                            .build();
                 })
-                .map(item -> buildCatalogItem(item, storeId, stockMap, usageMap))
                 .filter(ci -> !lowStockOnly || ci.isLowStock())
-                .sorted(Comparator.comparing(CatalogDto.CatalogItem::isLowStock).reversed()
+                .sorted(Comparator.comparing(CatalogDto.CatalogItem::isOrderable).reversed()
+                        .thenComparing(CatalogDto.CatalogItem::isLowStock).reversed()
                         .thenComparing(CatalogDto.CatalogItem::getItemName))
                 .toList();
 

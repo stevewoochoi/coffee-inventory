@@ -490,44 +490,57 @@ export default function NewOrderPage() {
             const qty = getCartQty(item.itemId, pkg.packagingId);
             const fillPct = item.minStock > 0 ? Math.min(100, Math.max(0, (item.currentStock / item.minStock) * 100)) : 100;
             const barColor = fillPct <= 25 ? 'bg-red-500' : fillPct <= 50 ? 'bg-amber-500' : 'bg-green-500';
+            const isDisabled = item.orderable === false;
 
             return (
-              <Card key={item.itemId} className={`border-2 ${item.isLowStock ? 'border-red-200' : 'border-gray-200'}`}>
+              <Card key={item.itemId} className={`border-2 ${isDisabled ? 'border-gray-100 opacity-60' : item.isLowStock ? 'border-red-200' : 'border-gray-200'}`}>
                 <CardContent className="py-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm truncate">{item.itemName}</span>
-                        {item.isLowStock && <Badge className="bg-red-100 text-red-800 text-xs">{t('inventory.lowBadge')}</Badge>}
-                      </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-1 max-w-[120px]">
-                        <div className={`h-full ${barColor} rounded-full`} style={{ width: `${fillPct}%` }} />
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span>{item.currentStock.toFixed(0)}/{item.minStock.toFixed(0)} {item.unit}</span>
-                        {item.daysUntilEmpty != null && item.daysUntilEmpty < 999 && (
-                          <span className={item.daysUntilEmpty <= 3 ? 'text-red-600 font-medium' : ''}>
-                            {t('inventory.forecast.daysLeft', { days: item.daysUntilEmpty.toFixed(0) })}
-                          </span>
+                        <span className={`font-medium text-sm truncate ${isDisabled ? 'text-gray-400' : ''}`}>{item.itemName}</span>
+                        {item.isLowStock && !isDisabled && <Badge className="bg-red-100 text-red-800 text-xs">{t('inventory.lowBadge')}</Badge>}
+                        {isDisabled && item.deliveryDays && (
+                          <Badge variant="outline" className="text-[10px] text-gray-500 border-gray-300">{item.deliveryDays}</Badge>
                         )}
                       </div>
-                      <div className="text-xs text-gray-400 mt-0.5">
-                        {pkg.label} / {'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}
-                        <span className="ml-1.5 text-blue-600 font-medium">(1팩={formatPackUnit(pkg.unitsPerPack, item.unit)} ₩{pkg.unitPrice.toLocaleString()})</span>
-                      </div>
+                      {isDisabled && (
+                        <p className="text-xs text-gray-400 mb-1">{t('ordering.catalog.notOrderable')}</p>
+                      )}
+                      {!isDisabled && (
+                        <>
+                          <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-1 max-w-[120px]">
+                            <div className={`h-full ${barColor} rounded-full`} style={{ width: `${fillPct}%` }} />
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-gray-500">
+                            <span>{item.currentStock.toFixed(0)}/{item.minStock.toFixed(0)} {item.unit}</span>
+                            {item.daysUntilEmpty != null && item.daysUntilEmpty < 999 && (
+                              <span className={item.daysUntilEmpty <= 3 ? 'text-red-600 font-medium' : ''}>
+                                {t('inventory.forecast.daysLeft', { days: item.daysUntilEmpty.toFixed(0) })}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-0.5">
+                            {pkg.label} / {'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}
+                            <span className="ml-1.5 text-blue-600 font-medium">(1팩={formatPackUnit(pkg.unitsPerPack, item.unit)} ₩{pkg.unitPrice.toLocaleString()})</span>
+                          </div>
+                        </>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
-                        onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
-                      <div className="flex flex-col items-center w-16">
-                        <span className="text-sm font-bold">{qty}</span>
-                        {qty > 0 && <span className="text-[10px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}팩</span>}
+                    {!isDisabled && (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
+                          onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
+                        <div className="flex flex-col items-center w-16">
+                          <span className="text-sm font-bold">{qty}</span>
+                          {qty > 0 && <span className="text-[10px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}팩</span>}
+                        </div>
+                        <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
+                          onClick={() => handlePlusClick(item, 0)}>+</Button>
                       </div>
-                      <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
-                        onClick={() => handlePlusClick(item, 0)}>+</Button>
-                    </div>
+                    )}
                   </div>
-                  {item.suggestedQty > 0 && qty === 0 && (
+                  {!isDisabled && item.suggestedQty > 0 && qty === 0 && (
                     <button className="text-xs text-blue-600 mt-1 hover:underline"
                       onClick={() => setSuggestionItem(item)}>
                       AI 추천: {item.suggestedQty}팩
@@ -544,29 +557,41 @@ export default function NewOrderPage() {
             const pkg = item.packagings[0];
             if (!pkg) return null;
             const qty = getCartQty(item.itemId, pkg.packagingId);
+            const isDisabled = item.orderable === false;
             return (
-              <Card key={item.itemId} className={`border-2 ${item.isLowStock ? 'border-red-200' : 'border-gray-200'}`}>
+              <Card key={item.itemId} className={`border-2 ${isDisabled ? 'border-gray-100 opacity-60' : item.isLowStock ? 'border-red-200' : 'border-gray-200'}`}>
                 <CardContent className="p-3 space-y-2">
-                  <div className="h-20 bg-gray-100 rounded flex items-center justify-center">
+                  <div className="h-20 bg-gray-100 rounded flex items-center justify-center relative">
                     {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.itemName} className="h-full object-contain" />
+                      <img src={item.imageUrl} alt={item.itemName} className={`h-full object-contain ${isDisabled ? 'grayscale' : ''}`} />
                     ) : (
-                      <span className="text-2xl text-gray-300">{item.categoryName.charAt(0)}</span>
+                      <span className="text-2xl text-gray-300">{item.categoryName?.charAt(0) ?? ''}</span>
+                    )}
+                    {isDisabled && item.deliveryDays && (
+                      <Badge variant="outline" className="absolute top-1 right-1 text-[9px] bg-white/80">{item.deliveryDays}</Badge>
                     )}
                   </div>
                   <div>
-                    <p className="font-medium text-xs truncate">{item.itemName}</p>
-                    <p className="text-xs text-gray-500">{'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}</p>
-                    <p className="text-xs text-blue-600 font-medium">1팩={formatPackUnit(pkg.unitsPerPack, item.unit)}</p>
+                    <p className={`font-medium text-xs truncate ${isDisabled ? 'text-gray-400' : ''}`}>{item.itemName}</p>
+                    {isDisabled ? (
+                      <p className="text-[10px] text-gray-400">{t('ordering.catalog.notOrderable')}</p>
+                    ) : (
+                      <>
+                        <p className="text-xs text-gray-500">{'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}</p>
+                        <p className="text-xs text-blue-600 font-medium">1팩={formatPackUnit(pkg.unitsPerPack, item.unit)}</p>
+                      </>
+                    )}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
-                    <div className="w-10 text-center">
-                      <span className="text-sm font-bold">{qty}</span>
-                      {qty > 0 && <span className="block text-[9px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}팩</span>}
+                  {!isDisabled && (
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
+                      <div className="w-10 text-center">
+                        <span className="text-sm font-bold">{qty}</span>
+                        {qty > 0 && <span className="block text-[9px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}팩</span>}
+                      </div>
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handlePlusClick(item, 0)}>+</Button>
                     </div>
-                    <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handlePlusClick(item, 0)}>+</Button>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             );

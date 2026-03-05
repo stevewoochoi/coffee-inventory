@@ -69,52 +69,29 @@ public class DeliveryPolicyService {
         }
 
         DeliveryPolicy policy = getStorePolicy(storeId);
-        if (policy == null) {
-            return DeliveryPolicyDto.AvailableDateResponse.builder()
-                    .availableDates(Collections.emptyList())
-                    .storeDeliveryType("NONE")
-                    .cutoffTime("09:00")
-                    .maxDisplayDays(maxDays)
-                    .build();
+
+        // リードタイム計算 (ポリシーがあれば使用、なければデフォルト2日)
+        int leadDays = 2;
+        LocalTime cutoffTime = LocalTime.of(9, 0);
+        if (policy != null) {
+            cutoffTime = policy.getCutoffTime();
+            leadDays = LocalTime.now().isBefore(cutoffTime)
+                    ? policy.getCutoffLeadDaysBefore()
+                    : policy.getCutoffLeadDaysAfter();
         }
 
-        Set<DayOfWeek> deliveryDays = parseDeliveryDays(policy.getDeliveryDays());
-        Set<LocalDate> holidays = getHolidayDates(policy.getBrandId(), maxDays);
-
         LocalDate today = LocalDate.now();
-        LocalTime now = LocalTime.now();
-        LocalTime cutoffTime = policy.getCutoffTime();
-
-        // Determine minimum lead days based on current time vs cutoff
-        int leadDays = now.isBefore(cutoffTime)
-                ? policy.getCutoffLeadDaysBefore()
-                : policy.getCutoffLeadDaysAfter();
-
         List<DeliveryPolicyDto.AvailableDate> availableDates = new ArrayList<>();
         boolean firstRecommended = false;
 
+        // 365일 운영 — 일요일/공휴일/정책요일 자동 제외 없음
         for (int d = leadDays; d <= maxDays; d++) {
             LocalDate candidateDate = today.plusDays(d);
 
-            // Skip Sundays
-            if (candidateDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                continue;
-            }
+            LocalDateTime deadline = (policy != null)
+                    ? calculateCutoff(candidateDate, policy)
+                    : candidateDate.minusDays(2).atTime(9, 0);
 
-            // Skip if not a delivery day
-            if (!deliveryDays.contains(candidateDate.getDayOfWeek())) {
-                continue;
-            }
-
-            // Skip holidays
-            if (holidays.contains(candidateDate)) {
-                continue;
-            }
-
-            // Calculate cutoff/deadline for this delivery date
-            LocalDateTime deadline = calculateCutoff(candidateDate, policy);
-
-            // Only include if deadline is in the future
             if (deadline.isAfter(LocalDateTime.now())) {
                 boolean isRecommended = !firstRecommended;
                 if (isRecommended) {
@@ -133,7 +110,7 @@ public class DeliveryPolicyService {
 
         return DeliveryPolicyDto.AvailableDateResponse.builder()
                 .availableDates(availableDates)
-                .storeDeliveryType(policy.getDeliveryDays())
+                .storeDeliveryType("ALL")
                 .cutoffTime(cutoffTime.toString())
                 .maxDisplayDays(maxDays)
                 .build();
@@ -147,48 +124,31 @@ public class DeliveryPolicyService {
 
         DayOfWeek dow = deliveryDate.getDayOfWeek();
 
-        // Sunday always unavailable
-        if (dow == DayOfWeek.SUNDAY) {
-            return false;
-        }
+        // 상품별 배송스케줄 체크 (유일한 요일 필터)
+        Long brandId = item.getBrandId();
+        Optional<ItemDeliverySchedule> schedule =
+                scheduleRepository.findByItemIdAndBrandId(itemId, brandId);
 
-        DeliveryPolicy policy = getStorePolicy(storeId);
-        if (policy == null) {
-            return false;
-        }
-
-        // Holiday check
-        Set<LocalDate> holidays = getHolidayDates(policy.getBrandId(), MAX_DISPLAY_DAYS);
-        if (holidays.contains(deliveryDate)) {
-            return false;
-        }
-
-        // Item-specific delivery schedule takes priority over policy
-        Optional<ItemDeliverySchedule> schedule = scheduleRepository.findByItemIdAndBrandId(itemId, item.getBrandId());
-        if (schedule.isPresent() && Boolean.TRUE.equals(schedule.get().getIsActive())) {
+        if (schedule.isPresent() && Boolean.TRUE.equals(schedule.get().getIsActive())
+                && schedule.get().hasAnyDay()) {
+            // 스케줄이 있고 하루라도 지정 → 해당 요일만 가능
             if (!schedule.get().isAvailable(dow)) {
                 return false;
             }
-        } else {
-            // Fallback: policy-based delivery days
-            Set<DayOfWeek> deliveryDays = parseDeliveryDays(policy.getDeliveryDays());
-            if (!deliveryDays.contains(dow)) {
-                return false;
-            }
         }
+        // 스케줄 없거나 아무 요일도 체크 안 했으면 → 365일 전체 가능
 
-        // Check item-specific lead time
+        // 리드타임 체크
         int itemLeadTime = item.getLeadTimeDays() != null ? item.getLeadTimeDays() : 2;
-        LocalDate today = LocalDate.now();
-        long daysUntilDelivery = java.time.temporal.ChronoUnit.DAYS.between(today, deliveryDate);
-
-        if (daysUntilDelivery < itemLeadTime) {
-            return false;
+        DeliveryPolicy policy = getStorePolicy(storeId);
+        int policyLeadDays = 2;
+        if (policy != null) {
+            policyLeadDays = LocalTime.now().isBefore(policy.getCutoffTime())
+                    ? policy.getCutoffLeadDaysBefore()
+                    : policy.getCutoffLeadDaysAfter();
         }
-
-        // Check cutoff deadline is still in future
-        LocalDateTime deadline = calculateCutoff(deliveryDate, policy);
-        return deadline.isAfter(LocalDateTime.now());
+        int effectiveLeadDays = Math.max(itemLeadTime, policyLeadDays);
+        return !deliveryDate.isBefore(LocalDate.now().plusDays(effectiveLeadDays));
     }
 
     public LocalDateTime calculateCutoff(LocalDate deliveryDate, DeliveryPolicy policy) {
@@ -209,25 +169,17 @@ public class DeliveryPolicyService {
                     .build();
         }
 
-        // Validate the delivery date
-        Set<DayOfWeek> deliveryDays = parseDeliveryDays(policy.getDeliveryDays());
-        boolean validDay = deliveryDays.contains(deliveryDate.getDayOfWeek())
-                && deliveryDate.getDayOfWeek() != DayOfWeek.SUNDAY;
-
-        Set<LocalDate> holidays = getHolidayDates(policy.getBrandId(), MAX_DISPLAY_DAYS);
-        boolean notHoliday = !holidays.contains(deliveryDate);
-
+        // 365일 운영 — 일요일/공휴일 체크 삭제, 마감시간만 확인
         LocalDateTime deadline = calculateCutoff(deliveryDate, policy);
         LocalDateTime now = LocalDateTime.now();
         boolean beforeDeadline = deadline.isAfter(now);
 
-        boolean available = validDay && notHoliday && beforeDeadline;
-        long remainingMinutes = available
+        long remainingMinutes = beforeDeadline
                 ? Duration.between(now, deadline).toMinutes()
                 : 0;
 
         return DeliveryPolicyDto.OrderAvailability.builder()
-                .available(available)
+                .available(beforeDeadline)
                 .deadline(deadline)
                 .remainingMinutes(remainingMinutes)
                 .build();

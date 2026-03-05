@@ -75,6 +75,7 @@
     "closing": "Monthly Close",
     "bulkUpload": "Bulk Upload",
     "theme": "Theme",
+    "stores": "Stores",
     "deliveryPolicy": "Delivery Policy",
     "store": {
       "home": "Home",
@@ -327,7 +328,10 @@
       "allCategories": "All Categories",
       "allSuppliers": "All Suppliers",
       "qty": "Qty",
-      "packaging": "Packaging"
+      "packaging": "Packaging",
+      "orderableOnly": "Orderable only",
+      "notOrderable": "Not orderable for this date",
+      "deliveryDays": "Delivery days"
     },
     "cart": {
       "title": "Cart",
@@ -983,6 +987,38 @@
     "statusPartial": "Partial",
     "statusFailed": "Failed",
     "statusPending": "Pending"
+  },
+  "stores": {
+    "title": "Store Management",
+    "addStore": "+ Add Store",
+    "addTitle": "Add Store",
+    "editTitle": "Edit Store",
+    "noStores": "No stores registered.",
+    "loadFailed": "Failed to load stores",
+    "created": "Store created",
+    "updated": "Store updated",
+    "saveFailed": "Failed to save store",
+    "deleted": "Store deactivated",
+    "deleteFailed": "Failed to deactivate store",
+    "deleteConfirm": "Deactivate this store?",
+    "name": "Store Name",
+    "address": "Address",
+    "phone": "Phone",
+    "openDate": "Open Date",
+    "memo": "Memo",
+    "status": "Status",
+    "searchPlaceholder": "Search by name, address, phone...",
+    "statusActive": "Active",
+    "statusInactive": "Inactive"
+  },
+  "days": {
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat",
+    "sun": "Sun"
   },
   "supplierPortal": {
     "title": "Supplier Portal",

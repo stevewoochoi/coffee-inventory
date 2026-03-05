@@ -3,7 +3,7 @@ import {
   DollarSign, Settings, Box, Tag, Truck,
   Calendar, Lock, ClipboardList, BarChart,
   Upload, Timer, Users, Palette, ShoppingBag,
-  FileText, Database, type LucideIcon,
+  FileText, Database, Store, type LucideIcon,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -81,6 +81,8 @@ export const adminNavGroups: NavGroup[] = [
     roles: ['SUPER_ADMIN', 'BRAND_ADMIN', 'KR_INVENTORY'],
     children: [
       { key: 'nav.users', to: '/admin/settings/users', icon: Users },
+      { key: 'nav.stores', to: '/admin/settings/stores', icon: Store,
+        roles: ['SUPER_ADMIN', 'BRAND_ADMIN'] },
       { key: 'nav.theme', to: '/admin/settings/theme', icon: Palette },
       { key: 'nav.deliveryPolicy', to: '/admin/settings/delivery-policy', icon: Truck,
         roles: ['SUPER_ADMIN', 'BRAND_ADMIN'] },

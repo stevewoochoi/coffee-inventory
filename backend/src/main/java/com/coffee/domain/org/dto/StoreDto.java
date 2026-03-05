@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class StoreDto {
@@ -23,6 +24,19 @@ public class StoreDto {
 
         @Size(max = 50)
         private String timezone;
+
+        @Size(max = 20)
+        private String status;
+
+        @Size(max = 300)
+        private String address;
+
+        @Size(max = 30)
+        private String phone;
+
+        private LocalDate openDate;
+
+        private String memo;
     }
 
     @Getter
@@ -32,6 +46,11 @@ public class StoreDto {
         private Long brandId;
         private String name;
         private String timezone;
+        private String status;
+        private String address;
+        private String phone;
+        private LocalDate openDate;
+        private String memo;
         private LocalDateTime createdAt;
     }
 }

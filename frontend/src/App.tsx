@@ -44,6 +44,7 @@ import BulkUploadPage from '@/pages/admin/BulkUploadPage';
 import SupplierOrdersPage from '@/pages/supplier/SupplierOrdersPage';
 import SupplierOrderDetailPage from '@/pages/supplier/SupplierOrderDetailPage';
 import StoreMenuPage from '@/pages/store/StoreMenuPage';
+import StoresPage from '@/pages/admin/StoresPage';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -73,6 +74,7 @@ function App() {
             <Route path="/admin/expiry" element={<AdminExpiryPage />} />
             <Route path="/admin/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="/admin/settings/users" element={<UsersPage />} />
+            <Route path="/admin/settings/stores" element={<StoresPage />} />
           </Route>
         </Route>
 

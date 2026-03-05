@@ -158,11 +158,13 @@ export interface CatalogItem {
   unit: string;
   minStock: number;
   isLowStock: boolean;
+  deliveryDays: string | null;
   packagings: CatalogPackaging[];
   lastOrder: { date: string; quantity: number } | null;
   suggestedQty: number;
   suggestedByAi: boolean;
   daysUntilEmpty: number | null;
+  orderable: boolean;
 }
 
 export interface CatalogResponse {
