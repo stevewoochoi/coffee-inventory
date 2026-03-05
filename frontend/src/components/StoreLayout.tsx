@@ -69,7 +69,11 @@ export function StoreLayout() {
               ? location.pathname === '/store/menu'
               : tab.to === '/store/dashboard'
                 ? location.pathname === '/store/dashboard'
-                : location.pathname.startsWith(tab.to) && tab.to !== '/store/dashboard';
+                : tab.to === '/store/ordering'
+                  ? location.pathname === '/store/ordering' || (location.pathname.startsWith('/store/ordering/') && location.pathname !== '/store/ordering/new')
+                  : tab.to === '/store/ordering/new'
+                    ? location.pathname === '/store/ordering/new'
+                    : location.pathname.startsWith(tab.to);
 
             return (
               <NavLink
