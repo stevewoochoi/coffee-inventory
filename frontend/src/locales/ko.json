@@ -357,6 +357,12 @@
       "all": "전체"
     },
     "sendOrder": "발주 전송",
+    "recentOrder": "최근 주문",
+    "recentOrderDate": "최근 주문일",
+    "recentReceivingDate": "최근 입고일",
+    "monthlyOrders": "당월 주문",
+    "nextDelivery": "다음 납품일",
+    "deadline": "마감",
     "reorder": {
       "title": "빠른 재발주",
       "copyToCart": "장바구니로 복사"

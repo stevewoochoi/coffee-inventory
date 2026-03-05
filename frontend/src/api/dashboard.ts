@@ -46,6 +46,13 @@ export interface StoreDashboard {
   stockStatus: StockStatus | null;
   topConsumption: TopConsumption[];
   recentOrders: RecentOrder[];
+  // V6 fields
+  recentOrderDate: string | null;
+  recentReceivingDate: string | null;
+  monthlyOrderCount: number;
+  monthlyOrderAmount: number;
+  nextDeliveryDate: string | null;
+  nextDeadline: string | null;
 }
 
 export interface StoreSummary {

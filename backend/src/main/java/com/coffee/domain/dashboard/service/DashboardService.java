@@ -12,9 +12,13 @@ import com.coffee.domain.inventory.service.LowStockService;
 import com.coffee.domain.master.entity.Item;
 import com.coffee.domain.master.repository.ItemRepository;
 import com.coffee.domain.ordering.dto.OrderNeedsDto;
+import com.coffee.domain.ordering.entity.OrderPlan;
+import com.coffee.domain.ordering.entity.OrderStatus;
+import com.coffee.domain.ordering.repository.OrderPlanRepository;
 import com.coffee.domain.ordering.service.OrderNeedsService;
 import com.coffee.domain.org.entity.Store;
 import com.coffee.domain.org.repository.StoreRepository;
+import com.coffee.domain.receiving.entity.Delivery;
 import com.coffee.domain.receiving.entity.DeliveryStatus;
 import com.coffee.domain.receiving.repository.DeliveryRepository;
 import com.coffee.domain.waste.entity.Waste;
@@ -46,6 +50,7 @@ public class DashboardService {
     private final InventorySnapshotRepository snapshotRepository;
     private final ItemRepository itemRepository;
     private final OrderNeedsService orderNeedsService;
+    private final OrderPlanRepository orderPlanRepository;
 
     public DashboardDto.StoreDashboard getStoreDashboard(Long storeId) {
         LocalDate today = LocalDate.now();
@@ -156,6 +161,55 @@ public class DashboardService {
                 })
                 .toList();
 
+        // V6: Recent order/receiving dates, monthly stats, next delivery
+        LocalDate recentOrderDate = null;
+        LocalDate recentReceivingDate = null;
+        int monthlyOrderCount = 0;
+        BigDecimal monthlyOrderAmount = BigDecimal.ZERO;
+        LocalDate nextDeliveryDate = null;
+        LocalDate nextDeadline = null;
+
+        try {
+            List<OrderPlan> allOrders = orderPlanRepository.findByStoreIdOrderByCreatedAtDesc(storeId);
+            if (!allOrders.isEmpty()) {
+                recentOrderDate = allOrders.get(0).getCreatedAt().toLocalDate();
+            }
+            // Monthly stats (current month)
+            LocalDateTime monthStart = today.withDayOfMonth(1).atStartOfDay();
+            LocalDateTime monthEnd = today.plusMonths(1).withDayOfMonth(1).atStartOfDay();
+            for (OrderPlan op : allOrders) {
+                if (op.getCreatedAt() != null && !op.getCreatedAt().isBefore(monthStart) && op.getCreatedAt().isBefore(monthEnd)) {
+                    monthlyOrderCount++;
+                    if (op.getTotalAmount() != null) {
+                        monthlyOrderAmount = monthlyOrderAmount.add(op.getTotalAmount());
+                    }
+                }
+            }
+            // Next delivery date (future confirmed orders)
+            for (OrderPlan op : allOrders) {
+                if (op.getDeliveryDate() != null && !op.getDeliveryDate().isBefore(today)
+                        && op.getStatus() != OrderStatus.CANCELLED) {
+                    if (nextDeliveryDate == null || op.getDeliveryDate().isBefore(nextDeliveryDate)) {
+                        nextDeliveryDate = op.getDeliveryDate();
+                    }
+                    // Next deadline (cutoff)
+                    if (op.getCutoffAt() != null) {
+                        LocalDate cutoffDate = op.getCutoffAt().toLocalDate();
+                        if (!cutoffDate.isBefore(today) && (nextDeadline == null || cutoffDate.isBefore(nextDeadline))) {
+                            nextDeadline = cutoffDate;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        try {
+            List<Delivery> deliveries = deliveryRepository.findByStoreIdOrderByCreatedAtDesc(storeId);
+            if (!deliveries.isEmpty()) {
+                recentReceivingDate = deliveries.get(0).getCreatedAt().toLocalDate();
+            }
+        } catch (Exception ignored) {}
+
         return DashboardDto.StoreDashboard.builder()
                 .todayReceiveCount(todayReceiveCount)
                 .todayWasteQty(todayWasteQty)
@@ -168,6 +222,12 @@ public class DashboardService {
                 .pendingReceivingCount(pendingReceivingCount)
                 .stockStatus(stockStatus)
                 .topConsumption(topConsumption)
+                .recentOrderDate(recentOrderDate)
+                .recentReceivingDate(recentReceivingDate)
+                .monthlyOrderCount(monthlyOrderCount)
+                .monthlyOrderAmount(monthlyOrderAmount)
+                .nextDeliveryDate(nextDeliveryDate)
+                .nextDeadline(nextDeadline)
                 .build();
     }
 

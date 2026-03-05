@@ -357,6 +357,12 @@
       "all": "全て"
     },
     "sendOrder": "発注送信",
+    "recentOrder": "最近の注文",
+    "recentOrderDate": "最終注文日",
+    "recentReceivingDate": "最終入荷日",
+    "monthlyOrders": "当月注文",
+    "nextDelivery": "次回納品日",
+    "deadline": "締切",
     "reorder": {
       "title": "クイック再発注",
       "copyToCart": "カートにコピー"

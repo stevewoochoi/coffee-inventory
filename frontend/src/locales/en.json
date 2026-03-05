@@ -357,6 +357,12 @@
       "all": "All"
     },
     "sendOrder": "Send Order",
+    "recentOrder": "Recent Orders",
+    "recentOrderDate": "Last Order Date",
+    "recentReceivingDate": "Last Receiving Date",
+    "monthlyOrders": "Monthly Orders",
+    "nextDelivery": "Next Delivery",
+    "deadline": "Deadline",
     "reorder": {
       "title": "Quick Reorder",
       "copyToCart": "Copy to Cart"

@@ -26,6 +26,13 @@ public class DashboardDto {
         private int pendingReceivingCount;
         private StockStatus stockStatus;
         private List<TopConsumption> topConsumption;
+        // V6 fields
+        private LocalDate recentOrderDate;
+        private LocalDate recentReceivingDate;
+        private int monthlyOrderCount;
+        private BigDecimal monthlyOrderAmount;
+        private LocalDate nextDeliveryDate;
+        private LocalDate nextDeadline;
     }
 
     @Getter

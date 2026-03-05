@@ -146,6 +146,32 @@ export default function StoreDashboardPage() {
         </div>
       </div>
 
+      {/* Order Summary Info */}
+      <div className="bg-white rounded-xl border p-5">
+        <h3 className="font-semibold mb-3">{t('ordering.recentOrder')}</h3>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex flex-col">
+            <span className="text-gray-500">{t('ordering.recentOrderDate')}</span>
+            <span className="font-medium">{data.recentOrderDate ?? '-'}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-gray-500">{t('ordering.recentReceivingDate')}</span>
+            <span className="font-medium">{data.recentReceivingDate ?? '-'}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-gray-500">{t('ordering.monthlyOrders')}</span>
+            <span className="font-medium">{data.monthlyOrderCount ?? 0}{t('dashboard.items2', { defaultValue: '건' })} / {'\u20A9'}{(data.monthlyOrderAmount ?? 0).toLocaleString()}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-gray-500">{t('ordering.nextDelivery')}</span>
+            <span className="font-medium">
+              {data.nextDeliveryDate ?? '-'}
+              {data.nextDeadline && <span className="text-xs text-red-500 ml-1">({t('ordering.deadline')}: {data.nextDeadline})</span>}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Stock Status */}
       {stockStatus && totalStockItems > 0 && (
         <div className="bg-white rounded-xl border p-5">
