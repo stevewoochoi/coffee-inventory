@@ -18,7 +18,15 @@ const statusColor: Record<string, string> = {
   DELIVERED: 'bg-emerald-100 text-emerald-800',
 };
 
-const STATUS_TABS = ['all', 'DRAFT', 'CONFIRMED', 'DISPATCHED', 'DELIVERED'] as const;
+const STATUS_TABS = ['DRAFT', 'CONFIRMED', 'DISPATCHED', 'DELIVERED', 'all'] as const;
+
+const tabLabels: Record<string, string> = {
+  DRAFT: 'ordering.tabs.draft',
+  CONFIRMED: 'ordering.tabs.confirmed',
+  DISPATCHED: 'ordering.tabs.shipping',
+  DELIVERED: 'ordering.tabs.delivered',
+  all: 'ordering.tabs.all',
+};
 
 export default function OrderingPage() {
   const navigate = useNavigate();
@@ -232,7 +240,7 @@ export default function OrderingPage() {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              {t(`ordering.status.${tab}`)}
+              {t(tabLabels[tab])}
               {count > 0 && (
                 <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                   activeTab === tab ? 'bg-blue-700' : 'bg-gray-200'
@@ -293,7 +301,7 @@ export default function OrderingPage() {
       ) : (
         <div className="space-y-3">
           {filteredPlans.map((plan) => (
-            <Card key={plan.id} className="overflow-hidden">
+            <Card key={plan.id} className={`overflow-hidden ${plan.status === 'DRAFT' ? 'border-amber-300' : ''}`}>
               <CardContent className="py-4">
                 <div
                   className="flex items-center justify-between cursor-pointer"
@@ -313,6 +321,29 @@ export default function OrderingPage() {
                   </div>
                 </div>
 
+                {/* DRAFT orders show quick action buttons */}
+                {plan.status === 'DRAFT' && expandedPlan !== plan.id && (
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="min-h-[36px]"
+                        onClick={(e) => { e.stopPropagation(); navigate(`/store/ordering/${plan.id}`); }}
+                      >
+                        {t('common.edit')}
+                      </Button>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="bg-blue-800 hover:bg-blue-900 min-h-[36px]"
+                      onClick={(e) => { e.stopPropagation(); handleConfirm(plan.id); }}
+                    >
+                      {t('ordering.sendOrder')}
+                    </Button>
+                  </div>
+                )}
+
                 {/* Expanded detail */}
                 {expandedPlan === plan.id && detailedPlan && (
                   <div className="mt-4 space-y-4 border-t pt-4">
@@ -325,10 +356,26 @@ export default function OrderingPage() {
                       receivedAt={detailedPlan.receivedAt}
                     />
 
-                    {/* Supplier */}
-                    <div className="text-sm">
-                      <span className="text-gray-500">{t('ordering.supplier')}: </span>
-                      <span className="font-medium">{detailedPlan.supplierName}</span>
+                    {/* Supplier & delivery info */}
+                    <div className="text-sm space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">{t('ordering.supplier')}</span>
+                        <span className="font-medium">{detailedPlan.supplierName}</span>
+                      </div>
+                      {detailedPlan.deliveryDate && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">{t('ordering.steps.deliveryDate')}</span>
+                          <span className="font-medium">{new Date(detailedPlan.deliveryDate + 'T00:00:00').toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      {detailedPlan.cutoffAt && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">{t('ordering.steps.cutoff')}</span>
+                          <span className={`font-medium ${new Date(detailedPlan.cutoffAt) > new Date() ? 'text-amber-600' : 'text-gray-400'}`}>
+                            {new Date(detailedPlan.cutoffAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Lines table */}
@@ -358,14 +405,23 @@ export default function OrderingPage() {
                     {/* Actions */}
                     <div className="flex gap-2 flex-wrap">
                       {plan.status === 'DRAFT' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="min-h-[44px]"
-                          onClick={() => handleConfirm(plan.id)}
-                        >
-                          {t('common.confirm')}
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            className="bg-blue-800 hover:bg-blue-900 min-h-[44px]"
+                            onClick={() => handleConfirm(plan.id)}
+                          >
+                            {t('ordering.sendOrder')}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="min-h-[44px]"
+                            onClick={() => navigate(`/store/ordering/${plan.id}`)}
+                          >
+                            {t('common.edit')}
+                          </Button>
+                        </>
                       )}
                       {plan.status === 'CONFIRMED' && (
                         <Button
@@ -376,6 +432,14 @@ export default function OrderingPage() {
                           {t('ordering.dispatch')}
                         </Button>
                       )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="min-h-[44px]"
+                        onClick={() => navigate(`/store/ordering/${plan.id}`)}
+                      >
+                        {t('common.view')}
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"

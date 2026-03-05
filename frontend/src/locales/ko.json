@@ -342,6 +342,14 @@
       "reorderFailed": "주문 복사에 실패했습니다",
       "noHistory": "발주 이력 없음"
     },
+    "tabs": {
+      "draft": "전송대기",
+      "confirmed": "접수완료",
+      "shipping": "배송중",
+      "delivered": "입고완료",
+      "all": "전체"
+    },
+    "sendOrder": "발주 전송",
     "reorder": {
       "title": "빠른 재발주",
       "copyToCart": "장바구니로 복사"

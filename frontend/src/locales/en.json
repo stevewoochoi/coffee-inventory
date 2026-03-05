@@ -342,6 +342,14 @@
       "reorderFailed": "Failed to copy order",
       "noHistory": "No order history"
     },
+    "tabs": {
+      "draft": "Pending",
+      "confirmed": "Confirmed",
+      "shipping": "Shipping",
+      "delivered": "Delivered",
+      "all": "All"
+    },
+    "sendOrder": "Send Order",
     "reorder": {
       "title": "Quick Reorder",
       "copyToCart": "Copy to Cart"

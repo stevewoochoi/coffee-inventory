@@ -342,6 +342,14 @@
       "reorderFailed": "注文のコピーに失敗しました",
       "noHistory": "発注履歴なし"
     },
+    "tabs": {
+      "draft": "送信待ち",
+      "confirmed": "受付完了",
+      "shipping": "配送中",
+      "delivered": "入荷完了",
+      "all": "全て"
+    },
+    "sendOrder": "発注送信",
     "reorder": {
       "title": "クイック再発注",
       "copyToCart": "カートにコピー"
