@@ -4,6 +4,7 @@ import { authApi, type LoginRequest, type LoginResponse } from '@/api/auth';
 interface AuthState {
   user: LoginResponse | null;
   isAuthenticated: boolean;
+  isInitialized: boolean;
   isLoading: boolean;
   error: string | null;
   login: (data: LoginRequest) => Promise<void>;
@@ -14,6 +15,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
+  isInitialized: false,
   isLoading: false,
   error: null,
 
@@ -64,15 +66,20 @@ export const useAuthStore = create<AuthState>((set) => ({
               companyId: payload.companyId ? Number(payload.companyId) : undefined,
             },
             isAuthenticated: true,
+            isInitialized: true,
           });
         } else {
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
+          set({ isInitialized: true });
         }
       } catch {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        set({ isInitialized: true });
       }
+    } else {
+      set({ isInitialized: true });
     }
   },
 }));
