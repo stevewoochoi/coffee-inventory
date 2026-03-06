@@ -64,8 +64,7 @@ export default function NewOrderPage() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [confirmResult, setConfirmResult] = useState<ConfirmResponse | null>(null);
 
-  // Suggestion dialog
-  const [suggestionItem, setSuggestionItem] = useState<CatalogItem | null>(null);
+
 
   useEffect(() => {
     loadDeliveryDates();
@@ -151,36 +150,8 @@ export default function NewOrderPage() {
     });
   }
 
-  function setCartQty(catalogItem: CatalogItem, packagingIdx: number, qty: number) {
-    const pkg = catalogItem.packagings[packagingIdx];
-    if (!pkg) return;
-    const maxQty = pkg.maxOrderQty > 0 ? pkg.maxOrderQty : 9999;
-    setLocalCart(prev => {
-      const clamped = Math.max(0, Math.min(maxQty, qty));
-      if (clamped === 0) return prev.filter(c => !(c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId));
-      const existing = prev.find(c => c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId);
-      if (existing) {
-        return prev.map(c => c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId ? { ...c, quantity: clamped } : c);
-      }
-      return [...prev, {
-        itemId: catalogItem.itemId, itemName: catalogItem.itemName,
-        packagingId: pkg.packagingId, packLabel: pkg.label,
-        unitPrice: pkg.unitPrice, unitsPerPack: pkg.unitsPerPack,
-        quantity: clamped,
-        supplierId: pkg.supplierId, supplierName: pkg.supplierName,
-      }];
-    });
-  }
-
   function handlePlusClick(item: CatalogItem, packagingIdx: number) {
-    const pkg = item.packagings[packagingIdx];
-    if (!pkg) return;
-    const qty = getCartQty(item.itemId, pkg.packagingId);
-    if (qty === 0 && item.suggestedQty > 0) {
-      setSuggestionItem(item);
-    } else {
-      updateCartQty(item, packagingIdx, pkg.unitsPerPack);
-    }
+    updateCartQty(item, packagingIdx, item.packagings[packagingIdx]?.unitsPerPack ?? 1);
   }
 
   function formatPackUnit(unitsPerPack: number, unit: string): string {
@@ -522,7 +493,7 @@ export default function NewOrderPage() {
                           </div>
                           <div className="text-xs text-gray-400 mt-0.5">
                             {pkg.label} / {'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}
-                            <span className="ml-1.5 text-blue-600 font-medium">(1팩={formatPackUnit(pkg.unitsPerPack, item.unit)} ₩{pkg.unitPrice.toLocaleString()})</span>
+                            <span className="ml-1.5 text-blue-600 font-medium">(1박스={formatPackUnit(pkg.unitsPerPack, item.unit)} ₩{pkg.unitPrice.toLocaleString()})</span>
                           </div>
                         </>
                       )}
@@ -533,19 +504,13 @@ export default function NewOrderPage() {
                           onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
                         <div className="flex flex-col items-center w-16">
                           <span className="text-sm font-bold">{qty}</span>
-                          {qty > 0 && <span className="text-[10px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}팩</span>}
+                          {qty > 0 && <span className="text-[10px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}박스</span>}
                         </div>
                         <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
                           onClick={() => handlePlusClick(item, 0)}>+</Button>
                       </div>
                     )}
                   </div>
-                  {!isDisabled && item.suggestedQty > 0 && qty === 0 && (
-                    <button className="text-xs text-blue-600 mt-1 hover:underline"
-                      onClick={() => setSuggestionItem(item)}>
-                      AI 추천: {item.suggestedQty}팩
-                    </button>
-                  )}
                 </CardContent>
               </Card>
             );
@@ -578,7 +543,7 @@ export default function NewOrderPage() {
                     ) : (
                       <>
                         <p className="text-xs text-gray-500">{'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}</p>
-                        <p className="text-xs text-blue-600 font-medium">1팩={formatPackUnit(pkg.unitsPerPack, item.unit)}</p>
+                        <p className="text-xs text-blue-600 font-medium">1박스={formatPackUnit(pkg.unitsPerPack, item.unit)}</p>
                       </>
                     )}
                   </div>
@@ -587,7 +552,7 @@ export default function NewOrderPage() {
                       <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
                       <div className="w-10 text-center">
                         <span className="text-sm font-bold">{qty}</span>
-                        {qty > 0 && <span className="block text-[9px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}팩</span>}
+                        {qty > 0 && <span className="block text-[9px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}박스</span>}
                       </div>
                       <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handlePlusClick(item, 0)}>+</Button>
                     </div>
@@ -665,7 +630,7 @@ export default function NewOrderPage() {
                           })}>-</Button>
                         <div className="w-12 text-center">
                           <span className="font-bold text-sm">{item.quantity}</span>
-                          <span className="block text-[10px] text-blue-600">{Math.round(item.quantity / item.unitsPerPack)}팩</span>
+                          <span className="block text-[10px] text-blue-600">{Math.round(item.quantity / item.unitsPerPack)}박스</span>
                         </div>
                         <Button size="sm" variant="outline" className="h-9 w-9 p-0"
                           onClick={() => setLocalCart(prev =>
@@ -746,71 +711,6 @@ export default function NewOrderPage() {
           )}
         </div>
       )}
-
-      {/* Suggestion Dialog */}
-      <AlertDialog open={!!suggestionItem} onOpenChange={(open) => { if (!open) setSuggestionItem(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>AI 추천 수량 안내</AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="space-y-3 text-sm">
-                <p className="font-semibold text-base text-foreground">{suggestionItem?.itemName}</p>
-                <div className="bg-gray-50 rounded-lg p-3 space-y-1.5">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">현재 재고</span>
-                    <span className="font-medium">{suggestionItem?.currentStock.toFixed(0)} {suggestionItem?.unit}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">최소 재고</span>
-                    <span className="font-medium">{suggestionItem?.minStock.toFixed(0)} {suggestionItem?.unit}</span>
-                  </div>
-                  {suggestionItem?.daysUntilEmpty != null && suggestionItem.daysUntilEmpty < 999 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">예상 소진</span>
-                      <span className={`font-medium ${suggestionItem.daysUntilEmpty <= 3 ? 'text-red-600' : ''}`}>
-                        {suggestionItem.daysUntilEmpty.toFixed(0)}일 후
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between border-t pt-1.5">
-                    <span className="text-gray-500">패킹 단위</span>
-                    <span className="font-medium text-blue-600">
-                      1팩 = {suggestionItem && formatPackUnit(suggestionItem.packagings[0]?.unitsPerPack ?? 0, suggestionItem.unit)}
-                    </span>
-                  </div>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-3 text-center">
-                  <span className="text-gray-600">AI 추천 수량: </span>
-                  <span className="text-blue-800 font-bold text-lg">{suggestionItem?.suggestedQty}팩</span>
-                  {suggestionItem && suggestionItem.packagings[0] && (
-                    <span className="text-gray-500 text-xs block mt-0.5">
-                      ({formatPackUnit(suggestionItem.packagings[0].unitsPerPack * suggestionItem.suggestedQty, suggestionItem.unit)})
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-500 text-center">추천 수량으로 추가하시겠습니까?</p>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => {
-              if (suggestionItem) {
-                const pkg = suggestionItem.packagings[0];
-                updateCartQty(suggestionItem, 0, pkg?.unitsPerPack ?? 1);
-              }
-              setSuggestionItem(null);
-            }}>1팩만 추가</AlertDialogCancel>
-            <AlertDialogAction className="bg-blue-800 hover:bg-blue-900" onClick={() => {
-              if (suggestionItem) {
-                const pkg = suggestionItem.packagings[0];
-                const unitsQty = suggestionItem.suggestedQty * (pkg?.unitsPerPack ?? 1);
-                setCartQty(suggestionItem, 0, unitsQty);
-              }
-              setSuggestionItem(null);
-            }}>추천 수량 추가 ({suggestionItem?.suggestedQty}팩)</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
