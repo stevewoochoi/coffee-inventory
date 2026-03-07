@@ -127,31 +127,28 @@ export default function NewOrderPage() {
     return localCart.find(c => c.itemId === itemId && c.packagingId === packagingId)?.quantity ?? 0;
   }
 
-  function updateCartQty(catalogItem: CatalogItem, packagingIdx: number, delta: number) {
+  // quantity is stored in BOX units (not base units)
+  function updateCartQty(catalogItem: CatalogItem, packagingIdx: number, boxDelta: number) {
     const pkg = catalogItem.packagings[packagingIdx];
     if (!pkg) return;
-    const maxQty = pkg.maxOrderQty > 0 ? pkg.maxOrderQty : 9999;
+    const maxBoxes = pkg.maxOrderQty > 0 ? pkg.maxOrderQty : 9999;
     setLocalCart(prev => {
       const existing = prev.find(c => c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId);
       if (existing) {
-        const newQty = Math.max(0, Math.min(maxQty, existing.quantity + delta));
+        const newQty = Math.max(0, Math.min(maxBoxes, existing.quantity + boxDelta));
         if (newQty === 0) return prev.filter(c => !(c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId));
         return prev.map(c => c.itemId === catalogItem.itemId && c.packagingId === pkg.packagingId ? { ...c, quantity: newQty } : c);
-      } else if (delta > 0) {
+      } else if (boxDelta > 0) {
         return [...prev, {
           itemId: catalogItem.itemId, itemName: catalogItem.itemName,
           packagingId: pkg.packagingId, packLabel: pkg.label,
           unitPrice: pkg.unitPrice, unitsPerPack: pkg.unitsPerPack,
-          quantity: Math.min(maxQty, delta),
+          quantity: Math.min(maxBoxes, boxDelta),
           supplierId: pkg.supplierId, supplierName: pkg.supplierName,
         }];
       }
       return prev;
     });
-  }
-
-  function handlePlusClick(item: CatalogItem, packagingIdx: number) {
-    updateCartQty(item, packagingIdx, item.packagings[packagingIdx]?.unitsPerPack ?? 1);
   }
 
   function formatPackUnit(unitsPerPack: number, unit: string): string {
@@ -163,8 +160,8 @@ export default function NewOrderPage() {
 
   const totalCartItems = localCart.reduce((sum, c) => sum + c.quantity, 0);
   const totalCartAmount = localCart.reduce((sum, c) => {
-    const perUnit = c.unitsPerPack > 0 ? c.unitPrice / c.unitsPerPack : c.unitPrice;
-    return sum + perUnit * c.quantity;
+    // quantity is in boxes, unitPrice is per box
+    return sum + c.unitPrice * c.quantity;
   }, 0);
 
   const supplierGroups = useMemo(() => {
@@ -175,8 +172,7 @@ export default function NewOrderPage() {
       }
       const g = groups.get(item.supplierId)!;
       g.items.push(item);
-      const perUnit = item.unitsPerPack > 0 ? item.unitPrice / item.unitsPerPack : item.unitPrice;
-      g.subtotal += perUnit * item.quantity;
+      g.subtotal += item.unitPrice * item.quantity;
     }
     return Array.from(groups.values());
   }, [localCart]);
@@ -193,7 +189,7 @@ export default function NewOrderPage() {
         items: localCart.map(c => ({
           itemId: c.itemId,
           packagingId: c.packagingId,
-          quantity: c.unitsPerPack > 0 ? Math.round(c.quantity / c.unitsPerPack) : c.quantity,
+          quantity: c.quantity, // already in box units
         })),
       };
       const cartRes = await orderingApi.createCartWithDate(cartData);
@@ -501,13 +497,13 @@ export default function NewOrderPage() {
                     {!isDisabled && (
                       <div className="flex items-center gap-1.5 shrink-0">
                         <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
-                          onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
+                          onClick={() => updateCartQty(item, 0, -1)} disabled={qty === 0}>-</Button>
                         <div className="flex flex-col items-center w-16">
                           <span className="text-sm font-bold">{qty}</span>
-                          {qty > 0 && <span className="text-[10px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}박스</span>}
+                          {qty > 0 && <span className="text-[10px] text-blue-600">{qty}박스</span>}
                         </div>
                         <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
-                          onClick={() => handlePlusClick(item, 0)}>+</Button>
+                          onClick={() => updateCartQty(item, 0, 1)}>+</Button>
                       </div>
                     )}
                   </div>
@@ -549,12 +545,12 @@ export default function NewOrderPage() {
                   </div>
                   {!isDisabled && (
                     <div className="flex items-center gap-1">
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -pkg.unitsPerPack)} disabled={qty === 0}>-</Button>
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -1)} disabled={qty === 0}>-</Button>
                       <div className="w-10 text-center">
                         <span className="text-sm font-bold">{qty}</span>
-                        {qty > 0 && <span className="block text-[9px] text-blue-600">{Math.round(qty / pkg.unitsPerPack)}박스</span>}
+                        {qty > 0 && <span className="block text-[9px] text-blue-600">{qty}박스</span>}
                       </div>
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handlePlusClick(item, 0)}>+</Button>
+                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, 1)}>+</Button>
                     </div>
                   )}
                 </CardContent>
@@ -618,26 +614,26 @@ export default function NewOrderPage() {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{item.itemName}</p>
                         <p className="text-xs text-gray-500">
-                          {item.packLabel} / {'\u20A9'}{Math.round(item.unitPrice / item.unitsPerPack).toLocaleString()}/{'\u00D7'}{item.quantity}
+                          {item.packLabel} / {'\u20A9'}{item.unitPrice.toLocaleString()}{'\u00D7'}{item.quantity}박스
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <Button size="sm" variant="outline" className="h-9 w-9 p-0"
                           onClick={() => setLocalCart(prev => {
-                            const newQty = item.quantity - item.unitsPerPack;
+                            const newQty = item.quantity - 1;
                             if (newQty <= 0) return prev.filter(c => !(c.itemId === item.itemId && c.packagingId === item.packagingId));
                             return prev.map(c => c.itemId === item.itemId && c.packagingId === item.packagingId ? { ...c, quantity: newQty } : c);
                           })}>-</Button>
                         <div className="w-12 text-center">
                           <span className="font-bold text-sm">{item.quantity}</span>
-                          <span className="block text-[10px] text-blue-600">{Math.round(item.quantity / item.unitsPerPack)}박스</span>
+                          <span className="block text-[10px] text-blue-600">{item.quantity}박스</span>
                         </div>
                         <Button size="sm" variant="outline" className="h-9 w-9 p-0"
                           onClick={() => setLocalCart(prev =>
-                            prev.map(c => c.itemId === item.itemId && c.packagingId === item.packagingId ? { ...c, quantity: c.quantity + c.unitsPerPack } : c)
+                            prev.map(c => c.itemId === item.itemId && c.packagingId === item.packagingId ? { ...c, quantity: c.quantity + 1 } : c)
                           )}>+</Button>
                         <span className="text-sm font-medium w-20 text-right">
-                          {'\u20A9'}{Math.round((item.unitPrice / item.unitsPerPack) * item.quantity).toLocaleString()}
+                          {'\u20A9'}{(item.unitPrice * item.quantity).toLocaleString()}
                         </span>
                       </div>
                     </div>
