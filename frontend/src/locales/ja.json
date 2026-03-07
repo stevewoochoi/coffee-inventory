@@ -421,7 +421,12 @@
     },
     "historyPage": {
       "title": "注文履歴",
-      "delivery": "納品日"
+      "delivery": "納品日",
+      "orderStatus": "注文状況",
+      "viewDetail": "詳細を見る",
+      "collapse": "閉じる",
+      "won": "円",
+      "moreItems": "件の項目をもっと見る"
     },
     "detailPage": {
       "notFound": "注文が見つかりません",

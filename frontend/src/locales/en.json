@@ -421,7 +421,12 @@
     },
     "historyPage": {
       "title": "Order History",
-      "delivery": "Delivery"
+      "delivery": "Delivery",
+      "orderStatus": "Order Status",
+      "viewDetail": "View Details",
+      "collapse": "Collapse",
+      "won": "\u00a5",
+      "moreItems": " more items"
     },
     "detailPage": {
       "notFound": "Order not found",

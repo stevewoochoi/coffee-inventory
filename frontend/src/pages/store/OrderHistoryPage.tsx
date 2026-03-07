@@ -1,14 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { orderingApi, type OrderDetailedResponse } from '@/api/ordering';
-
-const STATUS_TABS = ['all', 'CONFIRMED', 'DISPATCHED', 'DELIVERED', 'CANCELLED'] as const;
+import { orderingApi, type OrderDetailedResponse, type HistoryLine } from '@/api/ordering';
 
 const statusColor: Record<string, string> = {
   DRAFT: 'bg-gray-100 text-gray-800',
@@ -17,21 +14,29 @@ const statusColor: Record<string, string> = {
   CANCELLED: 'bg-red-100 text-red-800',
   PARTIALLY_RECEIVED: 'bg-yellow-100 text-yellow-800',
   DELIVERED: 'bg-emerald-100 text-emerald-800',
+  CUTOFF_CLOSED: 'bg-purple-100 text-purple-800',
 };
 
-const fulfillmentColor: Record<string, string> = {
-  PENDING: 'bg-gray-100 text-gray-700',
-  PREPARING: 'bg-amber-100 text-amber-800',
-  SHIPPING: 'bg-blue-100 text-blue-800',
-  DELIVERED: 'bg-green-100 text-green-800',
-};
+interface FlatLine extends HistoryLine {
+  orderId: number;
+  orderStatus: string;
+  supplierName: string;
+}
 
+interface DateGroup {
+  date: string;
+  lines: FlatLine[];
+  totalAmount: number;
+  orderCount: number;
+}
+
+const MAX_PREVIEW = 3;
 
 export default function OrderHistoryPage() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderDetailedResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<string>('all');
+  const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
   const { user } = useAuthStore();
   const storeId = user?.storeId ?? 1;
   const { t } = useTranslation();
@@ -39,34 +44,73 @@ export default function OrderHistoryPage() {
   const loadOrders = useCallback(async () => {
     try {
       setLoading(true);
-      const params: Record<string, unknown> = { storeId };
-      if (activeTab !== 'all') params.status = activeTab;
-      const res = await orderingApi.getPlansFiltered(params as { storeId: number; status?: string });
+      const res = await orderingApi.getPlansFiltered({ storeId });
       setOrders(res.data.data);
     } catch {
-      toast.error(t('common.loadError'));
+      toast.error(t('ordering.loadFailed'));
       setOrders([]);
     } finally {
       setLoading(false);
     }
-  }, [storeId, activeTab]);
+  }, [storeId, t]);
 
   useEffect(() => { loadOrders(); }, [loadOrders]);
 
-  const statusCounts = orders.reduce((acc, o) => {
-    acc[o.status] = (acc[o.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const dateGroups: DateGroup[] = useMemo(() => {
+    const groupMap = new Map<string, { orders: OrderDetailedResponse[] }>();
 
-  function formatDate(dateStr: string | null) {
-    if (!dateStr) return '-';
-    return new Date(dateStr + (dateStr.includes('T') ? '' : 'T00:00:00')).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    for (const order of orders) {
+      const dateKey = order.deliveryDate || order.createdAt?.split('T')[0] || 'unknown';
+      if (!groupMap.has(dateKey)) {
+        groupMap.set(dateKey, { orders: [] });
+      }
+      groupMap.get(dateKey)!.orders.push(order);
+    }
+
+    const groups: DateGroup[] = [];
+    for (const [date, { orders: dateOrders }] of groupMap) {
+      const lines: FlatLine[] = [];
+      let totalAmount = 0;
+      for (const order of dateOrders) {
+        totalAmount += (order.totalAmount || 0) + (order.vatAmount || 0);
+        for (const line of order.lines) {
+          lines.push({
+            ...line,
+            orderId: order.id,
+            orderStatus: order.status,
+            supplierName: order.supplierName,
+          });
+        }
+      }
+      groups.push({
+        date,
+        lines,
+        totalAmount,
+        orderCount: dateOrders.length,
+      });
+    }
+
+    groups.sort((a, b) => b.date.localeCompare(a.date));
+    return groups;
+  }, [orders]);
+
+  function toggleExpand(date: string) {
+    setExpandedDates(prev => {
+      const next = new Set(prev);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
+  }
+
+  function formatPrice(price: number) {
+    return price.toLocaleString();
   }
 
   if (loading) return <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">{t('ordering.historyPage.title')}</h2>
         <Button variant="outline" onClick={() => navigate('/store/ordering')}>
@@ -74,78 +118,79 @@ export default function OrderHistoryPage() {
         </Button>
       </div>
 
-      {/* Status tabs */}
-      <div className="flex gap-1 overflow-x-auto pb-1">
-        {STATUS_TABS.map((tab) => {
-          const count = tab === 'all' ? orders.length : (statusCounts[tab] || 0);
-          return (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-3 py-2 rounded-lg text-sm whitespace-nowrap flex items-center gap-1 transition-colors min-h-[44px] ${
-                activeTab === tab ? 'bg-blue-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {t(`ordering.status.${tab}`)}
-              {count > 0 && (
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === tab ? 'bg-blue-700' : 'bg-gray-200'
-                }`}>
-                  {count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Order list */}
-      {orders.length === 0 ? (
+      {dateGroups.length === 0 ? (
         <div className="text-center py-12 text-gray-400">{t('ordering.noOrdersFound')}</div>
       ) : (
-        <div className="space-y-3">
-          {orders.map((order) => (
-            <Card
-              key={order.id}
-              className="cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => navigate(`/store/ordering/${order.id}`)}
-            >
-              <CardContent className="py-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-lg">#{order.id}</span>
-                    <Badge className={statusColor[order.status] || ''}>
-                      {t(`ordering.status.${order.status}`)}
-                    </Badge>
-                    {order.fulfillmentStatus && (
-                      <Badge className={fulfillmentColor[order.fulfillmentStatus] || 'bg-gray-100 text-gray-700'}>
-                        {t(`ordering.fulfillment.${order.fulfillmentStatus}`)}
-                      </Badge>
-                    )}
+        <div className="space-y-6">
+          {dateGroups.map((group) => {
+            const isExpanded = expandedDates.has(group.date);
+            const visibleLines = isExpanded ? group.lines : group.lines.slice(0, MAX_PREVIEW);
+            const hasMore = group.lines.length > MAX_PREVIEW;
+
+            return (
+              <div key={group.date}>
+                {/* Date header */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold text-blue-700">{group.date}</span>
+                    <span className="font-semibold text-base">{t('ordering.historyPage.orderStatus')}</span>
                   </div>
-                  <span className="text-sm text-gray-500">{formatDate(order.createdAt)}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <div className="text-gray-600">
-                    <span>{order.supplierName}</span>
-                    {order.deliveryDate && (
-                      <span className="ml-3 text-gray-400">
-                        {t('ordering.historyPage.delivery')}: {formatDate(order.deliveryDate)}
-                      </span>
-                    )}
-                  </div>
-                  {order.totalAmount != null && (
-                    <span className="font-medium">
-                      {'\u20A9'}{((order.totalAmount || 0) + (order.vatAmount || 0)).toLocaleString()}
-                    </span>
+                  {hasMore && (
+                    <button
+                      onClick={() => toggleExpand(group.date)}
+                      className="text-sm text-gray-500 underline underline-offset-2 hover:text-gray-700"
+                    >
+                      {isExpanded ? t('ordering.historyPage.collapse') : t('ordering.historyPage.viewDetail')}
+                    </button>
                   )}
                 </div>
-                <div className="text-xs text-gray-400 mt-1">
-                  {order.lines.map(l => `${l.itemName} x${l.packQty}`).join(', ')}
+
+                {/* Lines card */}
+                <div className="bg-white rounded-xl border divide-y">
+                  {visibleLines.map((line, idx) => (
+                    <div
+                      key={`${line.orderId}-${line.packagingId}-${idx}`}
+                      className="px-4 py-3 cursor-pointer hover:bg-gray-50"
+                      onClick={() => navigate(`/store/ordering/${line.orderId}`)}
+                    >
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Badge className={`text-xs ${statusColor[line.orderStatus] || 'bg-gray-100 text-gray-800'}`}>
+                          {t(`ordering.status.${line.orderStatus}`)}
+                        </Badge>
+                        <span className="text-xs text-gray-400">{line.supplierName}</span>
+                      </div>
+                      <div className="font-medium text-sm mb-1">{line.itemName}</div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-400">{line.packName}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm">
+                            <span className="font-bold">{line.packQty}</span>
+                            <span className="text-xs text-gray-500 ml-1">
+                              {line.packName?.includes('PK') ? 'PK' : line.packName?.includes('EA') ? 'EA' : 'BOX'}
+                            </span>
+                          </span>
+                          <span className="text-sm font-semibold">
+                            {formatPrice(line.price * line.packQty)}
+                            <span className="text-xs font-normal text-gray-500 ml-0.5">{t('ordering.historyPage.won')}</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* View more button inside card */}
+                  {hasMore && !isExpanded && (
+                    <button
+                      onClick={() => toggleExpand(group.date)}
+                      className="w-full py-3 text-sm text-blue-700 font-medium hover:bg-blue-50 transition-colors"
+                    >
+                      {t('ordering.historyPage.viewDetail')} ({group.lines.length - MAX_PREVIEW}{t('ordering.historyPage.moreItems')})
+                    </button>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
