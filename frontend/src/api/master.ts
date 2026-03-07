@@ -4,7 +4,7 @@ import type { ApiResponse } from './auth';
 // Item types
 export interface Item {
   id: number;
-  brandId: number;
+  brandId: number | null;
   name: string;
   category: string | null;
   baseUnit: string;
@@ -15,11 +15,59 @@ export interface Item {
   supplierName: string | null;
   isActive: boolean;
   imageUrl: string | null;
+  itemCode: string | null;
+  spec: string | null;
+  description: string | null;
   createdAt: string;
 }
 
-export interface ItemRequest {
+// BrandItem types
+export interface BrandItem {
+  id: number;
   brandId: number;
+  brandName: string | null;
+  itemId: number;
+  itemName: string | null;
+  itemCode: string | null;
+  baseUnit: string | null;
+  category: string | null;
+  categoryId: number | null;
+  categoryName: string | null;
+  imageUrl: string | null;
+  temperatureZone: string | null;
+  price: number | null;
+  vatInclusive: boolean;
+  supplierId: number | null;
+  supplierName: string | null;
+  minStockQty: number | null;
+  isOrderable: boolean;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface BrandItemAssignRequest {
+  brandId: number;
+  itemId: number;
+  price?: number;
+  vatInclusive?: boolean;
+  supplierId?: number;
+  minStockQty?: number;
+  isOrderable?: boolean;
+  displayOrder?: number;
+}
+
+export interface BrandItemUpdateRequest {
+  price?: number;
+  vatInclusive?: boolean;
+  supplierId?: number;
+  minStockQty?: number;
+  isOrderable?: boolean;
+  displayOrder?: number;
+}
+
+export interface ItemRequest {
+  brandId?: number;
   name: string;
   category?: string;
   categoryId?: number;
@@ -28,6 +76,10 @@ export interface ItemRequest {
   price?: number;
   vatInclusive?: boolean;
   supplierId?: number;
+  itemCode?: string;
+  spec?: string;
+  description?: string;
+  minStockQty?: number;
 }
 
 export interface Page<T> {
@@ -201,6 +253,18 @@ export const masterApi = {
     client.post<ApiResponse<SupplierItem>>(`/master/suppliers/${supplierId}/items`, data),
   deleteSupplierItem: (supplierId: number, itemId: number) =>
     client.delete<ApiResponse<void>>(`/master/suppliers/${supplierId}/items/${itemId}`),
+
+  // BrandItems
+  getBrandItems: (brandId: number) =>
+    client.get<ApiResponse<BrandItem[]>>('/master/brand-items', { params: { brandId } }),
+  getBrandItemsByItem: (itemId: number) =>
+    client.get<ApiResponse<BrandItem[]>>(`/master/brand-items/by-item/${itemId}`),
+  assignBrandItem: (data: BrandItemAssignRequest) =>
+    client.post<ApiResponse<BrandItem>>('/master/brand-items', data),
+  updateBrandItem: (id: number, data: BrandItemUpdateRequest) =>
+    client.put<ApiResponse<BrandItem>>(`/master/brand-items/${id}`, data),
+  unassignBrandItem: (id: number) =>
+    client.delete<ApiResponse<void>>(`/master/brand-items/${id}`),
 
   // Delivery Schedule
   getDeliverySchedule: (itemId: number) =>

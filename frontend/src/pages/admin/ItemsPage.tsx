@@ -77,7 +77,7 @@ export default function ItemsPage() {
   const openEdit = async (item: Item) => {
     setEditItem(item);
     setForm({
-      brandId: item.brandId,
+      brandId: item.brandId ?? undefined,
       name: item.name,
       baseUnit: item.baseUnit,
       category: item.category || '',

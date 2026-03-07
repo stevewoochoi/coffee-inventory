@@ -3,6 +3,7 @@ package com.coffee.domain.ordering.service;
 import com.coffee.domain.master.entity.*;
 import com.coffee.domain.master.repository.*;
 import com.coffee.domain.master.repository.ItemDeliveryScheduleRepository;
+import com.coffee.domain.master.repository.BrandItemRepository;
 import com.coffee.domain.ordering.dto.CatalogDto;
 import com.coffee.domain.ordering.entity.OrderLine;
 import com.coffee.domain.ordering.entity.OrderPlan;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class OrderCatalogService {
 
     private final ItemRepository itemRepository;
+    private final BrandItemRepository brandItemRepository;
     private final ItemCategoryRepository categoryRepository;
     private final PackagingRepository packagingRepository;
     private final SupplierItemRepository supplierItemRepository;
@@ -42,12 +44,24 @@ public class OrderCatalogService {
         var policy = policyService.getStorePolicy(storeId);
         Long brandId = policy != null ? policy.getBrandId() : null;
 
-        // Get all active items for this brand
-        List<Item> allItems;
+        // Get all active items for this brand via brand_item junction
+        List<Item> allItems = new ArrayList<>();
+        Map<Long, BrandItem> brandItemMap = new HashMap<>();
         if (brandId != null) {
-            allItems = itemRepository.findByBrandIdAndIsActiveTrue(brandId);
-        } else {
-            allItems = itemRepository.findByIsActiveTrue();
+            List<BrandItem> brandItems = brandItemRepository.findByBrandIdAndIsActiveTrue(brandId);
+            for (BrandItem bi : brandItems) {
+                itemRepository.findByIdAndIsActiveTrue(bi.getItemId()).ifPresent(item -> {
+                    allItems.add(item);
+                    brandItemMap.put(item.getId(), bi);
+                });
+            }
+        }
+        if (allItems.isEmpty()) {
+            // Fallback: use legacy brand_id on item table
+            List<Item> fallback = brandId != null
+                    ? itemRepository.findByBrandIdAndIsActiveTrue(brandId)
+                    : itemRepository.findByIsActiveTrue();
+            allItems.addAll(fallback);
         }
 
         // Pre-load maps for performance
@@ -62,7 +76,8 @@ public class OrderCatalogService {
                 .filter(item -> keyword == null || keyword.isEmpty()
                         || item.getName().toLowerCase().contains(keyword.toLowerCase()))
                 .map(item -> {
-                    CatalogDto.CatalogItem ci = buildCatalogItem(item, storeId, stockMap, usageMap);
+                    BrandItem bi = brandItemMap.get(item.getId());
+                    CatalogDto.CatalogItem ci = buildCatalogItem(item, bi, storeId, stockMap, usageMap);
                     if (finalDeliveryDate != null) {
                         boolean orderable = policyService.isItemOrderableForDate(item.getId(), finalDeliveryDate, storeId);
                         return CatalogDto.CatalogItem.builder()
@@ -124,11 +139,14 @@ public class OrderCatalogService {
                 .toList();
     }
 
-    private CatalogDto.CatalogItem buildCatalogItem(Item item, Long storeId,
+    private CatalogDto.CatalogItem buildCatalogItem(Item item, BrandItem brandItem, Long storeId,
                                                       Map<Long, BigDecimal> stockMap,
                                                       Map<Long, BigDecimal> usageMap) {
         BigDecimal currentStock = stockMap.getOrDefault(item.getId(), BigDecimal.ZERO);
-        BigDecimal minStock = item.getMinStockQty() != null ? item.getMinStockQty() : BigDecimal.ZERO;
+        // Use brand-specific minStockQty if available, fallback to item-level
+        BigDecimal minStock = brandItem != null && brandItem.getMinStockQty() != null
+                ? brandItem.getMinStockQty()
+                : (item.getMinStockQty() != null ? item.getMinStockQty() : BigDecimal.ZERO);
         boolean isLowStock = currentStock.compareTo(minStock) < 0;
 
         // Get category name

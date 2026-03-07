@@ -9,6 +9,8 @@ import { StoreLayout } from '@/components/StoreLayout';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import ItemsPage from '@/pages/admin/ItemsPage';
+import MasterItemsPage from '@/pages/admin/MasterItemsPage';
+import BrandItemsPage from '@/pages/admin/BrandItemsPage';
 import PackagingsPage from '@/pages/admin/PackagingsPage';
 import SuppliersPage from '@/pages/admin/SuppliersPage';
 import ThemeSettingsPage from '@/pages/admin/ThemeSettingsPage';
@@ -69,6 +71,8 @@ function App() {
             <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/items" element={<ItemsPage />} />
+            <Route path="/admin/master-items" element={<MasterItemsPage />} />
+            <Route path="/admin/brand-items" element={<BrandItemsPage />} />
             <Route path="/admin/packagings" element={<PackagingsPage />} />
             <Route path="/admin/suppliers" element={<SuppliersPage />} />
             <Route path="/admin/categories" element={<CategoriesPage />} />

@@ -3,11 +3,13 @@ package com.coffee.domain.ordering.service;
 import com.coffee.domain.inventory.entity.LedgerType;
 import com.coffee.domain.inventory.repository.InventorySnapshotRepository;
 import com.coffee.domain.inventory.repository.StockLedgerRepository;
+import com.coffee.domain.master.entity.BrandItem;
 import com.coffee.domain.master.entity.Item;
 import com.coffee.domain.master.entity.Packaging;
 import com.coffee.domain.master.entity.PackagingStatus;
 import com.coffee.domain.master.entity.Supplier;
 import com.coffee.domain.master.entity.SupplierItem;
+import com.coffee.domain.master.repository.BrandItemRepository;
 import com.coffee.domain.master.repository.ItemRepository;
 import com.coffee.domain.master.repository.PackagingRepository;
 import com.coffee.domain.master.repository.SupplierItemRepository;
@@ -31,6 +33,7 @@ public class OrderNeedsService {
     private static final int DEMAND_LOOKBACK_DAYS = 14;
 
     private final ItemRepository itemRepository;
+    private final BrandItemRepository brandItemRepository;
     private final PackagingRepository packagingRepository;
     private final SupplierItemRepository supplierItemRepository;
     private final SupplierRepository supplierRepository;
@@ -38,8 +41,18 @@ public class OrderNeedsService {
     private final StockLedgerRepository ledgerRepository;
 
     public OrderNeedsDto.Response getOrderNeeds(Long storeId, Long brandId) {
-        // 1. Get all active items for this brand
-        List<Item> allItems = itemRepository.findByBrandIdAndIsActiveTrue(brandId);
+        // 1. Get all active items for this brand via brand_item junction
+        List<BrandItem> brandItems = brandItemRepository.findByBrandIdAndIsActiveTrue(brandId);
+        Map<Long, BrandItem> brandItemMap = brandItems.stream()
+                .collect(Collectors.toMap(BrandItem::getItemId, bi -> bi, (a, b) -> a));
+        List<Item> allItems = brandItems.stream()
+                .map(bi -> itemRepository.findByIdAndIsActiveTrue(bi.getItemId()).orElse(null))
+                .filter(Objects::nonNull)
+                .toList();
+        // Fallback if no brand_items exist
+        if (allItems.isEmpty()) {
+            allItems = itemRepository.findByBrandIdAndIsActiveTrue(brandId);
+        }
 
         // 2. Calculate 14-day average daily usage from SELL ledger
         LocalDateTime since = LocalDateTime.now().minusDays(DEMAND_LOOKBACK_DAYS);
@@ -77,7 +90,10 @@ public class OrderNeedsService {
 
         for (Item item : allItems) {
             BigDecimal currentStock = currentStockMap.getOrDefault(item.getId(), BigDecimal.ZERO);
-            BigDecimal minStock = item.getMinStockQty() != null ? item.getMinStockQty() : BigDecimal.ZERO;
+            BrandItem bi = brandItemMap.get(item.getId());
+            BigDecimal minStock = bi != null && bi.getMinStockQty() != null
+                    ? bi.getMinStockQty()
+                    : (item.getMinStockQty() != null ? item.getMinStockQty() : BigDecimal.ZERO);
 
             BigDecimal avgDailyUsage = totalSellQty.getOrDefault(item.getId(), BigDecimal.ZERO)
                     .divide(BigDecimal.valueOf(DEMAND_LOOKBACK_DAYS), 3, RoundingMode.HALF_UP);

@@ -25,6 +25,18 @@ export interface StoreRequest {
   memo?: string;
 }
 
+export interface Brand {
+  id: number;
+  companyId: number;
+  name: string;
+  createdAt: string;
+}
+
+export const brandApi = {
+  getBrands: () =>
+    client.get<ApiResponse<Brand[]>>('/org/brands'),
+};
+
 export const storeApi = {
   getStores: (brandId?: number) =>
     client.get<ApiResponse<Store[]>>('/org/stores', { params: { brandId } }),
