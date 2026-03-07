@@ -1020,6 +1020,17 @@
     "sat": "토",
     "sun": "일"
   },
+  "deliveryPolicy": {
+    "addHoliday": "휴일 추가",
+    "upcoming": "예정된 휴일",
+    "past": "지난 휴일",
+    "noHolidays": "등록된 납품 휴일이 없습니다",
+    "date": "날짜",
+    "dayOfWeek": "요일",
+    "description": "설명",
+    "descPlaceholder": "예: 공휴일, 연말연시 휴무",
+    "deleteConfirm": "이 휴일을 삭제하시겠습니까?"
+  },
   "supplierPortal": {
     "title": "공급사 포탈",
     "loadFailed": "주문을 불러오지 못했습니다",

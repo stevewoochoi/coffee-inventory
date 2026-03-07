@@ -990,6 +990,17 @@
     "sat": "土",
     "sun": "日"
   },
+  "deliveryPolicy": {
+    "addHoliday": "休日追加",
+    "upcoming": "今後の休日",
+    "past": "過去の休日",
+    "noHolidays": "登録された配送休日はありません",
+    "date": "日付",
+    "dayOfWeek": "曜日",
+    "description": "説明",
+    "descPlaceholder": "例: 祝日、年末年始休業",
+    "deleteConfirm": "この休日を削除しますか？"
+  },
   "supplierPortal": {
     "title": "取引先ポータル",
     "loadFailed": "注文の読み込みに失敗しました",

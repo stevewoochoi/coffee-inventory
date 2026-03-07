@@ -1020,6 +1020,17 @@
     "sat": "Sat",
     "sun": "Sun"
   },
+  "deliveryPolicy": {
+    "addHoliday": "Add Holiday",
+    "upcoming": "Upcoming Holidays",
+    "past": "Past Holidays",
+    "noHolidays": "No delivery holidays registered",
+    "date": "Date",
+    "dayOfWeek": "Day",
+    "description": "Description",
+    "descPlaceholder": "e.g. National holiday, Year-end break",
+    "deleteConfirm": "Delete this holiday?"
+  },
   "supplierPortal": {
     "title": "Supplier Portal",
     "loadFailed": "Failed to load orders",
