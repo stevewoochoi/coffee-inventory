@@ -199,6 +199,14 @@ export interface DeliveryScheduleRequest {
   sun: boolean;
 }
 
+export interface BatchUploadResult {
+  totalRows: number;
+  successCount: number;
+  errorCount: number;
+  items: Item[];
+  errors: { row: number; message: string }[];
+}
+
 export const masterApi = {
   // Items
   getItems: (brandId?: number, page = 0, size = 20) =>
@@ -215,6 +223,15 @@ export const masterApi = {
     client.post<ApiResponse<Item>>(`/master/items/${id}/image`, { imageUrl }),
   deleteItem: (id: number) =>
     client.delete<ApiResponse<void>>(`/master/items/${id}`),
+  downloadItemExcelSample: () =>
+    client.get('/master/items/excel/sample', { responseType: 'blob' }),
+  uploadItemExcel: (brandId: number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return client.post<ApiResponse<BatchUploadResult>>(`/master/items/excel/upload?brandId=${brandId}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 
   // Packagings
   getPackagings: (itemId: number) =>

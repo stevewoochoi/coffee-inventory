@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
-import { masterApi, type Item, type ItemRequest, type Supplier, type DeliveryScheduleRequest } from '@/api/master';
+import { masterApi, type Item, type ItemRequest, type Supplier, type DeliveryScheduleRequest, type BatchUploadResult } from '@/api/master';
 import { categoryApi, type CategoryTreeNode } from '@/api/category';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,10 @@ export default function ItemsPage() {
   const emptySchedule: DeliveryScheduleRequest = { mon: false, tue: false, wed: false, thu: false, fri: false, sat: false, sun: false };
   const [deliverySchedule, setDeliverySchedule] = useState<DeliveryScheduleRequest>(emptySchedule);
   const [hasExistingSchedule, setHasExistingSchedule] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState<BatchUploadResult | null>(null);
+  const [uploadResultOpen, setUploadResultOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadSuppliers = useCallback(async () => {
     try {
@@ -155,13 +159,60 @@ export default function ItemsPage() {
     } catch { toast.error(t('items.deleteFailed')); }
   };
 
+  const handleDownloadSample = async () => {
+    try {
+      const res = await masterApi.downloadItemExcelSample();
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'item_upload_sample.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch { toast.error('샘플 다운로드 실패'); }
+  };
+
+  const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const res = await masterApi.uploadItemExcel(brandId, file);
+      setUploadResult(res.data.data);
+      setUploadResultOpen(true);
+      loadItems();
+      if (res.data.data.errorCount === 0) {
+        toast.success(`${res.data.data.successCount}건 등록 완료`);
+      } else {
+        toast.warning(`${res.data.data.successCount}건 성공, ${res.data.data.errorCount}건 실패`);
+      }
+    } catch { toast.error('엑셀 업로드 실패'); }
+    setUploading(false);
+    e.target.value = '';
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-900">{t('items.title')}</h2>
-        <Button onClick={openCreate} className="bg-slate-700 hover:bg-slate-800">
-          {t('items.addItem')}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleDownloadSample}>
+            샘플 다운로드
+          </Button>
+          <Button variant="outline" size="sm" disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}>
+            {uploading ? '업로드 중...' : '엑셀 업로드'}
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={handleExcelUpload}
+          />
+          <Button onClick={openCreate} className="bg-slate-700 hover:bg-slate-800">
+            {t('items.addItem')}
+          </Button>
+        </div>
       </div>
 
       {/* Desktop: Table view */}
@@ -465,6 +516,48 @@ export default function ItemsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
             <Button onClick={handleSave} className="bg-slate-700 hover:bg-slate-800">{t('common.save')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Result Dialog */}
+      <Dialog open={uploadResultOpen} onOpenChange={setUploadResultOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>엑셀 업로드 결과</DialogTitle>
+          </DialogHeader>
+          {uploadResult && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold">{uploadResult.totalRows}</div>
+                  <div className="text-sm text-gray-500">전체</div>
+                </div>
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">{uploadResult.successCount}</div>
+                  <div className="text-sm text-gray-500">성공</div>
+                </div>
+                <div className="p-3 bg-red-50 rounded-lg">
+                  <div className="text-2xl font-bold text-red-600">{uploadResult.errorCount}</div>
+                  <div className="text-sm text-gray-500">실패</div>
+                </div>
+              </div>
+              {uploadResult.errors.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-red-600 mb-2">오류 목록</h4>
+                  <div className="max-h-40 overflow-y-auto space-y-1">
+                    {uploadResult.errors.map((err, idx) => (
+                      <div key={idx} className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                        행 {err.row}: {err.message}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setUploadResultOpen(false)}>확인</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -2,6 +2,7 @@ package com.coffee.domain.master.controller;
 
 import com.coffee.common.response.ApiResponse;
 import com.coffee.domain.master.dto.ItemDto;
+import com.coffee.domain.master.service.ItemExcelService;
 import com.coffee.domain.master.service.ItemService;
 import com.coffee.domain.upload.dto.UploadDto;
 import jakarta.validation.Valid;
@@ -9,10 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/master/items")
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemExcelService itemExcelService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ItemDto.Response>>> findAll(
@@ -62,5 +67,24 @@ public class ItemController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         itemService.delete(id);
         return ResponseEntity.ok(ApiResponse.ok(null, "Item deactivated"));
+    }
+
+    @GetMapping("/excel/sample")
+    public ResponseEntity<byte[]> downloadSampleExcel() throws Exception {
+        byte[] bytes = itemExcelService.generateSampleExcel();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "item_upload_sample.xlsx");
+        return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/excel/upload")
+    public ResponseEntity<ApiResponse<ItemExcelService.BatchUploadResult>> uploadExcel(
+            @RequestParam Long brandId,
+            @RequestPart("file") MultipartFile file) throws Exception {
+        ItemExcelService.BatchUploadResult result = itemExcelService.batchUpload(brandId, file);
+        String message = String.format("총 %d건 중 %d건 성공, %d건 실패",
+                result.getTotalRows(), result.getSuccessCount(), result.getErrorCount());
+        return ResponseEntity.ok(ApiResponse.ok(result, message));
     }
 }
