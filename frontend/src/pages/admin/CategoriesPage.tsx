@@ -196,7 +196,7 @@ export default function CategoriesPage() {
       <div className="bg-white border rounded-lg shadow-sm flex flex-col h-full">
         <div className="flex justify-between items-center px-4 py-3 border-b">
           <h3 className="font-semibold text-sm">{title}</h3>
-          <Button size="sm" onClick={onAdd} className="bg-blue-800 hover:bg-blue-900 text-xs h-7 px-2">
+          <Button size="sm" onClick={onAdd} className="bg-slate-700 hover:bg-slate-800 text-xs h-7 px-2">
             + {t('categories.addChild')}
           </Button>
         </div>
@@ -210,7 +210,7 @@ export default function CategoriesPage() {
               <div
                 key={cat.id}
                 className={`flex items-center justify-between px-4 py-2.5 border-b last:border-b-0 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  selectedId === cat.id ? 'bg-blue-50 border-l-2 border-l-blue-600' : ''
+                  selectedId === cat.id ? 'bg-slate-50 border-l-2 border-l-slate-600' : ''
                 }`}
                 onClick={() => onSelect?.(cat)}
               >
@@ -220,7 +220,7 @@ export default function CategoriesPage() {
                   {cat.code && <Badge variant="secondary" className="text-xs shrink-0">{cat.code}</Badge>}
                 </div>
                 <div className="flex gap-1 ml-2 shrink-0" onClick={e => e.stopPropagation()}>
-                  <button onClick={() => onEdit(cat)} className="text-blue-600 hover:underline text-xs px-1">
+                  <button onClick={() => onEdit(cat)} className="text-slate-600 hover:underline text-xs px-1">
                     {t('common.edit')}
                   </button>
                   <button onClick={() => onDelete(cat)} className="text-red-600 hover:underline text-xs px-1">
@@ -276,7 +276,7 @@ export default function CategoriesPage() {
         {/* Breadcrumb */}
         <div className="flex items-center gap-1 text-sm mb-3 text-gray-500">
           <button
-            className={`${mobileLevel === 1 ? 'text-blue-700 font-semibold' : 'hover:text-blue-600'}`}
+            className={`${mobileLevel === 1 ? 'text-slate-600 font-semibold' : 'hover:text-slate-600'}`}
             onClick={() => { setMobileLevel(1); }}
           >
             {levelLabel(1)}
@@ -285,7 +285,7 @@ export default function CategoriesPage() {
             <>
               <span>/</span>
               <button
-                className={`${mobileLevel === 2 ? 'text-blue-700 font-semibold' : 'hover:text-blue-600'}`}
+                className={`${mobileLevel === 2 ? 'text-slate-600 font-semibold' : 'hover:text-slate-600'}`}
                 onClick={() => { setMobileLevel(2); }}
               >
                 {selectedL1.name}
@@ -296,7 +296,7 @@ export default function CategoriesPage() {
             <>
               <span>/</span>
               <button
-                className={`${mobileLevel === 3 ? 'text-blue-700 font-semibold' : 'hover:text-blue-600'}`}
+                className={`${mobileLevel === 3 ? 'text-slate-600 font-semibold' : 'hover:text-slate-600'}`}
                 onClick={() => { setMobileLevel(3); }}
               >
                 {selectedL2.name}
@@ -394,7 +394,7 @@ export default function CategoriesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
-            <Button onClick={handleSave} className="bg-blue-800 hover:bg-blue-900">{t('common.save')}</Button>
+            <Button onClick={handleSave} className="bg-slate-700 hover:bg-slate-800">{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

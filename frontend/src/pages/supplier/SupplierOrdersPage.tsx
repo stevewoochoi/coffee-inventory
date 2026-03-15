@@ -69,7 +69,7 @@ export default function SupplierOrdersPage() {
             onClick={() => setStatusFilter(tab)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[44px] ${
               statusFilter === tab
-                ? 'bg-blue-800 text-white'
+                ? 'bg-slate-700 text-white'
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}
           >
@@ -87,7 +87,7 @@ export default function SupplierOrdersPage() {
           {orders.map((order) => (
             <Card
               key={order.id}
-              className="cursor-pointer hover:border-blue-300 transition-colors"
+              className="cursor-pointer hover:border-slate-400 transition-colors"
               onClick={() => navigate(`/supplier-portal/orders/${order.id}`)}
             >
               <CardContent className="py-4">

@@ -9,7 +9,7 @@ interface ThemeState {
 }
 
 export const useThemeStore = create<ThemeState>((set) => ({
-  themeId: 'modern-blue',
+  themeId: 'bauhaus-steel',
   theme: themePresets[0],
 
   setTheme: (id: string) => {
@@ -20,7 +20,7 @@ export const useThemeStore = create<ThemeState>((set) => ({
   },
 
   initTheme: () => {
-    const savedId = localStorage.getItem('app-theme') || 'modern-blue';
+    const savedId = localStorage.getItem('app-theme') || 'bauhaus-steel';
     const theme = getThemeById(savedId);
     applyTheme(theme);
     set({ themeId: savedId, theme });

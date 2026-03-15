@@ -19,7 +19,7 @@ export default function ThemeSettingsPage() {
               onClick={() => setTheme(preset.id)}
               className={`relative rounded-xl border-2 p-4 text-left transition-all ${
                 isSelected
-                  ? 'border-blue-500 ring-2 ring-blue-200 shadow-lg'
+                  ? 'border-slate-500 ring-2 ring-slate-200 shadow-lg'
                   : 'border-gray-200 hover:border-gray-400 hover:shadow'
               }`}
             >
@@ -60,7 +60,7 @@ export default function ThemeSettingsPage() {
 
               {/* Selected indicator */}
               {isSelected && (
-                <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                <div className="absolute top-2 right-2 w-6 h-6 bg-slate-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
                   ✓
                 </div>
               )}

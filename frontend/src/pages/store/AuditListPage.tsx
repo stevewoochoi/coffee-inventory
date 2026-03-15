@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { auditApi, type AuditResponse, type AuditSummary } from '@/api/audit';
 
 const statusColor: Record<string, string> = {
-  IN_PROGRESS: 'bg-blue-100 text-blue-800',
+  IN_PROGRESS: 'bg-slate-100 text-slate-700',
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-gray-100 text-gray-800',
 };
@@ -87,7 +87,7 @@ export default function AuditListPage() {
         <h2 className="text-xl font-bold">{t('audit.title')}</h2>
         <Button
           size="lg"
-          className="bg-blue-800 hover:bg-blue-900 text-base px-6 py-3"
+          className="bg-slate-700 hover:bg-slate-800 text-base px-6 py-3"
           onClick={handleCreate}
           disabled={creating}
         >
@@ -98,10 +98,10 @@ export default function AuditListPage() {
       {/* Summary cards */}
       {summary && (
         <div className="grid grid-cols-3 gap-3">
-          <Card className="border-blue-200 bg-blue-50">
+          <Card className="border-slate-300 bg-slate-50">
             <CardContent className="py-3 text-center">
-              <div className="text-2xl font-bold text-blue-800">{summary.inProgress}</div>
-              <div className="text-xs text-blue-600">{t('audit.status.IN_PROGRESS')}</div>
+              <div className="text-2xl font-bold text-slate-700">{summary.inProgress}</div>
+              <div className="text-xs text-slate-600">{t('audit.status.IN_PROGRESS')}</div>
             </CardContent>
           </Card>
           <Card className="border-green-200 bg-green-50">
@@ -129,14 +129,14 @@ export default function AuditListPage() {
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-2 rounded-lg text-sm whitespace-nowrap flex items-center gap-1 transition-colors ${
                 activeTab === tab
-                  ? 'bg-blue-800 text-white'
+                  ? 'bg-slate-700 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {t(`audit.status.${tab}`)}
               {count > 0 && (
                 <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === tab ? 'bg-blue-700' : 'bg-gray-200'
+                  activeTab === tab ? 'bg-slate-600' : 'bg-gray-200'
                 }`}>
                   {count}
                 </span>
@@ -185,7 +185,7 @@ export default function AuditListPage() {
                   {audit.status === 'IN_PROGRESS' && totalLines > 0 && (
                     <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-blue-500 rounded-full transition-all"
+                        className="h-full bg-slate-500 rounded-full transition-all"
                         style={{ width: `${Math.round((countedLines / totalLines) * 100)}%` }}
                       />
                     </div>

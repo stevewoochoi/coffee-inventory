@@ -45,7 +45,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-blue-800">
+          <CardTitle className="text-2xl font-bold text-slate-700">
             {t('auth.appTitle')}
           </CardTitle>
           <p className="text-sm text-gray-500 mt-1">{t('auth.loginSubtitle')}</p>
@@ -81,7 +81,7 @@ export default function LoginPage() {
             )}
             <Button
               type="submit"
-              className="w-full bg-blue-800 hover:bg-blue-900"
+              className="w-full bg-slate-700 hover:bg-slate-800"
               disabled={isLoading}
             >
               {isLoading ? t('auth.loggingIn') : t('auth.login')}
@@ -90,7 +90,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm text-gray-500">
               {t('auth.noAccount')}{' '}
-              <Link to="/register" className="text-blue-700 hover:underline font-medium">
+              <Link to="/register" className="text-slate-600 hover:underline font-medium">
                 {t('auth.register')}
               </Link>
             </p>

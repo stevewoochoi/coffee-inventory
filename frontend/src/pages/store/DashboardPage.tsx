@@ -65,7 +65,7 @@ export default function StoreDashboardPage() {
         <p className="text-gray-500 mb-4">데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.</p>
         <button
           onClick={load}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-600"
         >
           {t('common.retry') ?? '다시 시도'}
         </button>
@@ -125,8 +125,8 @@ export default function StoreDashboardPage() {
           <TaskCard
             label={t('dashboard.pendingReceiving')}
             count={data.pendingReceivingCount}
-            color={data.pendingReceivingCount > 0 ? 'text-blue-700 border-blue-300' : 'text-gray-500 border-gray-200'}
-            bgColor={data.pendingReceivingCount > 0 ? 'bg-blue-50' : 'bg-gray-50'}
+            color={data.pendingReceivingCount > 0 ? 'text-slate-600 border-slate-400' : 'text-gray-500 border-gray-200'}
+            bgColor={data.pendingReceivingCount > 0 ? 'bg-slate-50' : 'bg-gray-50'}
             onClick={() => navigate('/store/receiving')}
           />
           <TaskCard
@@ -212,7 +212,7 @@ export default function StoreDashboardPage() {
             <h3 className="font-semibold">{t('dashboard.recentOrders')}</h3>
             <button
               onClick={() => navigate('/store/ordering/history')}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              className="text-sm text-slate-600 hover:text-slate-700 font-medium"
             >
               {t('dashboard.viewAll')}
             </button>
@@ -280,7 +280,7 @@ export default function StoreDashboardPage() {
                       <span className="text-gray-600">{Number(item.totalQty).toFixed(0)} {item.baseUnit}</span>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
+                      <div className="h-full bg-slate-500 rounded-full" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -297,7 +297,7 @@ export default function StoreDashboardPage() {
         <h3 className="text-lg font-semibold mb-3">{t('dashboard.quickActions')}</h3>
         <div className="grid grid-cols-3 lg:grid-cols-5 gap-3">
           <button onClick={() => navigate('/store/ordering/new')}
-            className="p-4 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 text-center min-h-[60px]">
+            className="p-4 bg-slate-600 text-white rounded-xl font-medium hover:bg-slate-600 text-center min-h-[60px]">
             {t('dashboard.quickOrder')}
           </button>
           <button onClick={() => navigate('/store/receiving')}

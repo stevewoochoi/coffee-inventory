@@ -103,7 +103,7 @@ export default function InventoryPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">{t('inventory.title')}</h2>
         <Button
-          className="bg-blue-800 hover:bg-blue-900"
+          className="bg-slate-700 hover:bg-slate-800"
           onClick={() => navigate('/store/ordering/new')}
         >
           {t('inventory.createOrder')}
@@ -159,7 +159,7 @@ export default function InventoryPage() {
         <button
           onClick={() => setActiveCategory('all')}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[40px] ${
-            activeCategory === 'all' ? 'bg-blue-800 text-white' : 'bg-gray-100 hover:bg-gray-200'
+            activeCategory === 'all' ? 'bg-slate-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
           }`}
         >
           {t('ordering.catalog.allCategories')}
@@ -169,7 +169,7 @@ export default function InventoryPage() {
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[40px] ${
-              activeCategory === cat ? 'bg-blue-800 text-white' : 'bg-gray-100 hover:bg-gray-200'
+              activeCategory === cat ? 'bg-slate-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
             }`}
           >
             {cat}
@@ -270,7 +270,7 @@ export default function InventoryPage() {
                 {isLow && (
                   <button
                     onClick={() => navigate('/store/ordering/new')}
-                    className="flex-1 text-center text-xs py-2.5 bg-blue-800 text-white rounded-lg hover:bg-blue-900 font-medium min-h-[40px]"
+                    className="flex-1 text-center text-xs py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-800 font-medium min-h-[40px]"
                   >
                     {t('inventory.orderNow')}
                   </button>
@@ -315,7 +315,7 @@ export default function InventoryPage() {
               />
             </div>
             <div className="flex gap-2">
-              <Button onClick={handleAdjust} className="flex-1 bg-blue-800 hover:bg-blue-900 min-h-[48px]">
+              <Button onClick={handleAdjust} className="flex-1 bg-slate-700 hover:bg-slate-800 min-h-[48px]">
                 {t('common.confirm')}
               </Button>
               <Button variant="outline" onClick={() => setAdjustItem(null)} className="flex-1 min-h-[48px]">

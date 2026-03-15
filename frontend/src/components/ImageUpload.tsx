@@ -76,7 +76,7 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
   return (
     <div className={`space-y-3 ${className}`}>
       <div
-        className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400 transition-colors min-h-[120px] flex items-center justify-center"
+        className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-slate-400 transition-colors min-h-[120px] flex items-center justify-center"
         onClick={() => fileInputRef.current?.click()}
       >
         {preview ? (
@@ -104,7 +104,7 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
       {uploading && (
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className="bg-slate-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -115,7 +115,7 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
       {selectedFileRef.current && !uploading && (
         <Button
           size="sm"
-          className="w-full bg-blue-800 hover:bg-blue-900"
+          className="w-full bg-slate-700 hover:bg-slate-800"
           onClick={handleUpload}
         >
           {t('imageUpload.uploadBtn')}

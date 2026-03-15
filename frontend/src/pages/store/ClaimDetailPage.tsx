@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { claimsApi, type ClaimResponse } from '@/api/claims';
 
 const statusColor: Record<string, string> = {
-  SUBMITTED: 'bg-blue-100 text-blue-800',
+  SUBMITTED: 'bg-slate-100 text-slate-700',
   IN_REVIEW: 'bg-yellow-100 text-yellow-800',
   RESOLVED: 'bg-green-100 text-green-800',
   CLOSED: 'bg-gray-100 text-gray-800',
@@ -28,18 +28,18 @@ function ClaimTimeline({ status }: { status: string }) {
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
                 idx <= currentIdx
-                  ? 'bg-blue-800 text-white'
+                  ? 'bg-slate-700 text-white'
                   : 'bg-gray-200 text-gray-400'
               }`}
             >
               {idx < currentIdx ? '\u2713' : idx + 1}
             </div>
-            <span className={`text-xs mt-1 ${idx <= currentIdx ? 'text-blue-800 font-medium' : 'text-gray-400'}`}>
+            <span className={`text-xs mt-1 ${idx <= currentIdx ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
               {t(`claims.status.${step}`)}
             </span>
           </div>
           {idx < TIMELINE_STEPS.length - 1 && (
-            <div className={`flex-1 h-0.5 mx-1 ${idx < currentIdx ? 'bg-blue-800' : 'bg-gray-200'}`} />
+            <div className={`flex-1 h-0.5 mx-1 ${idx < currentIdx ? 'bg-slate-700' : 'bg-gray-200'}`} />
           )}
         </div>
       ))}
@@ -148,7 +148,7 @@ export default function ClaimDetailPage() {
             {claim.orderPlanId && (
               <div>
                 <span className="text-gray-500">{t('claims.detail.relatedOrder')}</span>
-                <p className="font-medium cursor-pointer text-blue-600" onClick={() => navigate(`/store/ordering/${claim.orderPlanId}`)}>
+                <p className="font-medium cursor-pointer text-slate-600" onClick={() => navigate(`/store/ordering/${claim.orderPlanId}`)}>
                   #{claim.orderPlanId}
                 </p>
               </div>

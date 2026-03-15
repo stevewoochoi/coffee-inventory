@@ -82,7 +82,7 @@ export default function FinanceDashboardPage() {
             <Card>
               <CardContent className="py-6 text-center">
                 <p className="text-sm text-gray-500 mb-1">{t('finance.totalPurchase')}</p>
-                <p className="text-3xl font-bold text-blue-800">
+                <p className="text-3xl font-bold text-slate-700">
                   {'\u20A9'}{totalPurchase.toLocaleString()}
                 </p>
               </CardContent>

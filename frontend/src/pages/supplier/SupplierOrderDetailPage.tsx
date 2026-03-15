@@ -215,7 +215,7 @@ export default function SupplierOrderDetailPage() {
       <div className="flex gap-3 mb-6">
         <Button
           onClick={() => setNotifyDialogOpen(true)}
-          className="bg-blue-800 hover:bg-blue-900"
+          className="bg-slate-700 hover:bg-slate-800"
         >
           {t('supplierPortal.sendNotification')}
         </Button>
@@ -228,7 +228,7 @@ export default function SupplierOrderDetailPage() {
             <h3 className="text-lg font-semibold mb-3">{t('supplierPortal.notificationHistory')}</h3>
             <div className="space-y-3">
               {notifications.map((notif) => (
-                <div key={notif.id} className="border-l-2 border-blue-300 pl-4 py-2">
+                <div key={notif.id} className="border-l-2 border-slate-400 pl-4 py-2">
                   <div className="flex items-center gap-2 mb-1">
                     <Badge variant="outline" className="text-xs">
                       {t(`supplierPortal.notifyType.${notif.type}`)}
@@ -280,7 +280,7 @@ export default function SupplierOrderDetailPage() {
             <Button
               onClick={handleNotify}
               disabled={sending || !notifyMessage.trim()}
-              className="bg-blue-800 hover:bg-blue-900"
+              className="bg-slate-700 hover:bg-slate-800"
             >
               {sending ? t('common.processing') : t('common.submit')}
             </Button>

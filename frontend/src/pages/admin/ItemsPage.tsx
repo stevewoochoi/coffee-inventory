@@ -159,7 +159,7 @@ export default function ItemsPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-900">{t('items.title')}</h2>
-        <Button onClick={openCreate} className="bg-blue-800 hover:bg-blue-900">
+        <Button onClick={openCreate} className="bg-slate-700 hover:bg-slate-800">
           {t('items.addItem')}
         </Button>
       </div>
@@ -196,7 +196,7 @@ export default function ItemsPage() {
                     />
                   ) : (
                     <button
-                      className="w-10 h-10 rounded border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs hover:border-blue-400"
+                      className="w-10 h-10 rounded border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs hover:border-slate-400"
                       onClick={() => openImageDialog(item)}
                     >
                       +
@@ -258,7 +258,7 @@ export default function ItemsPage() {
                 />
               ) : (
                 <button
-                  className="w-12 h-12 rounded border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs hover:border-blue-400 flex-shrink-0"
+                  className="w-12 h-12 rounded border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs hover:border-slate-400 flex-shrink-0"
                   onClick={() => openImageDialog(item)}
                 >
                   +
@@ -464,7 +464,7 @@ export default function ItemsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
-            <Button onClick={handleSave} className="bg-blue-800 hover:bg-blue-900">{t('common.save')}</Button>
+            <Button onClick={handleSave} className="bg-slate-700 hover:bg-slate-800">{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

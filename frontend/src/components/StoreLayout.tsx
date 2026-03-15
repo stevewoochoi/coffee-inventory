@@ -17,7 +17,7 @@ export function StoreLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))] pb-16 md:pb-0">
+    <div className="fixed inset-0 flex flex-col bg-[hsl(var(--background))] md:relative md:min-h-screen">
       {/* Desktop header */}
       <header className={`${theme.headerBg} text-white shadow`}>
         <div className="px-4 py-3 flex items-center justify-between">
@@ -56,13 +56,13 @@ export function StoreLayout() {
       </header>
 
       {/* Main content */}
-      <main className="px-4 py-6">
+      <main className="flex-1 overflow-y-auto px-4 py-6 md:overflow-visible">
         <NotificationBanner />
         <Outlet />
       </main>
 
       {/* Mobile bottom navigation — 4 tabs */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom">
+      <nav className="md:hidden shrink-0 bg-white border-t border-gray-200 z-50 safe-area-bottom">
         <div className="flex">
           {storeBottomTabs.map((tab) => {
             const isActive = tab.to === '/store/menu'

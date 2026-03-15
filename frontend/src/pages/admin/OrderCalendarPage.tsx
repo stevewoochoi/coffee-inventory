@@ -86,7 +86,7 @@ export default function OrderCalendarPage() {
     const hasDispatched = orders.some(o => o.status === 'DISPATCHED');
     const hasDelivered = orders.some(o => o.status === 'DELIVERED');
     if (hasDelivered) return 'bg-green-100 border-green-300';
-    if (hasDispatched) return 'bg-blue-100 border-blue-300';
+    if (hasDispatched) return 'bg-slate-100 border-slate-400';
     if (hasConfirmed) return 'bg-amber-100 border-amber-300';
     return 'bg-gray-100 border-gray-300';
   };
@@ -135,12 +135,12 @@ export default function OrderCalendarPage() {
                   key={day}
                   onClick={() => setSelectedDate(dateStr)}
                   className={`h-16 sm:h-24 border rounded-lg p-1 cursor-pointer transition-all text-xs ${
-                    isSelected ? 'ring-2 ring-blue-800 border-blue-800' :
-                    isToday ? 'border-blue-400 bg-blue-50' :
+                    isSelected ? 'ring-2 ring-slate-700 border-slate-700' :
+                    isToday ? 'border-slate-400 bg-slate-50' :
                     dayData ? getStatusColor(dayData.orders) : 'border-gray-200 hover:border-gray-400'
                   }`}
                 >
-                  <div className={`font-medium ${isToday ? 'text-blue-800' : ''}`}>{day}</div>
+                  <div className={`font-medium ${isToday ? 'text-slate-700' : ''}`}>{day}</div>
                   {dayData && (
                     <div className="mt-0.5">
                       <span className="hidden sm:inline text-[10px] text-gray-600">

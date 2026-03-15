@@ -125,7 +125,7 @@ export default function CutoffPage() {
               <Button
                 onClick={handleCutoff}
                 disabled={!deliveryDate || loading}
-                className="bg-blue-800 hover:bg-blue-900"
+                className="bg-slate-700 hover:bg-slate-800"
               >
                 {t('cutoff.executeCutoff')}
               </Button>
@@ -273,7 +273,7 @@ export default function CutoffPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAdjustDialogOpen(false)}>{t('common.cancel')}</Button>
-            <Button onClick={handleAdjust} className="bg-blue-800 hover:bg-blue-900">{t('common.save')}</Button>
+            <Button onClick={handleAdjust} className="bg-slate-700 hover:bg-slate-800">{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

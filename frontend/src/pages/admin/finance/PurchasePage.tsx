@@ -71,7 +71,7 @@ export default function PurchasePage() {
                 ))}
               </select>
             </div>
-            <Button onClick={loadData} disabled={loading} className="bg-blue-800 hover:bg-blue-900">
+            <Button onClick={loadData} disabled={loading} className="bg-slate-700 hover:bg-slate-800">
               {t('common.search')}
             </Button>
           </div>

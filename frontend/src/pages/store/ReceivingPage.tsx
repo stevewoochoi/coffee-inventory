@@ -369,7 +369,7 @@ export default function ReceivingPage() {
               <div className="space-y-3">
                 <Button
                   onClick={() => setScannerOpen(true)}
-                  className="w-full h-14 text-lg bg-blue-800 hover:bg-blue-900"
+                  className="w-full h-14 text-lg bg-slate-700 hover:bg-slate-800"
                 >
                   {t('receiving.openScanner')}
                 </Button>
@@ -399,7 +399,7 @@ export default function ReceivingPage() {
                   <div className="flex items-end">
                     <Button
                       onClick={() => handleScan()}
-                      className="h-12 px-6 bg-blue-800 hover:bg-blue-900"
+                      className="h-12 px-6 bg-slate-700 hover:bg-slate-800"
                     >
                       {t('common.add')}
                     </Button>
@@ -466,7 +466,7 @@ export default function ReceivingPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">{t('receiving.title')}</h2>
-        <Button onClick={() => setCreateOpen(true)} className="h-12 px-6 bg-blue-800 hover:bg-blue-900">
+        <Button onClick={() => setCreateOpen(true)} className="h-12 px-6 bg-slate-700 hover:bg-slate-800">
           {t('receiving.newDelivery')}
         </Button>
       </div>
@@ -483,7 +483,7 @@ export default function ReceivingPage() {
           <h3 className="text-lg font-semibold mb-3">{t('receiving.fromOrder.title')}</h3>
           <div className="space-y-2">
             {pendingOrders.map((order) => (
-              <Card key={order.orderPlanId} className="border-blue-200 bg-blue-50 cursor-pointer" onClick={() => openOrderReceive(order)}>
+              <Card key={order.orderPlanId} className="border-slate-300 bg-slate-50 cursor-pointer" onClick={() => openOrderReceive(order)}>
                 <CardContent className="py-4">
                   <div className="flex justify-between items-center mb-2">
                     <div>
@@ -492,7 +492,7 @@ export default function ReceivingPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary">{t(`ordering.status.${order.status}`)}</Badge>
-                      <Button size="sm" className="bg-blue-800 hover:bg-blue-900">
+                      <Button size="sm" className="bg-slate-700 hover:bg-slate-800">
                         {t('receiving.fromOrder.receive')}
                       </Button>
                     </div>
@@ -571,7 +571,7 @@ export default function ReceivingPage() {
                 const statusBadge: Record<string, string> = {
                   COMPLETED: 'bg-green-100 text-green-800',
                   PENDING: 'bg-yellow-100 text-yellow-800',
-                  IN_PROGRESS: 'bg-blue-100 text-blue-800',
+                  IN_PROGRESS: 'bg-slate-100 text-slate-700',
                   CANCELLED: 'bg-red-100 text-red-800',
                 };
                 return (
@@ -621,7 +621,7 @@ export default function ReceivingPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>{t('common.cancel')}</Button>
-            <Button onClick={handleCreate} className="bg-blue-800 hover:bg-blue-900">{t('common.create')}</Button>
+            <Button onClick={handleCreate} className="bg-slate-700 hover:bg-slate-800">{t('common.create')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

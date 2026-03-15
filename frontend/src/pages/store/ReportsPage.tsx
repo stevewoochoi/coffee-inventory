@@ -119,7 +119,7 @@ export default function ReportsPage() {
             key={item.key}
             size="lg"
             variant={tab === item.key ? 'default' : 'outline'}
-            className={tab === item.key ? 'bg-blue-800 hover:bg-blue-900' : ''}
+            className={tab === item.key ? 'bg-slate-700 hover:bg-slate-800' : ''}
             onClick={() => setTab(item.key)}
           >
             {t(item.labelKey)}
@@ -163,7 +163,7 @@ export default function ReportsPage() {
         ) : null}
         <Button
           size="lg"
-          className="bg-blue-800 hover:bg-blue-900 text-base px-6 py-3"
+          className="bg-slate-700 hover:bg-slate-800 text-base px-6 py-3"
           onClick={loadReport}
           disabled={loading}
         >
@@ -184,7 +184,7 @@ export default function ReportsPage() {
       {error && (
         <div className="text-center py-12 bg-white rounded-lg border">
           <p className="text-gray-500 mb-4">보고서를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.</p>
-          <Button onClick={loadReport} className="bg-blue-800 hover:bg-blue-900">
+          <Button onClick={loadReport} className="bg-slate-700 hover:bg-slate-800">
             {t('common.retry') ?? '다시 시도'}
           </Button>
         </div>

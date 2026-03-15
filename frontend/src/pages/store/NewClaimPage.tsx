@@ -161,12 +161,12 @@ export default function NewClaimPage() {
           <div key={s} className="flex items-center gap-2">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                step >= s ? 'bg-blue-800 text-white' : 'bg-gray-200 text-gray-500'
+                step >= s ? 'bg-slate-700 text-white' : 'bg-gray-200 text-gray-500'
               }`}
             >
               {s}
             </div>
-            {s < 3 && <div className={`w-8 h-0.5 ${step > s ? 'bg-blue-800' : 'bg-gray-200'}`} />}
+            {s < 3 && <div className={`w-8 h-0.5 ${step > s ? 'bg-slate-700' : 'bg-gray-200'}`} />}
           </div>
         ))}
         <span className="text-sm text-gray-500 ml-2">
@@ -204,7 +204,7 @@ export default function NewClaimPage() {
                         <span className="font-bold">#{order.id}</span>
                         <span className="text-gray-500 ml-2">{order.supplierName}</span>
                       </div>
-                      <Badge className="bg-blue-100 text-blue-800">
+                      <Badge className="bg-slate-100 text-slate-700">
                         {t(`ordering.status.${order.status}`)}
                       </Badge>
                     </div>
@@ -235,7 +235,7 @@ export default function NewClaimPage() {
                     onClick={() => setClaimType(type)}
                     className={`p-3 rounded-lg text-sm font-medium border-2 transition-colors min-h-[48px] ${
                       claimType === type
-                        ? 'border-blue-800 bg-blue-50 text-blue-800'
+                        ? 'border-slate-700 bg-slate-50 text-slate-700'
                         : 'border-gray-200 text-gray-600 hover:border-gray-300'
                     }`}
                   >
@@ -319,7 +319,7 @@ export default function NewClaimPage() {
               {t('common.back')}
             </Button>
             <Button
-              className="flex-1 bg-blue-800 hover:bg-blue-900 min-h-[48px]"
+              className="flex-1 bg-slate-700 hover:bg-slate-800 min-h-[48px]"
               onClick={() => {
                 if (!claimType) {
                   toast.error(t('claims.new.selectType'));
@@ -408,9 +408,9 @@ export default function NewClaimPage() {
           </Card>
 
           {/* Summary */}
-          <Card className="border-blue-200 bg-blue-50">
+          <Card className="border-slate-300 bg-slate-50">
             <CardContent className="py-4">
-              <h3 className="font-semibold text-blue-800 mb-2">{t('claims.new.summary')}</h3>
+              <h3 className="font-semibold text-slate-700 mb-2">{t('claims.new.summary')}</h3>
               <div className="space-y-1 text-sm">
                 <p><span className="text-gray-500">{t('claims.new.claimType')}:</span> {t(`claims.type.${claimType}`)}</p>
                 {selectedOrderId && <p><span className="text-gray-500">{t('claims.new.relatedOrder')}:</span> #{selectedOrderId}</p>}
@@ -429,7 +429,7 @@ export default function NewClaimPage() {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
-                  className="flex-1 bg-blue-800 hover:bg-blue-900 min-h-[48px]"
+                  className="flex-1 bg-slate-700 hover:bg-slate-800 min-h-[48px]"
                   disabled={submitting}
                 >
                   {submitting ? t('common.loading') : t('claims.new.submit')}

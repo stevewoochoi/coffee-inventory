@@ -20,7 +20,7 @@ export default function SwipeableCard({
   leftLabel = 'Delete',
   rightLabel = 'Edit',
   leftColor = 'bg-red-500',
-  rightColor = 'bg-blue-500',
+  rightColor = 'bg-slate-500',
   className = '',
 }: SwipeableCardProps) {
   const startXRef = useRef(0);

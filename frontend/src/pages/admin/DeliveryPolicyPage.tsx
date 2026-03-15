@@ -78,7 +78,7 @@ export default function DeliveryPolicyPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">{t('nav.deliveryPolicy')}</h2>
         <Button
-          className="bg-blue-800 hover:bg-blue-900"
+          className="bg-slate-700 hover:bg-slate-800"
           onClick={() => { setForm({ holidayDate: '', description: '' }); setDialogOpen(true); }}
         >
           + {t('deliveryPolicy.addHoliday')}
@@ -188,7 +188,7 @@ export default function DeliveryPolicyPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
-            <Button className="bg-blue-800 hover:bg-blue-900" onClick={handleCreate} disabled={!form.holidayDate}>
+            <Button className="bg-slate-700 hover:bg-slate-800" onClick={handleCreate} disabled={!form.holidayDate}>
               {t('common.save')}
             </Button>
           </DialogFooter>

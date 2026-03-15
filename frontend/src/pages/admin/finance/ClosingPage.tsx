@@ -81,7 +81,7 @@ export default function ClosingPage() {
         <h2 className="text-xl font-bold text-gray-900">{t('finance.closingTitle')}</h2>
         <Button
           onClick={() => setExecuteDialogOpen(true)}
-          className="bg-blue-800 hover:bg-blue-900"
+          className="bg-slate-700 hover:bg-slate-800"
         >
           {t('finance.executeClosing')}
         </Button>
@@ -197,7 +197,7 @@ export default function ClosingPage() {
             <Button
               onClick={handleExecuteClosing}
               disabled={executing}
-              className="bg-blue-800 hover:bg-blue-900"
+              className="bg-slate-700 hover:bg-slate-800"
             >
               {executing ? t('common.processing') : t('common.confirm')}
             </Button>

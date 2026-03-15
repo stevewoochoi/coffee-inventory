@@ -61,7 +61,7 @@ export default function OrderTimeline({ status, createdAt, confirmedAt, dispatch
                 step.completed
                   ? 'bg-green-500 border-green-500 text-white'
                   : step.active
-                    ? 'bg-blue-500 border-blue-500 text-white'
+                    ? 'bg-slate-500 border-slate-500 text-white'
                     : 'bg-gray-100 border-gray-300 text-gray-400'
               }`}
             >

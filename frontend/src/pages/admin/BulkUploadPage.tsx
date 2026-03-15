@@ -138,7 +138,7 @@ export default function BulkUploadPage() {
                   value={type}
                   checked={uploadType === type}
                   onChange={() => setUploadType(type)}
-                  className="w-4 h-4 text-blue-800"
+                  className="w-4 h-4 text-slate-700"
                 />
                 <span className="text-sm">{t(`bulkUpload.type.${type}`)}</span>
               </label>
@@ -161,7 +161,7 @@ export default function BulkUploadPage() {
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
             className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-              isDragging ? 'border-blue-800 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
+              isDragging ? 'border-slate-700 bg-slate-50' : 'border-gray-300 hover:border-slate-400'
             }`}
           >
             <input
@@ -185,7 +185,7 @@ export default function BulkUploadPage() {
               <Button
                 onClick={handleUpload}
                 disabled={uploading}
-                className="bg-blue-800 hover:bg-blue-900"
+                className="bg-slate-700 hover:bg-slate-800"
               >
                 {uploading ? t('common.processing') : t('bulkUpload.upload')}
               </Button>
