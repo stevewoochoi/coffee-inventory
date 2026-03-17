@@ -21,6 +21,15 @@ public class ItemDto {
         @Size(max = 100)
         private String name;
 
+        @Size(max = 200)
+        private String nameEn;
+
+        @Size(max = 200)
+        private String nameJa;
+
+        @Size(max = 200)
+        private String nameKo;
+
         @Size(max = 50)
         private String category;
 
@@ -53,6 +62,9 @@ public class ItemDto {
         private Long id;
         private Long brandId;
         private String name;
+        private String nameEn;
+        private String nameJa;
+        private String nameKo;
         private String category;
         private Long categoryId;
         private String categoryName;

@@ -12,6 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
 import ImageUpload from '@/components/ImageUpload';
+import { getLocalizedName } from '@/lib/utils';
 
 export default function MasterItemsPage() {
   const { t } = useTranslation();
@@ -57,7 +58,7 @@ export default function MasterItemsPage() {
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ name: '', baseUnit: 'g', category: '', lossRate: 0 });
+    setForm({ name: '', baseUnit: 'g', category: '', lossRate: 0, nameEn: '', nameJa: '', nameKo: '' });
     setDialogOpen(true);
   };
 
@@ -65,6 +66,9 @@ export default function MasterItemsPage() {
     setEditItem(item);
     setForm({
       name: item.name,
+      nameEn: item.nameEn ?? '',
+      nameJa: item.nameJa ?? '',
+      nameKo: item.nameKo ?? '',
       baseUnit: item.baseUnit,
       category: item.category || '',
       lossRate: item.lossRate,
@@ -133,9 +137,14 @@ export default function MasterItemsPage() {
     } catch { toast.error('Failed to remove item'); }
   };
 
-  const filteredItems = items.filter(item =>
-    !searchKeyword || item.name.toLowerCase().includes(searchKeyword.toLowerCase())
-  );
+  const filteredItems = items.filter(item => {
+    if (!searchKeyword) return true;
+    const kw = searchKeyword.toLowerCase();
+    return item.name.toLowerCase().includes(kw)
+      || (item.nameEn && item.nameEn.toLowerCase().includes(kw))
+      || (item.nameJa && item.nameJa.toLowerCase().includes(kw))
+      || (item.nameKo && item.nameKo.toLowerCase().includes(kw));
+  });
 
   const currentBrandItems = selectedBrandId ? (brandItemsMap[selectedBrandId] || []) : [];
   const assignedItemIds = new Set(currentBrandItems.map(bi => bi.itemId));
@@ -182,7 +191,7 @@ export default function MasterItemsPage() {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm truncate">{item.name}</div>
+                  <div className="font-medium text-sm truncate">{getLocalizedName(item.name, item.nameEn, item.nameJa, item.nameKo)}</div>
                   <div className="text-xs text-gray-500">
                     {item.baseUnit} {item.category && `· ${item.category}`}
                     {item.itemCode && ` · ${item.itemCode}`}
@@ -267,6 +276,20 @@ export default function MasterItemsPage() {
             <div className="space-y-2">
               <Label>{t('common.name')}</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs text-gray-500">EN English Name</Label>
+                <Input value={form.nameEn || ''} onChange={(e) => setForm({ ...form, nameEn: e.target.value })} placeholder="English" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-gray-500">JA 日本語名</Label>
+                <Input value={form.nameJa || ''} onChange={(e) => setForm({ ...form, nameJa: e.target.value })} placeholder="日本語" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-gray-500">KO 한국어명</Label>
+                <Input value={form.nameKo || ''} onChange={(e) => setForm({ ...form, nameKo: e.target.value })} placeholder="한국어" />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -360,7 +383,7 @@ function BrandItemRow({ brandItem, onUnassign, onUpdate }: {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm truncate">{brandItem.itemName}</div>
+          <div className="font-medium text-sm truncate">{getLocalizedName(brandItem.itemName, brandItem.itemNameEn, brandItem.itemNameJa, brandItem.itemNameKo)}</div>
           <div className="text-xs text-gray-500">
             {brandItem.baseUnit}
             {brandItem.categoryName && ` · ${brandItem.categoryName}`}

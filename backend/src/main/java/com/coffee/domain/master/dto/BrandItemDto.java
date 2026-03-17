@@ -46,6 +46,9 @@ public class BrandItemDto {
         private String brandName;
         private Long itemId;
         private String itemName;
+        private String itemNameEn;
+        private String itemNameJa;
+        private String itemNameKo;
         private String itemCode;
         private String baseUnit;
         private String category;

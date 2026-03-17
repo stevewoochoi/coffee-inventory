@@ -25,6 +25,15 @@ public class Item {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(name = "name_en", length = 200)
+    private String nameEn;
+
+    @Column(name = "name_ja", length = 200)
+    private String nameJa;
+
+    @Column(name = "name_ko", length = 200)
+    private String nameKo;
+
     @Column(length = 50)
     private String category;
 

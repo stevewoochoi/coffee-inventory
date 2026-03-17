@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { masterApi, type BrandItem, type Supplier } from '@/api/master';
+import { getLocalizedName } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -68,9 +69,12 @@ export default function BrandItemsPage() {
     } catch { toast.error(t('items.saveFailed')); }
   };
 
-  const filtered = brandItems.filter(bi =>
-    !searchKeyword || (bi.itemName || '').toLowerCase().includes(searchKeyword.toLowerCase())
-  );
+  const filtered = brandItems.filter(bi => {
+    if (!searchKeyword) return true;
+    const kw = searchKeyword.toLowerCase();
+    const displayName = getLocalizedName(bi.itemName, bi.itemNameEn, bi.itemNameJa, bi.itemNameKo);
+    return displayName.toLowerCase().includes(kw) || (bi.itemName || '').toLowerCase().includes(kw);
+  });
 
   return (
     <div>
@@ -116,7 +120,7 @@ export default function BrandItemsPage() {
                     </div>
                   )}
                 </TableCell>
-                <TableCell className="font-medium">{bi.itemName}</TableCell>
+                <TableCell className="font-medium">{getLocalizedName(bi.itemName, bi.itemNameEn, bi.itemNameJa, bi.itemNameKo)}</TableCell>
                 <TableCell>{bi.categoryName || '-'}</TableCell>
                 <TableCell>{bi.baseUnit}</TableCell>
                 <TableCell>
@@ -168,7 +172,7 @@ export default function BrandItemsPage() {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <div className="font-semibold truncate">{bi.itemName}</div>
+                <div className="font-semibold truncate">{getLocalizedName(bi.itemName, bi.itemNameEn, bi.itemNameJa, bi.itemNameKo)}</div>
                 <div className="text-sm text-gray-500 mt-1">
                   {bi.categoryName || '-'} · {bi.baseUnit}
                   {bi.price != null && ` · ¥${bi.price.toLocaleString()}`}
@@ -192,7 +196,7 @@ export default function BrandItemsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingItem?.itemName} - {t('items.editTitle')}</DialogTitle>
+            <DialogTitle>{editingItem ? getLocalizedName(editingItem.itemName, editingItem.itemNameEn, editingItem.itemNameJa, editingItem.itemNameKo) : ''} - {t('items.editTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

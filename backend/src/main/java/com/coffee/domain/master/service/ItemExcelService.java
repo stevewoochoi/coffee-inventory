@@ -27,19 +27,22 @@ public class ItemExcelService {
     private final BrandRepository brandRepository;
 
     private static final String[] HEADERS = {
-            "상품명*", "상품코드", "카테고리", "기본단위*", "규격",
+            "상품명*", "English Name", "日本語名", "한국어명",
+            "상품코드", "카테고리", "기본단위*", "규격",
             "단가", "부가세포함(Y/N)", "로스율(%)", "최소재고수량",
             "공급업체ID", "설명"
     };
 
     private static final String[] SAMPLE_DATA_1 = {
-            "에티오피아 예가체프", "ETH-YRG-001", "원두", "g", "1kg",
+            "에티오피아 예가체프", "Ethiopia Yirgacheffe", "エチオピア イルガチェフェ", "에티오피아 예가체프",
+            "ETH-YRG-001", "원두", "g", "1kg",
             "25000", "Y", "2.0", "5000",
             "", "싱글오리진 스페셜티"
     };
 
     private static final String[] SAMPLE_DATA_2 = {
-            "우유 1L", "MILK-001", "유제품", "EA", "1L 팩",
+            "우유 1L", "Milk 1L", "牛乳 1L", "우유 1L",
+            "MILK-001", "유제품", "EA", "1L 팩",
             "2500", "Y", "5.0", "20",
             "", "냉장 보관"
     };
@@ -126,28 +129,35 @@ public class ItemExcelService {
             throw new IllegalArgumentException("행 " + rowNum + ": 상품명은 필수입니다");
         }
 
-        String baseUnit = getStringValue(row, 3);
+        String nameEn = getStringValue(row, 1);
+        String nameJa = getStringValue(row, 2);
+        String nameKo = getStringValue(row, 3);
+
+        String baseUnit = getStringValue(row, 6);
         if (baseUnit == null || baseUnit.isBlank()) {
             throw new IllegalArgumentException("행 " + rowNum + ": 기본단위는 필수입니다");
         }
 
-        String itemCode = getStringValue(row, 1);
-        String category = getStringValue(row, 2);
-        String spec = getStringValue(row, 4);
-        BigDecimal price = getNumericValue(row, 5);
-        String vatStr = getStringValue(row, 6);
+        String itemCode = getStringValue(row, 4);
+        String category = getStringValue(row, 5);
+        String spec = getStringValue(row, 7);
+        BigDecimal price = getNumericValue(row, 8);
+        String vatStr = getStringValue(row, 9);
         boolean vatInclusive = vatStr == null || vatStr.isBlank() || vatStr.equalsIgnoreCase("Y");
-        BigDecimal lossRate = getNumericValue(row, 7);
+        BigDecimal lossRate = getNumericValue(row, 10);
         if (lossRate != null) {
             lossRate = lossRate.divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
         }
-        BigDecimal minStockQty = getNumericValue(row, 8);
-        Long supplierId = getLongValue(row, 9);
-        String description = getStringValue(row, 10);
+        BigDecimal minStockQty = getNumericValue(row, 11);
+        Long supplierId = getLongValue(row, 12);
+        String description = getStringValue(row, 13);
 
         return Item.builder()
                 .brandId(brandId)
                 .name(name)
+                .nameEn(nameEn)
+                .nameJa(nameJa)
+                .nameKo(nameKo)
                 .itemCode(itemCode)
                 .category(category)
                 .baseUnit(baseUnit)
@@ -217,6 +227,9 @@ public class ItemExcelService {
                 .id(item.getId())
                 .brandId(item.getBrandId())
                 .name(item.getName())
+                .nameEn(item.getNameEn())
+                .nameJa(item.getNameJa())
+                .nameKo(item.getNameKo())
                 .category(item.getCategory())
                 .baseUnit(item.getBaseUnit())
                 .lossRate(item.getLossRate())

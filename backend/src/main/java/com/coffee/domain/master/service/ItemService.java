@@ -46,6 +46,9 @@ public class ItemService {
         Item item = Item.builder()
                 .brandId(request.getBrandId())
                 .name(request.getName())
+                .nameEn(request.getNameEn())
+                .nameJa(request.getNameJa())
+                .nameKo(request.getNameKo())
                 .category(request.getCategory())
                 .categoryId(request.getCategoryId())
                 .baseUnit(request.getBaseUnit())
@@ -64,6 +67,9 @@ public class ItemService {
     public ItemDto.Response update(Long id, ItemDto.Request request) {
         Item item = getActiveItemOrThrow(id);
         item.setName(request.getName());
+        item.setNameEn(request.getNameEn());
+        item.setNameJa(request.getNameJa());
+        item.setNameKo(request.getNameKo());
         item.setCategory(request.getCategory());
         item.setCategoryId(request.getCategoryId());
         item.setBaseUnit(request.getBaseUnit());
@@ -125,6 +131,9 @@ public class ItemService {
                 .id(item.getId())
                 .brandId(item.getBrandId())
                 .name(item.getName())
+                .nameEn(item.getNameEn())
+                .nameJa(item.getNameJa())
+                .nameKo(item.getNameKo())
                 .category(item.getCategory())
                 .categoryId(item.getCategoryId())
                 .categoryName(categoryName)

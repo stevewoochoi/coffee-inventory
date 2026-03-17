@@ -6,6 +6,9 @@ export interface Item {
   id: number;
   brandId: number | null;
   name: string;
+  nameEn: string | null;
+  nameJa: string | null;
+  nameKo: string | null;
   category: string | null;
   baseUnit: string;
   lossRate: number;
@@ -28,6 +31,9 @@ export interface BrandItem {
   brandName: string | null;
   itemId: number;
   itemName: string | null;
+  itemNameEn: string | null;
+  itemNameJa: string | null;
+  itemNameKo: string | null;
   itemCode: string | null;
   baseUnit: string | null;
   category: string | null;
@@ -69,6 +75,9 @@ export interface BrandItemUpdateRequest {
 export interface ItemRequest {
   brandId?: number;
   name: string;
+  nameEn?: string;
+  nameJa?: string;
+  nameKo?: string;
   category?: string;
   categoryId?: number;
   baseUnit: string;
