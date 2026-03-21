@@ -91,6 +91,54 @@ public class Item {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    // ── Operational fields (V6 addition) ──
+    @Column(name = "stock_unit", length = 20)
+    @Builder.Default
+    private String stockUnit = "ea";
+
+    @Column(name = "order_unit", length = 20)
+    @Builder.Default
+    private String orderUnit = "ea";
+
+    @Column(name = "conversion_qty", precision = 12, scale = 3)
+    @Builder.Default
+    private BigDecimal conversionQty = BigDecimal.ONE;
+
+    @Column(name = "min_order_qty")
+    @Builder.Default
+    private Integer minOrderQty = 1;
+
+    @Column(name = "par_level", precision = 12, scale = 3)
+    @Builder.Default
+    private BigDecimal parLevel = BigDecimal.ZERO;
+
+    @Column(name = "count_cycle", length = 20)
+    @Builder.Default
+    private String countCycle = "WEEKLY";
+
+    @Column(name = "storage_zone", length = 20)
+    @Builder.Default
+    private String storageZone = "AMBIENT";
+
+    @Column(name = "item_grade", length = 5)
+    @Builder.Default
+    private String itemGrade = "B";
+
+    @Column(name = "substitute_item_id")
+    private Long substituteItemId;
+
+    @Column(name = "lot_tracking", length = 20)
+    @Builder.Default
+    private String lotTracking = "NONE";
+
+    @Column(name = "daily_usage_avg", precision = 12, scale = 3)
+    @Builder.Default
+    private BigDecimal dailyUsageAvg = BigDecimal.ZERO;
+
+    @Column(name = "is_pos_tracked")
+    @Builder.Default
+    private Boolean isPosTracked = false;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
