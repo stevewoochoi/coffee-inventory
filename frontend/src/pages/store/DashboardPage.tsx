@@ -98,8 +98,6 @@ export default function StoreDashboardPage() {
   const greeting = today.getHours() < 12 ? t('dashboard.goodMorning') : today.getHours() < 18 ? t('dashboard.goodAfternoon') : t('dashboard.goodEvening');
 
   // Safe defaults for new fields (backward compatible with older API responses)
-  const pendingCartCount = data.pendingCartCount ?? 0;
-  const pendingClaimCount = data.pendingClaimCount ?? 0;
   const recentOrders = data.recentOrders ?? [];
 
   return (
