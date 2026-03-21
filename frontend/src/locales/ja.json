@@ -279,7 +279,12 @@
     "noRecords": "廃棄記録なし",
     "loadFailed": "廃棄記録の読み込みに失敗しました",
     "recorded": "廃棄が記録されました",
-    "recordFailed": "廃棄の記録に失敗しました"
+    "recordFailed": "廃棄の記録に失敗しました",
+    "reasonExpiry": "賞味期限",
+    "reasonDamage": "破損/変質",
+    "reasonCookingError": "調理ミス",
+    "reasonQuality": "品質問題",
+    "reasonOther": "その他"
   },
   "ordering": {
     "title": "発注計画",
