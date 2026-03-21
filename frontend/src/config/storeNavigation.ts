@@ -1,7 +1,7 @@
 import {
   Home, ShoppingCart, ClipboardList, Package,
   Warehouse, Timer, Trash2, BarChart,
-  Menu, FileText, CalendarDays, type LucideIcon,
+  Menu, FileText, CalendarDays, RefreshCw, type LucideIcon,
 } from 'lucide-react';
 
 export interface StoreNavItem {
@@ -42,6 +42,7 @@ export const storeNavGroups: StoreNavGroup[] = [
       { key: 'nav.expiry', to: '/store/expiry', icon: Timer },
       { key: 'nav.count', to: '/store/physical-count', icon: ClipboardList },
       { key: 'nav.dailyCount', to: '/store/inventory/daily', icon: CalendarDays },
+      { key: 'nav.cycleCount', to: '/store/cycle-count', icon: RefreshCw },
       { key: 'nav.waste', to: '/store/waste', icon: Trash2 },
     ],
   },
@@ -80,6 +81,7 @@ export const storeMenuGroups: { key: string; icon: LucideIcon; items: StoreNavIt
       { key: 'nav.expiry', to: '/store/expiry', icon: Timer },
       { key: 'nav.count', to: '/store/physical-count', icon: ClipboardList },
       { key: 'nav.dailyCount', to: '/store/inventory/daily', icon: CalendarDays },
+      { key: 'nav.cycleCount', to: '/store/cycle-count', icon: RefreshCw },
       { key: 'nav.waste', to: '/store/waste', icon: Trash2 },
     ],
   },

@@ -169,7 +169,16 @@
     "viewAll": "View All",
     "items": "items",
     "delivery": "Delivery",
-    "quickClaims": "Claims"
+    "quickClaims": "Claims",
+    "urgentOrder": "Urgent Orders",
+    "belowSafety": "Below safety stock",
+    "pendingReceive": "Pending Receive",
+    "todayDelivery": "Expected today",
+    "expiryAlert": "Expiry Soon",
+    "within3days": "Within 3 days",
+    "cycleCountTodo": "Count Required",
+    "gradeAItems": "Grade A items",
+    "startCount": "Start 5-min count"
   },
   "inventory": {
     "title": "Current Inventory",
@@ -270,7 +279,12 @@
     "noRecords": "No waste records",
     "loadFailed": "Failed to load waste records",
     "recorded": "Waste recorded",
-    "recordFailed": "Failed to record waste"
+    "recordFailed": "Failed to record waste",
+    "reasonExpiry": "Expiry",
+    "reasonDamage": "Damage",
+    "reasonCookingError": "Cooking Error",
+    "reasonQuality": "Quality Issue",
+    "reasonOther": "Other"
   },
   "ordering": {
     "title": "Order Plans",
@@ -1061,5 +1075,54 @@
       "STOCK_ISSUE": "Stock Issue",
       "GENERAL": "General"
     }
+  },
+  "operational": {
+    "title": "Operational Settings",
+    "itemGrade": "Management Grade",
+    "gradeA": "A - Daily",
+    "gradeB": "B - 2x/week",
+    "gradeC": "C - Weekly",
+    "storageZone": "Storage Zone",
+    "refrigerated": "Refrigerated",
+    "frozen": "Frozen",
+    "ambient": "Ambient",
+    "supplies": "Supplies",
+    "countCycle": "Count Cycle",
+    "daily": "Daily",
+    "twiceWeekly": "2x/week",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "stockUnit": "Stock Unit",
+    "orderUnit": "Order Unit",
+    "conversionQty": "Conversion Qty",
+    "minOrderQty": "Min Order Qty",
+    "parLevel": "Target Stock",
+    "lotTracking": "Lot Tracking",
+    "lotFull": "Full (Lot + Expiry)",
+    "lotExpOnly": "Expiry Only",
+    "lotNone": "None",
+    "isPosTracked": "POS Auto-deduct",
+    "saved": "Operational settings saved"
+  },
+  "cycleCount": {
+    "title": "Cycle Count",
+    "startSession": "Start Count",
+    "gradeFilter": "Grade Filter",
+    "zoneFilter": "Zone Filter",
+    "all": "All",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "systemQty": "System Qty",
+    "countedQty": "Counted Qty",
+    "variance": "Variance",
+    "completeSession": "Complete Count",
+    "applyAdjustments": "Apply Adjustments",
+    "recentHistory": "Recent History",
+    "continueSession": "Continue",
+    "guideA": "~5 min • Daily recommended • Beans, milk, cups",
+    "guideB": "~15 min • 2x/week • Powder, syrup, purée",
+    "guideC": "~10 min • Weekly • Napkins, bags, gloves",
+    "itemsNotCounted": "items not counted",
+    "confirmComplete": "Complete count?"
   }
 }

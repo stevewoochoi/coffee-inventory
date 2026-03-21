@@ -104,8 +104,29 @@ export default function WastePage() {
             </div>
             <div className="space-y-2">
               <Label>{t('waste.reason')}</Label>
-              <Input value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                     placeholder={t('waste.reasonPlaceholder')} className="h-12" />
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { key: 'EXPIRY', icon: '📅', label: t('waste.reasonExpiry', { defaultValue: '유통기한' }) },
+                  { key: 'DAMAGE', icon: '💥', label: t('waste.reasonDamage', { defaultValue: '파손/변질' }) },
+                  { key: 'COOKING_ERROR', icon: '☕', label: t('waste.reasonCookingError', { defaultValue: '제조실수' }) },
+                  { key: 'QUALITY', icon: '❌', label: t('waste.reasonQuality', { defaultValue: '품질문제' }) },
+                  { key: 'OTHER', icon: '📝', label: t('waste.reasonOther', { defaultValue: '기타' }) },
+                ].map((chip) => (
+                  <button
+                    key={chip.key}
+                    type="button"
+                    onClick={() => setForm({ ...form, reason: chip.key })}
+                    className={`flex items-center justify-center gap-1.5 px-3 py-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                      form.reason === chip.key
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                    }`}
+                  >
+                    <span className="text-base">{chip.icon}</span>
+                    <span>{chip.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <DialogFooter>

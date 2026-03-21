@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
-import { masterApi, type Item, type ItemRequest, type Supplier, type DeliveryScheduleRequest, type BatchUploadResult } from '@/api/master';
+import { masterApi, updateItemOperational, type Item, type ItemRequest, type ItemOperationalRequest, type Supplier, type DeliveryScheduleRequest, type BatchUploadResult } from '@/api/master';
 import { categoryApi, type CategoryTreeNode } from '@/api/category';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,6 +40,8 @@ export default function ItemsPage() {
   const [uploadResult, setUploadResult] = useState<BatchUploadResult | null>(null);
   const [uploadResultOpen, setUploadResultOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState<'basic' | 'operational'>('basic');
+  const [opForm, setOpForm] = useState<ItemOperationalRequest>({});
 
   const loadSuppliers = useCallback(async () => {
     try {
@@ -75,6 +77,8 @@ export default function ItemsPage() {
     setSelL3('');
     setDeliverySchedule(emptySchedule);
     setHasExistingSchedule(false);
+    setActiveTab('basic');
+    setOpForm({});
     setDialogOpen(true);
   };
 
@@ -94,6 +98,19 @@ export default function ItemsPage() {
     setSelL1('');
     setSelL2('');
     setSelL3('');
+    setActiveTab('basic');
+    setOpForm({
+      stockUnit: item.stockUnit || '',
+      orderUnit: item.orderUnit || '',
+      conversionQty: item.conversionQty ?? undefined,
+      minOrderQty: item.minOrderQty ?? undefined,
+      parLevel: item.parLevel ?? undefined,
+      countCycle: (item.countCycle as ItemOperationalRequest['countCycle']) ?? undefined,
+      storageZone: (item.storageZone as ItemOperationalRequest['storageZone']) ?? undefined,
+      itemGrade: (item.itemGrade as ItemOperationalRequest['itemGrade']) ?? undefined,
+      lotTracking: (item.lotTracking as ItemOperationalRequest['lotTracking']) ?? undefined,
+      isPosTracked: item.isPosTracked ?? false,
+    });
     // Load delivery schedule
     try {
       const res = await masterApi.getDeliverySchedule(item.id);
@@ -144,6 +161,15 @@ export default function ItemsPage() {
         } else {
           await masterApi.createDeliverySchedule(itemId, deliverySchedule);
         }
+      }
+      // Save operational fields
+      const hasOpFields = opForm.itemGrade || opForm.storageZone || opForm.countCycle ||
+        opForm.stockUnit || opForm.orderUnit || opForm.lotTracking ||
+        opForm.conversionQty || opForm.minOrderQty || opForm.parLevel || opForm.isPosTracked;
+      if (hasOpFields) {
+        try {
+          await updateItemOperational(itemId, opForm);
+        } catch { /* operational save is best-effort */ }
       }
       toast.success(editItem ? t('items.updated') : t('items.created'));
       setDialogOpen(false);
@@ -366,7 +392,26 @@ export default function ItemsPage() {
           <DialogHeader>
             <DialogTitle>{editItem ? t('items.editTitle') : t('items.addTitle')}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          {/* Tab switcher */}
+          {editItem && (
+            <div className="flex border-b mb-2">
+              <button
+                className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'basic' ? 'border-slate-700 text-slate-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('basic')}
+              >
+                {t('items.basicInfo', { defaultValue: '기본 정보' })}
+              </button>
+              <button
+                className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'operational' ? 'border-slate-700 text-slate-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                onClick={() => setActiveTab('operational')}
+              >
+                {t('operational.title')}
+              </button>
+            </div>
+          )}
+
+          {/* Basic tab */}
+          <div className={`space-y-4 ${activeTab !== 'basic' && editItem ? 'hidden' : ''}`}>
             <div className="space-y-2">
               <Label>{t('common.name')}</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -513,6 +558,126 @@ export default function ItemsPage() {
               </div>
             </div>
           </div>
+
+          {/* Operational tab */}
+          {editItem && (
+            <div className={`space-y-4 ${activeTab !== 'operational' ? 'hidden' : ''}`}>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('operational.itemGrade')}</Label>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={opForm.itemGrade ?? ''}
+                    onChange={(e) => setOpForm({ ...opForm, itemGrade: (e.target.value || undefined) as ItemOperationalRequest['itemGrade'] })}
+                  >
+                    <option value="">-</option>
+                    <option value="A">{t('operational.gradeA')}</option>
+                    <option value="B">{t('operational.gradeB')}</option>
+                    <option value="C">{t('operational.gradeC')}</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('operational.storageZone')}</Label>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={opForm.storageZone ?? ''}
+                    onChange={(e) => setOpForm({ ...opForm, storageZone: (e.target.value || undefined) as ItemOperationalRequest['storageZone'] })}
+                  >
+                    <option value="">-</option>
+                    <option value="REFRIGERATED">{t('operational.refrigerated')}</option>
+                    <option value="FROZEN">{t('operational.frozen')}</option>
+                    <option value="AMBIENT">{t('operational.ambient')}</option>
+                    <option value="SUPPLIES">{t('operational.supplies')}</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('operational.countCycle')}</Label>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={opForm.countCycle ?? ''}
+                    onChange={(e) => setOpForm({ ...opForm, countCycle: (e.target.value || undefined) as ItemOperationalRequest['countCycle'] })}
+                  >
+                    <option value="">-</option>
+                    <option value="DAILY">{t('operational.daily')}</option>
+                    <option value="TWICE_WEEKLY">{t('operational.twiceWeekly')}</option>
+                    <option value="WEEKLY">{t('operational.weekly')}</option>
+                    <option value="MONTHLY">{t('operational.monthly')}</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('operational.stockUnit')}</Label>
+                  <Input
+                    value={opForm.stockUnit ?? ''}
+                    onChange={(e) => setOpForm({ ...opForm, stockUnit: e.target.value })}
+                    placeholder="e.g. g, ml, ea"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('operational.orderUnit')}</Label>
+                  <Input
+                    value={opForm.orderUnit ?? ''}
+                    onChange={(e) => setOpForm({ ...opForm, orderUnit: e.target.value })}
+                    placeholder="e.g. box, bag"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('operational.conversionQty')}</Label>
+                  <Input
+                    type="number"
+                    value={opForm.conversionQty ?? ''}
+                    onChange={(e) => setOpForm({ ...opForm, conversionQty: e.target.value ? Number(e.target.value) : undefined })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('operational.minOrderQty')}</Label>
+                  <Input
+                    type="number"
+                    value={opForm.minOrderQty ?? ''}
+                    onChange={(e) => setOpForm({ ...opForm, minOrderQty: e.target.value ? Number(e.target.value) : undefined })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('operational.parLevel')}</Label>
+                  <Input
+                    type="number"
+                    value={opForm.parLevel ?? ''}
+                    onChange={(e) => setOpForm({ ...opForm, parLevel: e.target.value ? Number(e.target.value) : undefined })}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t('operational.lotTracking')}</Label>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={opForm.lotTracking ?? ''}
+                    onChange={(e) => setOpForm({ ...opForm, lotTracking: (e.target.value || undefined) as ItemOperationalRequest['lotTracking'] })}
+                  >
+                    <option value="">-</option>
+                    <option value="FULL">{t('operational.lotFull')}</option>
+                    <option value="EXP_ONLY">{t('operational.lotExpOnly')}</option>
+                    <option value="NONE">{t('operational.lotNone')}</option>
+                  </select>
+                </div>
+                <div className="space-y-2 flex items-end">
+                  <label className="flex items-center gap-2 h-10">
+                    <input
+                      type="checkbox"
+                      checked={opForm.isPosTracked ?? false}
+                      onChange={(e) => setOpForm({ ...opForm, isPosTracked: e.target.checked })}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <span className="text-sm">{t('operational.isPosTracked')}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
             <Button onClick={handleSave} className="bg-slate-700 hover:bg-slate-800">{t('common.save')}</Button>

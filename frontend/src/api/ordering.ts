@@ -165,6 +165,12 @@ export interface CatalogItem {
   suggestedByAi: boolean;
   daysUntilEmpty: number | null;
   orderable: boolean;
+  itemGrade?: string;
+  stockUnit?: string;
+  orderUnit?: string;
+  parLevel?: number;
+  dailyUsageAvg?: number;
+  recommendationBasis?: string;
 }
 
 export interface CatalogResponse {

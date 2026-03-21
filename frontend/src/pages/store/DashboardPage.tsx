@@ -16,16 +16,24 @@ const statusColor: Record<string, string> = {
   DELIVERED: 'bg-emerald-100 text-emerald-800',
 };
 
-function TaskCard({ label, count, color, bgColor, onClick }: {
-  label: string; count: number; color: string; bgColor: string; onClick?: () => void;
+function ActionCard({ icon, title, value, description, active, onClick }: {
+  icon: string; title: string; value: number; description: string; active: boolean; onClick?: () => void;
 }) {
   return (
     <div
       onClick={onClick}
-      className={`rounded-xl border-2 p-4 cursor-pointer hover:shadow-lg transition-all ${bgColor} ${color}`}
+      className={`rounded-xl border-2 p-3 cursor-pointer hover:shadow-lg transition-all ${
+        active
+          ? 'bg-red-50 border-red-300 text-red-700'
+          : 'bg-gray-50 border-gray-200 text-gray-500'
+      }`}
     >
-      <div className="text-3xl font-bold">{count}</div>
-      <div className="text-sm mt-1 font-medium">{label}</div>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-xl">{icon}</span>
+        <span className="text-sm font-semibold truncate">{title}</span>
+      </div>
+      <div className="text-2xl font-bold">{value}</div>
+      <div className="text-xs mt-0.5 opacity-80">{description}</div>
     </div>
   );
 }
@@ -104,44 +112,47 @@ export default function StoreDashboardPage() {
         </p>
       </div>
 
-      {/* Today's Tasks - 5 cards */}
-      <div>
-        <h3 className="text-lg font-semibold mb-3">{t('dashboard.todayTasks')}</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <TaskCard
-            label={t('dashboard.urgentOrders')}
-            count={data.urgentOrderCount}
-            color={data.urgentOrderCount > 0 ? 'text-red-700 border-red-300' : 'text-gray-500 border-gray-200'}
-            bgColor={data.urgentOrderCount > 0 ? 'bg-red-50' : 'bg-gray-50'}
-            onClick={() => navigate('/store/ordering/new')}
-          />
-          <TaskCard
-            label={t('dashboard.pendingCart')}
-            count={pendingCartCount}
-            color={pendingCartCount > 0 ? 'text-amber-700 border-amber-300' : 'text-gray-500 border-gray-200'}
-            bgColor={pendingCartCount > 0 ? 'bg-amber-50' : 'bg-gray-50'}
-            onClick={() => navigate('/store/ordering/new')}
-          />
-          <TaskCard
-            label={t('dashboard.pendingReceiving')}
-            count={data.pendingReceivingCount}
-            color={data.pendingReceivingCount > 0 ? 'text-slate-600 border-slate-400' : 'text-gray-500 border-gray-200'}
-            bgColor={data.pendingReceivingCount > 0 ? 'bg-slate-50' : 'bg-gray-50'}
-            onClick={() => navigate('/store/receiving')}
-          />
-          <TaskCard
-            label={t('dashboard.expiryAlerts')}
-            count={data.expiryAlertCount}
-            color={data.expiryAlertCount > 0 ? 'text-yellow-700 border-yellow-300' : 'text-gray-500 border-gray-200'}
-            bgColor={data.expiryAlertCount > 0 ? 'bg-yellow-50' : 'bg-gray-50'}
-            onClick={() => navigate('/store/expiry')}
-          />
-          <TaskCard
-            label={t('dashboard.pendingClaims')}
-            count={pendingClaimCount}
-            color={pendingClaimCount > 0 ? 'text-purple-700 border-purple-300' : 'text-gray-500 border-gray-200'}
-            bgColor={pendingClaimCount > 0 ? 'bg-purple-50' : 'bg-gray-50'}
-            onClick={() => navigate('/store/claims')}
+      {/* Today's Tasks */}
+      <div className="mb-6">
+        <h3 className="text-base font-semibold mb-3">{t('dashboard.todayTasks')}</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {data.lowStockCount > 0 && (
+            <ActionCard
+              icon="🚨"
+              title={t('dashboard.urgentOrder')}
+              value={data.lowStockCount}
+              description={t('dashboard.belowSafety')}
+              active={true}
+              onClick={() => navigate('/store/ordering/new')}
+            />
+          )}
+          {data.pendingReceivingCount > 0 && (
+            <ActionCard
+              icon="📦"
+              title={t('dashboard.pendingReceive')}
+              value={data.pendingReceivingCount}
+              description={t('dashboard.todayDelivery')}
+              active={true}
+              onClick={() => navigate('/store/receiving')}
+            />
+          )}
+          {data.expiryAlertCount > 0 && (
+            <ActionCard
+              icon="⏰"
+              title={t('dashboard.expiryAlert')}
+              value={data.expiryAlertCount}
+              description={t('dashboard.within3days')}
+              active={true}
+              onClick={() => navigate('/store/expiry')}
+            />
+          )}
+          <ActionCard
+            icon="📋"
+            title={t('dashboard.cycleCountTodo')}
+            value={stockStatus?.totalItems ?? 0}
+            description={t('dashboard.startCount')}
+            active={false}
+            onClick={() => navigate('/store/cycle-count')}
           />
         </div>
       </div>

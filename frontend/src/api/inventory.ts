@@ -175,3 +175,72 @@ export const inventoryApi = {
   receiveFromOrder: (orderPlanId: number, data: { lines: Array<{ packagingId: number; packQty: number; lotNo?: string; expDate?: string }> }) =>
     client.post<ApiResponse<Delivery>>(`/receiving/from-order/${orderPlanId}`, data),
 };
+
+// Cycle Count API
+export interface CycleCountSession {
+  id: number;
+  storeId: number;
+  gradeFilter: string | null;
+  zoneFilter: string | null;
+  status: string;
+  countedBy: number | null;
+  itemCount: number;
+  completedCount: number;
+  startedAt: string;
+  completedAt: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface CycleCountLine {
+  id: number;
+  sessionId: number;
+  itemId: number;
+  itemName: string;
+  itemNameJa: string;
+  systemQty: number | null;
+  countedQty: number | null;
+  varianceQty: number | null;
+  stockUnit: string;
+  storageZone: string;
+  itemGrade: string;
+  isAdjusted: boolean;
+  adjustedAt: string | null;
+  note: string | null;
+}
+
+export interface CycleCountSessionDetail extends CycleCountSession {
+  lines: CycleCountLine[];
+}
+
+export const cycleCountApi = {
+  startSession: (storeId: number, gradeFilter?: string, zoneFilter?: string, userId?: number) =>
+    client.post<ApiResponse<CycleCountSessionDetail>>('/cycle-count/sessions', null, {
+      params: { storeId, gradeFilter, zoneFilter, userId }
+    }),
+  getActiveSessions: (storeId: number) =>
+    client.get<ApiResponse<CycleCountSession[]>>('/cycle-count/sessions', { params: { storeId } }),
+  getSession: (sessionId: number) =>
+    client.get<ApiResponse<CycleCountSessionDetail>>(`/cycle-count/sessions/${sessionId}`),
+  getHistory: (storeId: number, page = 0, size = 10) =>
+    client.get<ApiResponse<{ content: CycleCountSession[] }>>('/cycle-count/sessions/history', {
+      params: { storeId, page, size }
+    }),
+  updateLine: (sessionId: number, lineId: number, countedQty: number | null, note?: string) =>
+    client.put<ApiResponse<CycleCountLine>>(`/cycle-count/sessions/${sessionId}/lines/${lineId}`, {
+      countedQty, note
+    }),
+  completeSession: (sessionId: number, applyAdjustments: boolean) =>
+    client.post<ApiResponse<CycleCountSessionDetail>>(`/cycle-count/sessions/${sessionId}/complete`, {
+      applyAdjustments
+    }),
+};
+
+// Quick Receive API
+export const quickConfirmDelivery = (deliveryId: number, data: {
+  lines: Array<{ packagingId: number; receivedQty: number; expDate?: string }>;
+  note?: string;
+}) => client.post<ApiResponse<any>>(`/receiving/deliveries/${deliveryId}/quick-confirm`, data);
+
+export const getPendingDeliveries = (storeId: number) =>
+  client.get<ApiResponse<any[]>>('/receiving/deliveries/pending', { params: { storeId } });

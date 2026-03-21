@@ -22,6 +22,18 @@ export interface Item {
   spec: string | null;
   description: string | null;
   createdAt: string;
+  stockUnit?: string;
+  orderUnit?: string;
+  conversionQty?: number;
+  minOrderQty?: number;
+  parLevel?: number;
+  countCycle?: string;
+  storageZone?: string;
+  itemGrade?: string;
+  substituteItemId?: number;
+  lotTracking?: string;
+  dailyUsageAvg?: number;
+  isPosTracked?: boolean;
 }
 
 // BrandItem types
@@ -215,6 +227,24 @@ export interface BatchUploadResult {
   items: Item[];
   errors: { row: number; message: string }[];
 }
+
+// Item operational fields (V6)
+export interface ItemOperationalRequest {
+  stockUnit?: string;
+  orderUnit?: string;
+  conversionQty?: number;
+  minOrderQty?: number;
+  parLevel?: number;
+  countCycle?: 'DAILY' | 'TWICE_WEEKLY' | 'WEEKLY' | 'MONTHLY';
+  storageZone?: 'REFRIGERATED' | 'FROZEN' | 'AMBIENT' | 'SUPPLIES';
+  itemGrade?: 'A' | 'B' | 'C';
+  substituteItemId?: number | null;
+  lotTracking?: 'FULL' | 'EXP_ONLY' | 'NONE';
+  isPosTracked?: boolean;
+}
+
+export const updateItemOperational = (itemId: number, data: ItemOperationalRequest) =>
+  client.patch<ApiResponse<Item>>(`/master/items/${itemId}/operational`, data);
 
 export const masterApi = {
   // Items

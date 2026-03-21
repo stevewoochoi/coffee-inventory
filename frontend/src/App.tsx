@@ -47,6 +47,8 @@ import SupplierOrdersPage from '@/pages/supplier/SupplierOrdersPage';
 import SupplierOrderDetailPage from '@/pages/supplier/SupplierOrderDetailPage';
 import StoreMenuPage from '@/pages/store/StoreMenuPage';
 import DailyInventoryPage from '@/pages/store/DailyInventoryPage';
+import CycleCountPage from '@/pages/store/CycleCountPage';
+import CycleCountDetailPage from '@/pages/store/CycleCountDetailPage';
 import StoresPage from '@/pages/admin/StoresPage';
 import InventoryAdminPage from '@/pages/admin/InventoryAdminPage';
 import DeliveryPolicyPage from '@/pages/admin/DeliveryPolicyPage';
@@ -127,6 +129,8 @@ function App() {
             <Route path="/store/physical-count" element={<PhysicalCountPage />} />
             <Route path="/store/physical-count/:id" element={<PhysicalCountDetailPage />} />
             <Route path="/store/inventory/daily" element={<DailyInventoryPage />} />
+            <Route path="/store/cycle-count" element={<CycleCountPage />} />
+            <Route path="/store/cycle-count/:sessionId" element={<CycleCountDetailPage />} />
             <Route path="/store/menu" element={<StoreMenuPage />} />
           </Route>
         </Route>
