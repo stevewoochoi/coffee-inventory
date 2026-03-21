@@ -24,6 +24,10 @@ interface EditCell {
   col: DateColumn;
 }
 
+const CELL_W = 48; // w-12 = 3rem = 48px
+const CELL_H = 'h-11';
+const CELL_BASE = `min-w-[3rem] w-12 ${CELL_H}`;
+
 export default function DailyInventoryPage() {
   const { user } = useAuthStore();
   const storeId = user?.storeId ?? 1;
@@ -38,7 +42,8 @@ export default function DailyInventoryPage() {
   const [saving, setSaving] = useState(false);
 
   const fixedBodyRef = useRef<HTMLDivElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const scrollBodyRef = useRef<HTMLDivElement>(null);
+  const headerScrollRef = useRef<HTMLDivElement>(null);
 
   const dateColumns = useMemo<DateColumn[]>(() => {
     const cols: DateColumn[] = [];
@@ -84,25 +89,35 @@ export default function DailyInventoryPage() {
 
   // Auto-scroll to today
   useEffect(() => {
-    if (!loading && scrollAreaRef.current) {
+    if (!loading && scrollBodyRef.current) {
       const todayIndex = dateColumns.findIndex((c) => c.dateStr === todayStr);
       if (todayIndex >= 0) {
-        const cellW = 48; // w-12
-        const containerW = scrollAreaRef.current.clientWidth;
-        scrollAreaRef.current.scrollLeft = Math.max(0, todayIndex * cellW - containerW / 2 + cellW / 2);
+        const containerW = scrollBodyRef.current.clientWidth;
+        const scrollTo = todayIndex * CELL_W - containerW / 2 + CELL_W / 2;
+        scrollBodyRef.current.scrollLeft = Math.max(0, scrollTo);
+        if (headerScrollRef.current) {
+          headerScrollRef.current.scrollLeft = scrollBodyRef.current.scrollLeft;
+        }
       }
     }
   }, [loading, dateColumns, todayStr]);
 
-  // Sync vertical scroll: fixed col ↔ scrollable area
-  const syncScrollFromFixed = useCallback(() => {
-    if (fixedBodyRef.current && scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = fixedBodyRef.current.scrollTop;
+  // Sync: fixed body ↔ scroll body (vertical)
+  const syncVerticalFromFixed = useCallback(() => {
+    if (fixedBodyRef.current && scrollBodyRef.current) {
+      scrollBodyRef.current.scrollTop = fixedBodyRef.current.scrollTop;
     }
   }, []);
-  const syncScrollFromScrollable = useCallback(() => {
-    if (scrollAreaRef.current && fixedBodyRef.current) {
-      fixedBodyRef.current.scrollTop = scrollAreaRef.current.scrollTop;
+  const syncFromScrollBody = useCallback(() => {
+    if (scrollBodyRef.current) {
+      // vertical sync
+      if (fixedBodyRef.current) {
+        fixedBodyRef.current.scrollTop = scrollBodyRef.current.scrollTop;
+      }
+      // horizontal sync: body → header
+      if (headerScrollRef.current) {
+        headerScrollRef.current.scrollLeft = scrollBodyRef.current.scrollLeft;
+      }
     }
   }, []);
 
@@ -158,12 +173,10 @@ export default function DailyInventoryPage() {
     else setMonth(month + 1);
   };
 
-  const CELL = 'w-12 min-w-[3rem] h-11';
-
   return (
     <div className="flex flex-col h-[calc(100dvh-110px)] bg-gray-50 -mx-4 -my-6">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-white border-b px-3 py-2 flex items-center justify-between">
+      {/* 1. 페이지 헤더 — 월 이동 */}
+      <div className="shrink-0 bg-white border-b px-3 py-2 flex items-center justify-between">
         <h1 className="text-base font-bold text-gray-900">일별 재고실사</h1>
         <div className="flex items-center gap-1">
           <button onClick={goToPrevMonth} className="p-2 rounded-full active:bg-gray-100">
@@ -183,22 +196,54 @@ export default function DailyInventoryPage() {
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
         </div>
       ) : (
-        <div className="flex-1 flex overflow-hidden">
-          {/* Fixed item column — header + body 수직 동기화 */}
-          <div className="flex-shrink-0 w-28 flex flex-col border-r bg-white z-10">
-            {/* Fixed header */}
-            <div className={`${CELL} flex items-center px-2 border-b bg-gray-50 text-[11px] font-semibold text-gray-500`}>
+        <>
+          {/* 2. 날짜 헤더 행 — 고정 (스크롤 안됨) */}
+          <div className="shrink-0 flex border-b bg-gray-50">
+            {/* 품목 헤더 셀 */}
+            <div className={`shrink-0 w-24 ${CELL_H} flex items-center px-2 border-r text-[11px] font-semibold text-gray-500`}>
               품목
             </div>
-            {/* Fixed body */}
+            {/* 날짜 헤더 — 가로만 스크롤, 바디와 동기화 */}
+            <div
+              ref={headerScrollRef}
+              className="flex-1 overflow-x-hidden flex"
+            >
+              {dateColumns.map((col) => {
+                const isToday = col.dateStr === todayStr;
+                return (
+                  <div
+                    key={col.dateStr}
+                    className={`${CELL_BASE} shrink-0 flex flex-col items-center justify-center border-r text-[11px]
+                      ${isToday ? 'bg-blue-600 text-white font-bold' : ''}
+                      ${col.isPrevMonth ? 'bg-gray-100 text-gray-300' : ''}
+                      ${!isToday && !col.isPrevMonth ? 'text-gray-600 font-medium' : ''}
+                    `}
+                  >
+                    {isToday ? (
+                      <>
+                        <span className="text-[9px] leading-none">오늘</span>
+                        <span className="leading-tight">{col.day}</span>
+                      </>
+                    ) : (
+                      <span>{col.day}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. 데이터 영역 — 품목 고정 + 숫자 가로/세로 스크롤 */}
+          <div className="flex-1 flex overflow-hidden">
+            {/* 품목 고정 열 */}
             <div
               ref={fixedBodyRef}
-              className="flex-1 overflow-y-auto"
-              onScroll={syncScrollFromFixed}
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              className="shrink-0 w-24 overflow-y-auto border-r bg-white"
+              onScroll={syncVerticalFromFixed}
+              style={{ scrollbarWidth: 'none' }}
             >
               {rows.map((row) => (
-                <div key={row.itemId} className={`${CELL} flex flex-col justify-center px-2 border-b`}>
+                <div key={row.itemId} className={`${CELL_H} flex flex-col justify-center px-2 border-b`}>
                   <span className="text-[11px] font-medium text-gray-900 truncate leading-tight">
                     {row.itemName}
                   </span>
@@ -215,54 +260,25 @@ export default function DailyInventoryPage() {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Scrollable area — header + body 함께 가로 스크롤 */}
-          <div
-            ref={scrollAreaRef}
-            className="flex-1 overflow-x-auto overflow-y-auto"
-            onScroll={syncScrollFromScrollable}
-          >
-            {/* 날짜 헤더 + 데이터를 하나의 table로 묶어서 가로 스크롤 동기화 */}
-            <table className="border-collapse" style={{ tableLayout: 'fixed' }}>
-              <thead className="sticky top-0 z-10">
-                <tr>
-                  {dateColumns.map((col) => {
-                    const isToday = col.dateStr === todayStr;
-                    return (
-                      <th
-                        key={col.dateStr}
-                        className={`${CELL} text-center text-[11px] border-b border-r
-                          ${isToday ? 'bg-blue-600 text-white font-bold' : ''}
-                          ${col.isPrevMonth ? 'bg-gray-100 text-gray-300' : ''}
-                          ${!isToday && !col.isPrevMonth ? 'bg-gray-50 text-gray-600 font-medium' : ''}
-                        `}
-                      >
-                        {isToday ? (
-                          <div className="flex flex-col items-center leading-tight">
-                            <span className="text-[10px]">오늘</span>
-                            <span>{col.day}</span>
-                          </div>
-                        ) : (
-                          <span>{col.day}</span>
-                        )}
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
+            {/* 숫자 데이터 — 가로+세로 스크롤 */}
+            <div
+              ref={scrollBodyRef}
+              className="flex-1 overflow-auto"
+              onScroll={syncFromScrollBody}
+            >
+              <div style={{ width: dateColumns.length * CELL_W }}>
                 {rows.map((row) => (
-                  <tr key={row.itemId}>
+                  <div key={row.itemId} className="flex">
                     {dateColumns.map((col) => {
                       const isToday = col.dateStr === todayStr;
                       const val = col.isPrevMonth ? undefined : row.dailyCounts[col.day];
                       const hasValue = val !== undefined && val !== null;
                       return (
-                        <td
+                        <div
                           key={col.dateStr}
                           onClick={() => handleCellTap(row, col)}
-                          className={`${CELL} text-center text-xs border-b border-r select-none
+                          className={`${CELL_BASE} shrink-0 flex items-center justify-center border-b border-r select-none text-xs
                             ${!col.isPrevMonth ? 'cursor-pointer active:bg-blue-100' : 'cursor-default'}
                             ${isToday ? 'bg-blue-50' : ''}
                             ${col.isPrevMonth ? 'bg-gray-50' : ''}
@@ -270,18 +286,18 @@ export default function DailyInventoryPage() {
                           `}
                         >
                           {col.isPrevMonth ? '' : hasValue ? val : '—'}
-                        </td>
+                        </div>
                       );
                     })}
-                  </tr>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
-      {/* 수량 입력 모달 — z-[100]으로 하단탭(z-50) 위에 표시 */}
+      {/* 수량 입력 모달 */}
       {editCell && (
         <div
           className="fixed inset-0 z-[100] flex items-end bg-black/40"
