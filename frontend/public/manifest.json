@@ -4,7 +4,7 @@
   "description": "Coffee Inventory Management System",
   "theme_color": "#1e3a5f",
   "background_color": "#ffffff",
-  "display": "standalone",
+  "display": "fullscreen",
   "scope": "/",
   "start_url": "/",
   "icons": [
