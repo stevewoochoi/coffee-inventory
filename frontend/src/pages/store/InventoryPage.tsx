@@ -288,7 +288,7 @@ export default function InventoryPage() {
 
       {/* Adjust Dialog */}
       {adjustItem && (
-        <div className="fixed inset-0 bg-black/50 flex items-start sm:items-center justify-center z-50 p-4 pt-[5%] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-start sm:items-center justify-center z-[60] p-4 pt-[5%] overflow-y-auto">
           <div className="bg-white rounded-xl p-6 max-w-md w-full my-auto sm:my-0">
             <h3 className="text-lg font-bold mb-4">{t('inventory.adjust.title')}</h3>
             <p className="text-sm text-gray-600 mb-4">{adjustItem.itemName}</p>
