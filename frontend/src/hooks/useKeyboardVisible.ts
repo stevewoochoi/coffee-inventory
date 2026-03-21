@@ -1,60 +1,69 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 /**
- * Detects mobile virtual keyboard visibility using:
- * 1. focusin/focusout events on input elements
- * 2. visualViewport API resize (reliable on iOS Safari)
+ * Detects mobile virtual keyboard visibility.
+ * Uses focusin/focusout + visualViewport resize for iOS compatibility.
+ * Returns true when keyboard is open (input focused), false when closed.
  */
 export function useKeyboardVisible(): boolean {
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const inputFocused = useRef(false);
 
   useEffect(() => {
-    const inputSelector = 'input, textarea, select, [contenteditable="true"]';
-    let focusedOnInput = false;
+    const inputSelector = 'input, textarea, [contenteditable="true"]';
+
+    const show = () => { inputFocused.current = true; setHidden(true); };
+    const hide = () => { inputFocused.current = false; setHidden(false); };
 
     const handleFocusIn = (e: FocusEvent) => {
       if ((e.target as Element)?.matches?.(inputSelector)) {
-        focusedOnInput = true;
-        setIsKeyboardVisible(true);
+        show();
       }
     };
 
     const handleFocusOut = (e: FocusEvent) => {
       if ((e.target as Element)?.matches?.(inputSelector)) {
+        // Delay to allow focus to move between inputs without flicker
         setTimeout(() => {
           const active = document.activeElement;
-          if (!active || !active.matches(inputSelector)) {
-            focusedOnInput = false;
-            setIsKeyboardVisible(false);
+          if (!active || active === document.body || !active.matches(inputSelector)) {
+            hide();
           }
-        }, 100);
+        }, 150);
       }
     };
 
-    // visualViewport resize detects iOS keyboard more reliably
+    // iOS Safari: visualViewport resize is the most reliable signal
     const vv = window.visualViewport;
-    const initialHeight = window.innerHeight;
-    const handleViewportResize = () => {
+    let baseHeight = vv?.height ?? window.innerHeight;
+
+    const handleResize = () => {
       if (!vv) return;
-      // Keyboard is considered open when viewport shrinks by >150px
-      const keyboardOpen = initialHeight - vv.height > 150;
-      if (keyboardOpen) {
-        setIsKeyboardVisible(true);
-      } else if (!focusedOnInput) {
-        setIsKeyboardVisible(false);
+      const diff = baseHeight - vv.height;
+      if (diff > 100) {
+        setHidden(true);
+      } else if (!inputFocused.current) {
+        setHidden(false);
       }
     };
 
-    document.addEventListener('focusin', handleFocusIn);
-    document.addEventListener('focusout', handleFocusOut);
-    vv?.addEventListener('resize', handleViewportResize);
+    // Update base height on orientation change
+    const handleOrientationChange = () => {
+      setTimeout(() => { baseHeight = vv?.height ?? window.innerHeight; }, 500);
+    };
+
+    document.addEventListener('focusin', handleFocusIn, true);
+    document.addEventListener('focusout', handleFocusOut, true);
+    vv?.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleOrientationChange);
 
     return () => {
-      document.removeEventListener('focusin', handleFocusIn);
-      document.removeEventListener('focusout', handleFocusOut);
-      vv?.removeEventListener('resize', handleViewportResize);
+      document.removeEventListener('focusin', handleFocusIn, true);
+      document.removeEventListener('focusout', handleFocusOut, true);
+      vv?.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleOrientationChange);
     };
   }, []);
 
-  return isKeyboardVisible;
+  return hidden;
 }

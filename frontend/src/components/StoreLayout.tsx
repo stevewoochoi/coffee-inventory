@@ -64,7 +64,8 @@ export function StoreLayout() {
       </main>
 
       {/* Mobile bottom navigation — 4 tabs (hidden when keyboard is open) */}
-      <nav className={`md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom transition-transform duration-200 ${isKeyboardVisible ? 'translate-y-full' : 'translate-y-0'}`}>
+      {!isKeyboardVisible && (
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom">
         <div className="flex">
           {storeBottomTabs.map((tab) => {
             const isActive = tab.to === '/store/menu'
@@ -94,6 +95,7 @@ export function StoreLayout() {
           })}
         </div>
       </nav>
+      )}
     </div>
   );
 }
