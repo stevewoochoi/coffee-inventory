@@ -161,7 +161,7 @@ export default function DailyInventoryPage() {
   const CELL = 'w-12 min-w-[3rem] h-11';
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 -mx-4 -my-6">
+    <div className="flex flex-col h-[calc(100dvh-110px)] bg-gray-50 -mx-4 -my-6">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-white border-b px-3 py-2 flex items-center justify-between">
         <h1 className="text-base font-bold text-gray-900">일별 재고실사</h1>
