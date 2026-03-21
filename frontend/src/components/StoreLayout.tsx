@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useThemeStore } from '@/store/themeStore';
+import { useKeyboardVisible } from '@/hooks/useKeyboardVisible';
 import NotificationBanner from '@/components/NotificationBanner';
 import { storeNavGroups, storeBottomTabs } from '@/config/storeNavigation';
 import { StoreDesktopDropdown } from './nav/StoreDesktopDropdown';
@@ -11,6 +12,7 @@ export function StoreLayout() {
   const { t, i18n } = useTranslation();
   const { theme } = useThemeStore();
   const location = useLocation();
+  const isKeyboardVisible = useKeyboardVisible();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -61,8 +63,8 @@ export function StoreLayout() {
         <Outlet />
       </main>
 
-      {/* Mobile bottom navigation — 4 tabs */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom">
+      {/* Mobile bottom navigation — 4 tabs (hidden when keyboard is open) */}
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-bottom transition-transform duration-200 ${isKeyboardVisible ? 'translate-y-full' : 'translate-y-0'}`}>
         <div className="flex">
           {storeBottomTabs.map((tab) => {
             const isActive = tab.to === '/store/menu'
