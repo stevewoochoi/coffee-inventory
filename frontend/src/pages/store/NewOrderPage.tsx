@@ -683,28 +683,30 @@ export default function NewOrderPage() {
       {step === 3 && renderStep3()}
 
       {step < 4 && (
-        <div className="flex gap-3 pt-4">
-          {step > 1 && (
-            <Button variant="outline" className="flex-1 h-12" onClick={() => setStep(step - 1)}>
-              {t('common.previous')}
-            </Button>
-          )}
-          {step === 1 && (
-            <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800" onClick={() => setStep(2)} disabled={!selectedDate}>
-              {t('common.next')}
-            </Button>
-          )}
-          {step === 2 && (
-            <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800" onClick={() => setStep(3)} disabled={totalCartItems === 0}>
-              {t('ordering.steps.viewCart')} ({totalCartItems})
-            </Button>
-          )}
-          {step === 3 && (
-            <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800"
-              onClick={() => setShowConfirmDialog(true)} disabled={totalCartItems === 0 || confirming}>
-              {confirming ? t('common.processing') : t('ordering.cart.confirmOrder')}
-            </Button>
-          )}
+        <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 -mx-4 px-4 z-50 shadow-[0_-2px_8px_rgba(0,0,0,0.1)]">
+          <div className="flex gap-3">
+            {step > 1 && (
+              <Button variant="outline" className="flex-1 h-12" onClick={() => setStep(step - 1)}>
+                {t('common.previous')}
+              </Button>
+            )}
+            {step === 1 && (
+              <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800" onClick={() => setStep(2)} disabled={!selectedDate}>
+                {t('common.next')}
+              </Button>
+            )}
+            {step === 2 && (
+              <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800" onClick={() => setStep(3)} disabled={totalCartItems === 0}>
+                {t('ordering.steps.viewCart')} ({totalCartItems})
+              </Button>
+            )}
+            {step === 3 && (
+              <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800"
+                onClick={() => setShowConfirmDialog(true)} disabled={totalCartItems === 0 || confirming}>
+                {confirming ? t('common.processing') : t('ordering.cart.confirmOrder')}
+              </Button>
+            )}
+          </div>
         </div>
       )}
 
