@@ -26,9 +26,11 @@ public class BulkUploadController {
 
     @GetMapping("/template")
     public ResponseEntity<byte[]> downloadTemplate(@RequestParam String type) throws IOException {
+        // Header Injection 방지: 영문/숫자/언더스코어만 허용
+        String sanitizedType = type.replaceAll("[^a-zA-Z0-9_]", "");
         byte[] template = bulkUploadService.generateTemplate(type);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=template_" + type.toLowerCase() + ".xlsx")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=template_" + sanitizedType.toLowerCase() + ".xlsx")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(template);
     }

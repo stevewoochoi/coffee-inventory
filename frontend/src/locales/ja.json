@@ -58,6 +58,7 @@
     "ordering": "発注一覧",
     "expiry": "賞味期限",
     "count": "棚卸",
+    "dailyCount": "日別在庫実査",
     "claims": "クレーム",
     "reports": "レポート",
     "masterItems": "マスター商品",

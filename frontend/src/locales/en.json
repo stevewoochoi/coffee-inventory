@@ -58,6 +58,7 @@
     "ordering": "Orders",
     "expiry": "Expiry Alerts",
     "count": "Count",
+    "dailyCount": "Daily Inventory Count",
     "claims": "Claims",
     "reports": "Reports",
     "masterItems": "Master Items",

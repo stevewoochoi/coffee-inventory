@@ -58,6 +58,7 @@
     "ordering": "발주 현황",
     "expiry": "유통기한",
     "count": "실사",
+    "dailyCount": "일별 재고실사",
     "claims": "클레임",
     "reports": "리포트",
     "masterItems": "마스터 상품",
