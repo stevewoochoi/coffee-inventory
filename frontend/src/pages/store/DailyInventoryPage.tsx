@@ -11,10 +11,10 @@ import {
 
 interface DateColumn {
   year: number;
-  month: number; // 1-based
+  month: number;
   day: number;
   isPrevMonth: boolean;
-  dateStr: string; // YYYY-MM-DD
+  dateStr: string;
 }
 
 interface EditCell {
@@ -37,42 +37,29 @@ export default function DailyInventoryPage() {
   const [inputVal, setInputVal] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
   const fixedBodyRef = useRef<HTMLDivElement>(null);
-  const scrollBodyRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Compute date columns: prev month last 2 days + current month all days
   const dateColumns = useMemo<DateColumn[]>(() => {
     const cols: DateColumn[] = [];
-
-    // Previous month last 2 days
-    const prevDate = new Date(year, month - 1, 0); // last day of prev month
+    const prevDate = new Date(year, month - 1, 0);
     const prevYear = prevDate.getFullYear();
-    const prevMonth = prevDate.getMonth() + 1;
+    const prevMo = prevDate.getMonth() + 1;
     const prevLastDay = prevDate.getDate();
 
     for (let d = prevLastDay - 1; d <= prevLastDay; d++) {
       cols.push({
-        year: prevYear,
-        month: prevMonth,
-        day: d,
-        isPrevMonth: true,
-        dateStr: `${prevYear}-${String(prevMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
+        year: prevYear, month: prevMo, day: d, isPrevMonth: true,
+        dateStr: `${prevYear}-${String(prevMo).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
       });
     }
-
-    // Current month all days
     const daysInMonth = new Date(year, month, 0).getDate();
     for (let d = 1; d <= daysInMonth; d++) {
       cols.push({
-        year,
-        month,
-        day: d,
-        isPrevMonth: false,
+        year, month, day: d, isPrevMonth: false,
         dateStr: `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
       });
     }
-
     return cols;
   }, [year, month]);
 
@@ -87,40 +74,35 @@ export default function DailyInventoryPage() {
       const data = await getMonthlyCount(storeId, year, month);
       setRows(data?.rows ?? []);
     } catch {
-      // API not ready yet — show empty grid
       setRows([]);
     } finally {
       setLoading(false);
     }
   }, [storeId, year, month]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]);
 
-  // Auto-scroll to today's column on load
+  // Auto-scroll to today
   useEffect(() => {
-    if (!loading && scrollRef.current) {
+    if (!loading && scrollAreaRef.current) {
       const todayIndex = dateColumns.findIndex((c) => c.dateStr === todayStr);
       if (todayIndex >= 0) {
-        const cellWidth = 56; // w-14 = 3.5rem = 56px
-        const containerWidth = scrollRef.current.clientWidth;
-        const scrollTo = todayIndex * cellWidth - containerWidth / 2 + cellWidth / 2;
-        scrollRef.current.scrollLeft = Math.max(0, scrollTo);
+        const cellW = 48; // w-12
+        const containerW = scrollAreaRef.current.clientWidth;
+        scrollAreaRef.current.scrollLeft = Math.max(0, todayIndex * cellW - containerW / 2 + cellW / 2);
       }
     }
   }, [loading, dateColumns, todayStr]);
 
-  // Sync vertical scroll between fixed column and scrollable area
-  const handleFixedScroll = useCallback(() => {
-    if (fixedBodyRef.current && scrollBodyRef.current) {
-      scrollBodyRef.current.scrollTop = fixedBodyRef.current.scrollTop;
+  // Sync vertical scroll: fixed col ↔ scrollable area
+  const syncScrollFromFixed = useCallback(() => {
+    if (fixedBodyRef.current && scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = fixedBodyRef.current.scrollTop;
     }
   }, []);
-
-  const handleScrollableScroll = useCallback(() => {
-    if (scrollBodyRef.current && fixedBodyRef.current) {
-      fixedBodyRef.current.scrollTop = scrollBodyRef.current.scrollTop;
+  const syncScrollFromScrollable = useCallback(() => {
+    if (scrollAreaRef.current && fixedBodyRef.current) {
+      fixedBodyRef.current.scrollTop = scrollAreaRef.current.scrollTop;
     }
   }, []);
 
@@ -143,11 +125,9 @@ export default function DailyInventoryPage() {
       toast.error('유효한 수량을 입력해주세요');
       return;
     }
-
     const { itemId, col } = editCell;
     const prevRows = [...rows];
 
-    // Optimistic update
     setRows((prev) =>
       prev.map((r) =>
         r.itemId === itemId
@@ -159,59 +139,42 @@ export default function DailyInventoryPage() {
 
     try {
       setSaving(true);
-      await saveDailyCount({
-        itemId,
-        countDate: col.dateStr,
-        qty,
-      });
-      toast.success('저장되었습니다');
+      await saveDailyCount({ itemId, countDate: col.dateStr, qty });
+      toast.success('저장완료');
     } catch {
-      // Rollback
       setRows(prevRows);
-      toast.error('저장에 실패했습니다');
+      toast.error('저장 실패');
     } finally {
       setSaving(false);
     }
   };
 
   const goToPrevMonth = () => {
-    if (month === 1) {
-      setYear(year - 1);
-      setMonth(12);
-    } else {
-      setMonth(month - 1);
-    }
+    if (month === 1) { setYear(year - 1); setMonth(12); }
+    else setMonth(month - 1);
   };
-
   const goToNextMonth = () => {
-    if (month === 12) {
-      setYear(year + 1);
-      setMonth(1);
-    } else {
-      setMonth(month + 1);
-    }
+    if (month === 12) { setYear(year + 1); setMonth(1); }
+    else setMonth(month + 1);
   };
 
-  const formatMonthLabel = (col: DateColumn) => {
-    if (col.dateStr === todayStr) return '오늘';
-    return String(col.day);
-  };
+  const CELL = 'w-12 min-w-[3rem] h-11';
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full bg-gray-50 -mx-4 -my-6">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-white border-b px-4 py-3 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-gray-900">일별 재고실사</h1>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={goToPrevMonth}>
+      <div className="sticky top-0 z-20 bg-white border-b px-3 py-2 flex items-center justify-between">
+        <h1 className="text-base font-bold text-gray-900">일별 재고실사</h1>
+        <div className="flex items-center gap-1">
+          <button onClick={goToPrevMonth} className="p-2 rounded-full active:bg-gray-100">
             <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <span className="text-sm font-semibold min-w-[120px] text-center">
+          </button>
+          <span className="text-sm font-semibold min-w-[100px] text-center">
             {year}년 {month}월
           </span>
-          <Button variant="ghost" size="icon" onClick={goToNextMonth}>
+          <button onClick={goToNextMonth} className="p-2 rounded-full active:bg-gray-100">
             <ChevronRight className="h-5 w-5" />
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -221,116 +184,121 @@ export default function DailyInventoryPage() {
         </div>
       ) : (
         <div className="flex-1 flex overflow-hidden">
-          {/* Fixed item column */}
-          <div className="flex-shrink-0 w-40 flex flex-col border-r bg-white">
-            {/* Fixed header cell */}
-            <div className="h-12 flex items-center px-3 border-b bg-gray-50 text-xs font-semibold text-gray-600">
+          {/* Fixed item column — header + body 수직 동기화 */}
+          <div className="flex-shrink-0 w-28 flex flex-col border-r bg-white z-10">
+            {/* Fixed header */}
+            <div className={`${CELL} flex items-center px-2 border-b bg-gray-50 text-[11px] font-semibold text-gray-500`}>
               품목
             </div>
-            {/* Fixed body rows */}
+            {/* Fixed body */}
             <div
               ref={fixedBodyRef}
               className="flex-1 overflow-y-auto"
-              onScroll={handleFixedScroll}
-              style={{ scrollbarWidth: 'none' }}
+              onScroll={syncScrollFromFixed}
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {rows.map((row) => (
-                <div
-                  key={row.itemId}
-                  className="h-12 flex flex-col justify-center px-3 border-b"
-                >
-                  <span className="text-xs font-medium text-gray-900 truncate">
+                <div key={row.itemId} className={`${CELL} flex flex-col justify-center px-2 border-b`}>
+                  <span className="text-[11px] font-medium text-gray-900 truncate leading-tight">
                     {row.itemName}
                   </span>
-                  <span className="text-[10px] text-gray-400 truncate">
-                    {row.itemNameJa}
-                  </span>
+                  {row.itemNameJa && (
+                    <span className="text-[9px] text-gray-400 truncate leading-tight">
+                      {row.itemNameJa}
+                    </span>
+                  )}
                 </div>
               ))}
               {rows.length === 0 && (
                 <div className="h-24 flex items-center justify-center text-xs text-gray-400">
-                  데이터가 없습니다
+                  데이터 없음
                 </div>
               )}
             </div>
           </div>
 
-          {/* Scrollable date columns */}
-          <div ref={scrollRef} className="flex-1 flex flex-col overflow-x-auto">
-            {/* Date headers */}
-            <div className="flex flex-shrink-0">
-              {dateColumns.map((col) => {
-                const isToday = col.dateStr === todayStr;
-                return (
-                  <div
-                    key={col.dateStr}
-                    className={`w-14 min-w-[3.5rem] h-12 flex flex-col items-center justify-center border-b border-r text-xs
-                      ${isToday ? 'bg-blue-600 text-white font-bold' : ''}
-                      ${col.isPrevMonth ? 'bg-gray-100 text-gray-300' : ''}
-                      ${!isToday && !col.isPrevMonth ? 'bg-gray-50 text-gray-600 font-medium' : ''}
-                    `}
-                  >
-                    <span>{formatMonthLabel(col)}</span>
-                    {!isToday && <span className="text-[9px]">{col.day}</span>}
-                  </div>
-                );
-              })}
-            </div>
-            {/* Data rows */}
-            <div
-              ref={scrollBodyRef}
-              className="flex-1 overflow-y-auto"
-              onScroll={handleScrollableScroll}
-            >
-              {rows.map((row) => (
-                <div key={row.itemId} className="flex">
+          {/* Scrollable area — header + body 함께 가로 스크롤 */}
+          <div
+            ref={scrollAreaRef}
+            className="flex-1 overflow-x-auto overflow-y-auto"
+            onScroll={syncScrollFromScrollable}
+          >
+            {/* 날짜 헤더 + 데이터를 하나의 table로 묶어서 가로 스크롤 동기화 */}
+            <table className="border-collapse" style={{ tableLayout: 'fixed' }}>
+              <thead className="sticky top-0 z-10">
+                <tr>
                   {dateColumns.map((col) => {
                     const isToday = col.dateStr === todayStr;
-                    const val = col.isPrevMonth ? undefined : row.dailyCounts[col.day];
-                    const hasValue = val !== undefined && val !== null;
-
                     return (
-                      <div
+                      <th
                         key={col.dateStr}
-                        className={`w-14 min-w-[3.5rem] h-12 flex items-center justify-center border-b border-r cursor-pointer
-                          ${isToday ? 'bg-blue-50' : ''}
-                          ${col.isPrevMonth ? 'bg-gray-100 cursor-default' : ''}
+                        className={`${CELL} text-center text-[11px] border-b border-r
+                          ${isToday ? 'bg-blue-600 text-white font-bold' : ''}
+                          ${col.isPrevMonth ? 'bg-gray-100 text-gray-300' : ''}
+                          ${!isToday && !col.isPrevMonth ? 'bg-gray-50 text-gray-600 font-medium' : ''}
                         `}
-                        onClick={() => handleCellTap(row, col)}
                       >
-                        {col.isPrevMonth ? (
-                          <span className="text-xs text-gray-300">-</span>
-                        ) : hasValue ? (
-                          <span className="text-sm font-bold text-gray-900">{val}</span>
+                        {isToday ? (
+                          <div className="flex flex-col items-center leading-tight">
+                            <span className="text-[10px]">오늘</span>
+                            <span>{col.day}</span>
+                          </div>
                         ) : (
-                          <span className="text-sm text-gray-300">&mdash;</span>
+                          <span>{col.day}</span>
                         )}
-                      </div>
+                      </th>
                     );
                   })}
-                </div>
-              ))}
-            </div>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.itemId}>
+                    {dateColumns.map((col) => {
+                      const isToday = col.dateStr === todayStr;
+                      const val = col.isPrevMonth ? undefined : row.dailyCounts[col.day];
+                      const hasValue = val !== undefined && val !== null;
+                      return (
+                        <td
+                          key={col.dateStr}
+                          onClick={() => handleCellTap(row, col)}
+                          className={`${CELL} text-center text-xs border-b border-r select-none
+                            ${!col.isPrevMonth ? 'cursor-pointer active:bg-blue-100' : 'cursor-default'}
+                            ${isToday ? 'bg-blue-50' : ''}
+                            ${col.isPrevMonth ? 'bg-gray-50' : ''}
+                            ${hasValue ? 'font-bold text-gray-900' : 'text-gray-300'}
+                          `}
+                        >
+                          {col.isPrevMonth ? '' : hasValue ? val : '—'}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
-      {/* Bottom sheet modal for editing */}
+      {/* 수량 입력 모달 — z-[100]으로 하단탭(z-50) 위에 표시 */}
       {editCell && (
         <div
-          className="fixed inset-0 z-50 flex items-end bg-black/40"
+          className="fixed inset-0 z-[100] flex items-end bg-black/40"
           onClick={() => setEditCell(null)}
         >
           <div
-            className="w-full bg-white rounded-t-2xl p-6 animate-in slide-in-from-bottom duration-200"
+            className="w-full bg-white rounded-t-2xl p-5 pb-8 animate-in slide-in-from-bottom duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4">
               <h3 className="text-base font-bold text-gray-900">
-                {editCell.itemName}{' '}
-                <span className="text-sm text-gray-400">{editCell.itemNameJa}</span>
+                {editCell.itemName}
+                {editCell.itemNameJa && (
+                  <span className="text-sm text-gray-400 ml-2">{editCell.itemNameJa}</span>
+                )}
               </h3>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 mt-0.5">
                 {editCell.col.year}년 {editCell.col.month}월 {editCell.col.day}일
               </p>
             </div>
@@ -342,13 +310,11 @@ export default function DailyInventoryPage() {
               className="w-full text-center text-3xl font-bold border-2 border-gray-300 rounded-xl py-4 px-4 focus:border-blue-600 focus:outline-none"
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSave();
-              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
               placeholder="0"
             />
 
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-3 mt-5">
               <Button
                 variant="outline"
                 className="flex-1 h-12 text-base"
