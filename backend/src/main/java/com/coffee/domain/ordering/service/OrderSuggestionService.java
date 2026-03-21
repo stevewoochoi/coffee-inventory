@@ -86,12 +86,34 @@ public class OrderSuggestionService {
                     .add(safetyStock)
                     .subtract(currentStock);
 
+            BigDecimal daysUntilEmpty = adjustedDemand.compareTo(BigDecimal.ZERO) > 0
+                    ? currentStock.divide(adjustedDemand, 1, RoundingMode.HALF_UP)
+                    : new BigDecimal("999");
+            BigDecimal leadTimeConsumption = adjustedDemand.multiply(BigDecimal.valueOf(leadTime));
+
+            BigDecimal parLevel = item.getParLevel() != null ? item.getParLevel() : BigDecimal.ZERO;
+            if (parLevel.compareTo(BigDecimal.ZERO) > 0) {
+                neededBaseUnit = parLevel.subtract(currentStock)
+                        .add(leadTimeConsumption);
+            }
+
             int suggestedPackQty = 0;
             if (neededBaseUnit.compareTo(BigDecimal.ZERO) > 0 && packaging.getUnitsPerPack().compareTo(BigDecimal.ZERO) > 0) {
                 suggestedPackQty = neededBaseUnit
                         .divide(packaging.getUnitsPerPack(), 0, RoundingMode.CEILING)
                         .intValue();
             }
+
+            // Enforce min order qty
+            int minOrderQty = item.getMinOrderQty() != null ? item.getMinOrderQty() : 1;
+            if (suggestedPackQty > 0 && suggestedPackQty < minOrderQty) {
+                suggestedPackQty = minOrderQty;
+            }
+
+            String stockUnit = item.getStockUnit() != null ? item.getStockUnit() : item.getBaseUnit();
+            String orderUnit = item.getOrderUnit() != null ? item.getOrderUnit() : "pack";
+            String basis = String.format("Current %.0f%s / Target %.0f%s / Daily %.1f%s",
+                    currentStock, stockUnit, parLevel, stockUnit, adjustedDemand, stockUnit);
 
             lines.add(OrderSuggestionDto.SuggestionLine.builder()
                     .packagingId(packaging.getId())
@@ -103,6 +125,14 @@ public class OrderSuggestionService {
                     .avgDailyDemand(avgDailyDemand)
                     .leadTimeDays(leadTime)
                     .suggestedPackQty(suggestedPackQty)
+                    .parLevel(parLevel)
+                    .dailyUsageAvg(adjustedDemand)
+                    .daysUntilEmpty(daysUntilEmpty)
+                    .leadTimeConsumption(leadTimeConsumption)
+                    .stockUnit(stockUnit)
+                    .orderUnit(orderUnit)
+                    .minOrderQty(minOrderQty)
+                    .recommendationBasis(basis)
                     .build());
         }
 

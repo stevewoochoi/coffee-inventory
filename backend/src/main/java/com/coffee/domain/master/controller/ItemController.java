@@ -2,6 +2,7 @@ package com.coffee.domain.master.controller;
 
 import com.coffee.common.response.ApiResponse;
 import com.coffee.domain.master.dto.ItemDto;
+import com.coffee.domain.master.dto.ItemOperationalRequest;
 import com.coffee.domain.master.service.ItemExcelService;
 import com.coffee.domain.master.service.ItemService;
 import com.coffee.domain.upload.dto.UploadDto;
@@ -61,6 +62,14 @@ public class ItemController {
     public ResponseEntity<ApiResponse<ItemDto.Response>> updateImage(
             @PathVariable Long id, @RequestBody UploadDto.ImageRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(itemService.updateImage(id, request.getImageUrl()), "Image updated"));
+    }
+
+    @PatchMapping("/{id}/operational")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'BRAND_ADMIN', 'KR_INVENTORY')")
+    public ResponseEntity<ApiResponse<ItemDto.Response>> updateItemOperational(
+            @PathVariable Long id,
+            @RequestBody ItemOperationalRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok(itemService.updateItemOperational(id, request), "Operational fields updated"));
     }
 
     @DeleteMapping("/{id}")

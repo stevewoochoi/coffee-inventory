@@ -10,10 +10,13 @@ import com.coffee.domain.master.repository.ItemRepository;
 import com.coffee.domain.master.repository.SupplierRepository;
 import com.coffee.domain.org.repository.BrandRepository;
 import lombok.RequiredArgsConstructor;
+import com.coffee.domain.master.dto.ItemOperationalRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -111,6 +114,30 @@ public class ItemService {
         itemRepository.save(item);
     }
 
+    @Transactional
+    public ItemDto.Response updateItemOperational(Long id, ItemOperationalRequest request) {
+        Item item = getActiveItemOrThrow(id);
+
+        List<String> validCycles = List.of("DAILY", "TWICE_WEEKLY", "WEEKLY", "MONTHLY");
+        if (request.getCountCycle() != null && !validCycles.contains(request.getCountCycle())) {
+            throw new IllegalArgumentException("Invalid countCycle: " + request.getCountCycle());
+        }
+
+        if (request.getStockUnit() != null) item.setStockUnit(request.getStockUnit());
+        if (request.getOrderUnit() != null) item.setOrderUnit(request.getOrderUnit());
+        if (request.getConversionQty() != null) item.setConversionQty(java.math.BigDecimal.valueOf(request.getConversionQty()));
+        if (request.getMinOrderQty() != null) item.setMinOrderQty(request.getMinOrderQty());
+        if (request.getParLevel() != null) item.setParLevel(java.math.BigDecimal.valueOf(request.getParLevel()));
+        if (request.getCountCycle() != null) item.setCountCycle(request.getCountCycle());
+        if (request.getStorageZone() != null) item.setStorageZone(request.getStorageZone());
+        if (request.getItemGrade() != null) item.setItemGrade(request.getItemGrade());
+        item.setSubstituteItemId(request.getSubstituteItemId());
+        if (request.getLotTracking() != null) item.setLotTracking(request.getLotTracking());
+        if (request.getIsPosTracked() != null) item.setIsPosTracked(request.getIsPosTracked());
+
+        return toResponse(itemRepository.save(item));
+    }
+
     private Item getActiveItemOrThrow(Long id) {
         return itemRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Item", id));
@@ -150,6 +177,18 @@ public class ItemService {
                 .spec(item.getSpec())
                 .description(item.getDescription())
                 .createdAt(item.getCreatedAt())
+                .stockUnit(item.getStockUnit())
+                .orderUnit(item.getOrderUnit())
+                .conversionQty(item.getConversionQty() != null ? item.getConversionQty().doubleValue() : null)
+                .minOrderQty(item.getMinOrderQty())
+                .parLevel(item.getParLevel() != null ? item.getParLevel().doubleValue() : null)
+                .countCycle(item.getCountCycle())
+                .storageZone(item.getStorageZone())
+                .itemGrade(item.getItemGrade())
+                .substituteItemId(item.getSubstituteItemId())
+                .lotTracking(item.getLotTracking())
+                .dailyUsageAvg(item.getDailyUsageAvg() != null ? item.getDailyUsageAvg().doubleValue() : null)
+                .isPosTracked(item.getIsPosTracked())
                 .build();
     }
 }

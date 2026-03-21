@@ -28,5 +28,13 @@ public class OrderSuggestionDto {
         private BigDecimal avgDailyDemand;
         private Integer leadTimeDays;
         private Integer suggestedPackQty;
+        private BigDecimal parLevel;
+        private BigDecimal dailyUsageAvg;
+        private BigDecimal daysUntilEmpty;
+        private BigDecimal leadTimeConsumption;
+        private String stockUnit;
+        private String orderUnit;
+        private Integer minOrderQty;
+        private String recommendationBasis;
     }
 }

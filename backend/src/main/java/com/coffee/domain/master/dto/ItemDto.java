@@ -81,5 +81,19 @@ public class ItemDto {
         private String spec;
         private String description;
         private LocalDateTime createdAt;
+
+        // Operational fields (V6)
+        private String stockUnit;
+        private String orderUnit;
+        private Double conversionQty;
+        private Integer minOrderQty;
+        private Double parLevel;
+        private String countCycle;
+        private String storageZone;
+        private String itemGrade;
+        private Long substituteItemId;
+        private String lotTracking;
+        private Double dailyUsageAvg;
+        private Boolean isPosTracked;
     }
 }

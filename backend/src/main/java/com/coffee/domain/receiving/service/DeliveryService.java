@@ -15,6 +15,7 @@ import com.coffee.domain.ordering.entity.OrderPlan;
 import com.coffee.domain.ordering.entity.OrderStatus;
 import com.coffee.domain.ordering.repository.OrderLineRepository;
 import com.coffee.domain.ordering.repository.OrderPlanRepository;
+import com.coffee.domain.inventory.dto.QuickReceiveDto;
 import com.coffee.domain.receiving.dto.DeliveryDto;
 import com.coffee.domain.receiving.dto.DeliveryScanDto;
 import com.coffee.domain.receiving.dto.OrderReceivingDto;
@@ -245,6 +246,58 @@ public class DeliveryService {
         orderPlanRepository.save(plan);
 
         return toResponse(delivery);
+    }
+
+    @Transactional
+    public DeliveryDto.Response quickConfirm(Long deliveryId, QuickReceiveDto.QuickConfirmRequest request) {
+        Delivery delivery = getOrThrow(deliveryId);
+        if (delivery.getStatus() == DeliveryStatus.COMPLETED) {
+            throw new BusinessException("이미 완료된 입고 건입니다", HttpStatus.BAD_REQUEST);
+        }
+        if (delivery.getStatus() == DeliveryStatus.CANCELLED) {
+            throw new BusinessException("취소된 입고 건에는 입고할 수 없습니다", HttpStatus.BAD_REQUEST);
+        }
+
+        for (QuickReceiveDto.ReceiveLine line : request.getLines()) {
+            Packaging packaging = packagingRepository.findById(line.getPackagingId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Packaging", line.getPackagingId()));
+
+            BigDecimal totalQty = packaging.getUnitsPerPack()
+                    .multiply(new BigDecimal(line.getReceivedQty()));
+
+            inventoryService.recordStockChange(
+                    delivery.getStoreId(),
+                    packaging.getItemId(),
+                    totalQty,
+                    LedgerType.RECEIVE,
+                    "DELIVERY",
+                    deliveryId,
+                    request.getNote() != null ? request.getNote() : "Quick confirm #" + deliveryId,
+                    null,
+                    line.getExpDate(),
+                    null
+            );
+        }
+
+        delivery.setStatus(DeliveryStatus.COMPLETED);
+        deliveryRepository.save(delivery);
+
+        // If delivery is linked to an order plan, update order plan status
+        if (delivery.getOrderPlanId() != null) {
+            orderPlanRepository.findById(delivery.getOrderPlanId()).ifPresent(plan -> {
+                plan.setStatus(OrderStatus.DELIVERED);
+                plan.setReceivedAt(java.time.LocalDateTime.now());
+                orderPlanRepository.save(plan);
+            });
+        }
+
+        return toResponse(delivery);
+    }
+
+    public List<DeliveryDto.Response> getPendingDeliveries(Long storeId) {
+        return deliveryRepository.findByStoreIdAndStatusIn(
+                storeId, List.of(DeliveryStatus.PENDING, DeliveryStatus.IN_PROGRESS)
+        ).stream().map(this::toResponse).toList();
     }
 
     private Delivery getOrThrow(Long id) {
