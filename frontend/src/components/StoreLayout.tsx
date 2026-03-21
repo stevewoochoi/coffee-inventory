@@ -56,7 +56,7 @@ export function StoreLayout() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto px-4 py-6 md:overflow-visible">
+      <main className="flex-1 overflow-visible px-4 py-6 pb-0 md:pb-6">
         <NotificationBanner />
         <Outlet />
       </main>

@@ -683,7 +683,7 @@ export default function NewOrderPage() {
       {step === 3 && renderStep3()}
 
       {step < 4 && (
-        <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 -mx-4 px-4 z-50 shadow-[0_-2px_8px_rgba(0,0,0,0.1)]">
+        <div className="sticky bottom-[56px] md:bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 -mx-4 px-4 z-40 shadow-[0_-2px_8px_rgba(0,0,0,0.1)]">
           <div className="flex gap-3">
             {step > 1 && (
               <Button variant="outline" className="flex-1 h-12" onClick={() => setStep(step - 1)}>
