@@ -16,6 +16,7 @@ import OrderTimeline from '@/components/store/OrderTimeline';
 const statusColor: Record<string, string> = {
   DRAFT: 'bg-gray-100 text-gray-800',
   CONFIRMED: 'bg-blue-100 text-blue-800',
+  CUTOFF_CLOSED: 'bg-purple-100 text-purple-800',
   DISPATCHED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-red-100 text-red-800',
   PARTIALLY_RECEIVED: 'bg-yellow-100 text-yellow-800',
@@ -80,15 +81,23 @@ export default function OrderDetailPage() {
     if (!order) return;
     try {
       const res = await orderingApi.downloadPdf(order.id);
-      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const blob = res.data instanceof Blob
+        ? res.data
+        : new Blob([res.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `order-${order.id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        window.open(url, '_blank');
+      } else {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `order-${order.id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      setTimeout(() => window.URL.revokeObjectURL(url), 5000);
     } catch {
       toast.error(t('ordering.downloadFailed'));
     }
