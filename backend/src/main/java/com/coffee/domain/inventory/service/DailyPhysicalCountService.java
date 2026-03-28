@@ -132,36 +132,19 @@ public class DailyPhysicalCountService {
                     .build();
         }
 
-        // 4. Apply inventory adjustment if variance exists
+        // 4. Apply inventory adjustment
+        // varianceQty = counted - currentSystemQty
+        // Since currentSystemQty already includes any previous adjustments,
+        // we simply apply the full variance as the adjustment amount.
         if (varianceQty.compareTo(BigDecimal.ZERO) != 0) {
-            BigDecimal adjustmentQty;
-            if (wasAppliedBefore) {
-                // Reverse previous adjustment and apply new one
-                adjustmentQty = varianceQty.subtract(previousVariance);
-            } else {
-                adjustmentQty = varianceQty;
-            }
-
-            if (adjustmentQty.compareTo(BigDecimal.ZERO) != 0) {
-                inventoryService.recordStockChange(
-                        storeId, request.getItemId(),
-                        adjustmentQty, LedgerType.ADJUST,
-                        "DAILY_COUNT", entity.getId() != null ? entity.getId() : 0L,
-                        "Daily count adjustment: " + request.getCountDate(),
-                        userId);
-            }
-            entity.setIsApplied(true);
-            entity.setAppliedAt(LocalDateTime.now());
-        } else if (wasAppliedBefore && previousVariance.compareTo(BigDecimal.ZERO) != 0) {
-            // Counted qty matches system qty, but there was a previous adjustment - reverse it
             inventoryService.recordStockChange(
                     storeId, request.getItemId(),
-                    previousVariance.negate(), LedgerType.ADJUST,
-                    "DAILY_COUNT", entity.getId(),
-                    "Daily count reversal: " + request.getCountDate(),
+                    varianceQty, LedgerType.ADJUST,
+                    "DAILY_COUNT", entity.getId() != null ? entity.getId() : 0L,
+                    "Daily count adjustment: " + request.getCountDate(),
                     userId);
-            entity.setIsApplied(false);
-            entity.setAppliedAt(null);
+            entity.setIsApplied(true);
+            entity.setAppliedAt(LocalDateTime.now());
         }
 
         entity = dailyPhysicalCountRepository.save(entity);

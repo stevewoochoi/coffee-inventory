@@ -156,7 +156,7 @@ export default function DailyInventoryPage() {
 
     try {
       setSaving(true);
-      const result = await saveDailyCount({ itemId, countDate: col.dateStr, qty });
+      const result = await saveDailyCount({ itemId, countDate: col.dateStr, qty }, storeId);
       // Update local state with variance info from server
       if (result && result.varianceQty !== undefined) {
         setRows((prev) =>

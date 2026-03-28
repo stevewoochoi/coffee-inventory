@@ -44,7 +44,9 @@ export const getMonthlyCount = async (storeId: number, year: number, month: numb
   return res.data.data
 }
 
-export const saveDailyCount = async (request: SaveRequest) => {
-  const res = await apiClient.put<{ data: SaveResponse }>('/daily-counts', request)
+export const saveDailyCount = async (request: SaveRequest, storeId?: number) => {
+  const res = await apiClient.put<{ data: SaveResponse }>('/daily-counts', request, {
+    params: storeId ? { storeId } : undefined
+  })
   return res.data.data
 }

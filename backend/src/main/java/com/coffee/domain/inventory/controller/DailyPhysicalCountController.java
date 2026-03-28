@@ -34,9 +34,14 @@ public class DailyPhysicalCountController {
     @PreAuthorize("hasAnyRole('STORE_MANAGER','BRAND_ADMIN','SUPER_ADMIN')")
     public ApiResponse<DailyPhysicalCountDto.SaveResponse> save(
             @Valid @RequestBody DailyPhysicalCountDto.SaveRequest request,
+            @RequestParam(required = false) Long storeId,
             @AuthenticationPrincipal CustomUserDetails user) {
-        Long storeId = user.getStoreId();
-        return ApiResponse.ok(service.saveCount(request, storeId, user.getId()));
+        Long resolvedStoreId = storeId != null ? storeId : user.getStoreId();
+        if (resolvedStoreId == null) {
+            throw new BusinessException("storeId is required", HttpStatus.BAD_REQUEST, "STORE_ID_REQUIRED");
+        }
+        validateStoreAccess(user, resolvedStoreId);
+        return ApiResponse.ok(service.saveCount(request, resolvedStoreId, user.getId()));
     }
 
     private void validateStoreAccess(CustomUserDetails user, Long storeId) {
