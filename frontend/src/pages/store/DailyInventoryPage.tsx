@@ -38,6 +38,7 @@ export default function DailyInventoryPage() {
   const [rows, setRows] = useState<ItemCountRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editCell, setEditCell] = useState<EditCell | null>(null);
+  const [editRowData, setEditRowData] = useState<ItemCountRow | null>(null);
   const [inputVal, setInputVal] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -130,6 +131,7 @@ export default function DailyInventoryPage() {
       itemNameJa: row.itemNameJa,
       col,
     });
+    setEditRowData(row);
     setInputVal(existing !== undefined && existing !== null ? String(existing) : '');
   };
 
@@ -154,8 +156,27 @@ export default function DailyInventoryPage() {
 
     try {
       setSaving(true);
-      await saveDailyCount({ itemId, countDate: col.dateStr, qty });
-      toast.success('저장완료');
+      const result = await saveDailyCount({ itemId, countDate: col.dateStr, qty });
+      // Update local state with variance info from server
+      if (result && result.varianceQty !== undefined) {
+        setRows((prev) =>
+          prev.map((r) =>
+            r.itemId === itemId
+              ? {
+                  ...r,
+                  varianceQties: { ...r.varianceQties, [col.day]: result.varianceQty },
+                  systemQties: { ...r.systemQties, [col.day]: result.systemQty },
+                  appliedFlags: { ...r.appliedFlags, [col.day]: result.isApplied },
+                  currentSystemQty: result.systemQty + result.varianceQty, // after adjustment
+                }
+              : r
+          )
+        );
+      }
+      const varianceMsg = result?.varianceQty && result.varianceQty !== 0
+        ? ` (차이: ${result.varianceQty > 0 ? '+' : ''}${result.varianceQty} → 재고 조정됨)`
+        : '';
+      toast.success(`저장완료${varianceMsg}`);
     } catch {
       setRows(prevRows);
       toast.error('저장 실패');
@@ -247,11 +268,9 @@ export default function DailyInventoryPage() {
                   <span className="text-[11px] font-medium text-gray-900 truncate leading-tight">
                     {row.itemName}
                   </span>
-                  {row.itemNameJa && (
-                    <span className="text-[9px] text-gray-400 truncate leading-tight">
-                      {row.itemNameJa}
-                    </span>
-                  )}
+                  <span className="text-[9px] text-gray-400 truncate leading-tight">
+                    {row.currentSystemQty != null ? `재고 ${row.currentSystemQty}${row.stockUnit || row.baseUnit || ''}` : ''}
+                  </span>
                 </div>
               ))}
               {rows.length === 0 && (
@@ -274,15 +293,20 @@ export default function DailyInventoryPage() {
                       const isToday = col.dateStr === todayStr;
                       const val = col.isPrevMonth ? undefined : row.dailyCounts[col.day];
                       const hasValue = val !== undefined && val !== null;
+                      const variance = !col.isPrevMonth && row.varianceQties ? row.varianceQties[col.day] : undefined;
+                      const hasVariance = variance !== undefined && variance !== null && variance !== 0;
                       return (
                         <div
                           key={col.dateStr}
                           onClick={() => handleCellTap(row, col)}
                           className={`${CELL_BASE} shrink-0 flex items-center justify-center border-b border-r select-none text-xs
                             ${!col.isPrevMonth ? 'cursor-pointer active:bg-blue-100' : 'cursor-default'}
-                            ${isToday ? 'bg-blue-50' : ''}
+                            ${isToday && !hasVariance ? 'bg-blue-50' : ''}
                             ${col.isPrevMonth ? 'bg-gray-50' : ''}
-                            ${hasValue ? 'font-bold text-gray-900' : 'text-gray-300'}
+                            ${hasVariance && variance > 0 ? 'bg-green-50 text-green-700 font-bold' : ''}
+                            ${hasVariance && variance < 0 ? 'bg-red-50 text-red-700 font-bold' : ''}
+                            ${hasValue && !hasVariance ? 'font-bold text-gray-900' : ''}
+                            ${!hasValue && !col.isPrevMonth ? 'text-gray-300' : ''}
                           `}
                         >
                           {col.isPrevMonth ? '' : hasValue ? val : '—'}
@@ -317,6 +341,11 @@ export default function DailyInventoryPage() {
               <p className="text-sm text-gray-500 mt-0.5">
                 {editCell.col.year}년 {editCell.col.month}월 {editCell.col.day}일
               </p>
+              {editRowData && (
+                <p className="text-sm text-blue-600 mt-1 font-medium">
+                  시스템 재고: {editRowData.currentSystemQty ?? 0} {editRowData.stockUnit || editRowData.baseUnit || ''}
+                </p>
+              )}
             </div>
 
             <input

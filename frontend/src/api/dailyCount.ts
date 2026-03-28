@@ -4,7 +4,13 @@ export interface ItemCountRow {
   itemId: number
   itemName: string
   itemNameJa: string
+  baseUnit: string
+  stockUnit: string
+  currentSystemQty: number
   dailyCounts: Record<number, number>
+  systemQties: Record<number, number>
+  varianceQties: Record<number, number>
+  appliedFlags: Record<number, boolean>
 }
 
 export interface MonthlyResponse {
@@ -25,6 +31,9 @@ export interface SaveResponse {
   itemId: number
   countDate: string
   qty: number
+  systemQty: number
+  varianceQty: number
+  isApplied: boolean
   updatedAt: string
 }
 
