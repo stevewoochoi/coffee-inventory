@@ -35,6 +35,19 @@ public class DailyPhysicalCount {
     @Column(length = 200)
     private String memo;
 
+    @Column(name = "system_qty", precision = 12, scale = 3)
+    private BigDecimal systemQty;
+
+    @Column(name = "variance_qty", precision = 12, scale = 3)
+    private BigDecimal varianceQty;
+
+    @Column(name = "is_applied")
+    @Builder.Default
+    private Boolean isApplied = false;
+
+    @Column(name = "applied_at")
+    private LocalDateTime appliedAt;
+
     @Column(name = "created_by")
     private Long createdBy;
 

@@ -29,7 +29,13 @@ public class DailyPhysicalCountDto {
         private Long itemId;
         private String itemName;
         private String itemNameJa;
-        private Map<Integer, BigDecimal> dailyCounts; // key=day(1-31), value=qty
+        private String baseUnit;
+        private String stockUnit;
+        private BigDecimal currentSystemQty;  // Current inventory snapshot qty
+        private Map<Integer, BigDecimal> dailyCounts;
+        private Map<Integer, BigDecimal> systemQties;    // system qty at count time per day
+        private Map<Integer, BigDecimal> varianceQties;  // variance per day
+        private Map<Integer, Boolean> appliedFlags;      // whether applied per day
     }
 
     @Getter
@@ -52,6 +58,9 @@ public class DailyPhysicalCountDto {
         private Long itemId;
         private LocalDate countDate;
         private BigDecimal qty;
+        private BigDecimal systemQty;
+        private BigDecimal varianceQty;
+        private Boolean isApplied;
         private LocalDateTime updatedAt;
     }
 }
