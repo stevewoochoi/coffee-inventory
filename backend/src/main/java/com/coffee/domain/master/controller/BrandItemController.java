@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/master/brand-items")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'BRAND_ADMIN')")
 public class BrandItemController {
 
     private final BrandItemService brandItemService;

@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/cycle-count")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('STORE_MANAGER', 'KR_INVENTORY', 'BRAND_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'BRAND_ADMIN', 'STORE_MANAGER', 'JP_ORDERER')")
 public class CycleCountController {
 
     private final CycleCountService cycleCountService;

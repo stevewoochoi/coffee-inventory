@@ -84,7 +84,7 @@ class DashboardApiTest {
 
         // Create some orders
         Supplier supplier = supplierRepository.save(Supplier.builder()
-                .brandId(brandId).name("Supplier").build());
+                .brandId(brandId).name("Supplier").email("supplier@test.com").build());
         planRepository.save(OrderPlan.builder()
                 .storeId(storeId).supplierId(supplier.getId())
                 .status(OrderStatus.CONFIRMED)

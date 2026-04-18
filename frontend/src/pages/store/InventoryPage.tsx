@@ -10,6 +10,16 @@ import { Button } from '@/components/ui/button';
 
 type SortKey = 'name' | 'lowStock' | 'daysLeft';
 
+function formatQty(value: number, baseUnit: string): { display: string; unit: string } {
+  if (baseUnit === 'g' && value >= 1000) {
+    return { display: (value / 1000).toFixed(1).replace(/\.0$/, ''), unit: 'kg' };
+  }
+  if (baseUnit === 'ml' && value >= 1000) {
+    return { display: (value / 1000).toFixed(1).replace(/\.0$/, ''), unit: 'L' };
+  }
+  return { display: Number(value).toFixed(0), unit: baseUnit };
+}
+
 export default function InventoryPage() {
   const [items, setItems] = useState<ItemForecast[]>([]);
   const [categories, setCategories] = useState<ItemCategory[]>([]);
@@ -94,7 +104,32 @@ export default function InventoryPage() {
     }
   }
 
-  if (loading) return <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>;
+  if (loading) return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="h-7 w-40 bg-gray-200 rounded animate-pulse" />
+        <div className="h-10 w-28 bg-gray-200 rounded animate-pulse" />
+      </div>
+      <div className="bg-white rounded-xl border p-4">
+        <div className="h-3 rounded-full bg-gray-200 animate-pulse mb-2" />
+        <div className="h-3 rounded-full bg-gray-100 animate-pulse" />
+      </div>
+      <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+      <div className="flex gap-2">
+        {[1,2,3,4].map(i => <div key={i} className="h-10 w-20 bg-gray-200 rounded-full animate-pulse" />)}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {[1,2,3,4,5,6].map(i => (
+          <div key={i} className="bg-white rounded-xl border-2 border-gray-200 p-4 space-y-3">
+            <div className="h-4 w-2/3 bg-gray-200 rounded animate-pulse" />
+            <div className="h-3 bg-gray-100 rounded-full animate-pulse" />
+            <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse" />
+            <div className="h-8 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   const allCategories = [...new Set(items.map(i => i.category).filter(Boolean))];
 
@@ -154,8 +189,20 @@ export default function InventoryPage() {
         className="w-full border rounded-lg px-3 py-2.5 text-sm"
       />
 
-      {/* Category filter tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      {/* Category filter - dropdown on mobile, tabs on desktop */}
+      <div className="md:hidden">
+        <select
+          value={activeCategory}
+          onChange={(e) => setActiveCategory(e.target.value)}
+          className="w-full border rounded-lg px-3 py-2.5 text-sm bg-white min-h-[44px]"
+        >
+          <option value="all">{t('ordering.catalog.allCategories')}</option>
+          {(categories.length > 0 ? categories.map(c => c.name) : allCategories).map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+      <div className="hidden md:flex gap-2 overflow-x-auto pb-1">
         <button
           onClick={() => setActiveCategory('all')}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[40px] ${
@@ -238,10 +285,16 @@ export default function InventoryPage() {
 
               <div className="flex items-center justify-between text-sm">
                 <div>
-                  <span className={`font-bold ${isLow ? 'text-red-600' : ''}`}>
-                    {Number(item.currentStock).toFixed(0)}
-                  </span>
-                  <span className="text-gray-400"> / {Number(item.minStock).toFixed(0)} {item.baseUnit}</span>
+                  {(() => {
+                    const cur = formatQty(item.currentStock, item.baseUnit);
+                    const min = formatQty(item.minStock, item.baseUnit);
+                    return (
+                      <>
+                        <span className={`font-bold ${isLow ? 'text-red-600' : ''}`}>{cur.display}</span>
+                        <span className="text-gray-400"> / {min.display} {cur.unit}</span>
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="flex items-center gap-1 text-xs">
                   {item.trend === 'UP' && <span className="text-red-500">&#9650;</span>}
@@ -256,7 +309,7 @@ export default function InventoryPage() {
                     ? t('inventory.forecast.daysLeft', { days: Number(item.daysUntilEmpty).toFixed(0) })
                     : t('inventory.forecast.noUsage')}
                 </span>
-                <span>{t('inventory.forecast.avgUsage', { qty: Number(item.avgDailyUsage).toFixed(0) })}/{t('common.day', { defaultValue: 'day' })}</span>
+                <span>{(() => { const u = formatQty(item.avgDailyUsage, item.baseUnit); return t('inventory.forecast.avgUsage', { qty: u.display }); })()}/{t('common.day', { defaultValue: 'day' })}</span>
               </div>
 
               {/* Action buttons */}
@@ -294,7 +347,7 @@ export default function InventoryPage() {
             <p className="text-sm text-gray-600 mb-4">{adjustItem.itemName}</p>
             <div className="mb-3">
               <label className="text-sm font-medium block mb-1">{t('inventory.adjust.currentQty')}</label>
-              <p className="text-lg font-bold">{Number(adjustItem.currentStock).toFixed(0)} {adjustItem.baseUnit}</p>
+              <p className="text-lg font-bold">{(() => { const q = formatQty(adjustItem.currentStock, adjustItem.baseUnit); return `${q.display} ${q.unit}`; })()}</p>
             </div>
             <div className="mb-3">
               <label className="text-sm font-medium block mb-1">{t('inventory.adjust.actualQty')}</label>

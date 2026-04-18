@@ -6,6 +6,7 @@ import com.coffee.domain.ordering.service.DeliveryPolicyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/v1/ordering")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'BRAND_ADMIN', 'STORE_MANAGER', 'JP_ORDERER')")
 public class DeliveryPolicyController {
 
     private final DeliveryPolicyService deliveryPolicyService;

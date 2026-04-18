@@ -21,7 +21,7 @@ public interface InventorySnapshotRepository extends JpaRepository<InventorySnap
     List<InventorySnapshot> findByStoreIdAndItemIdOrderByExpDateAsc(Long storeId, Long itemId);
 
     @Query("SELECT s FROM InventorySnapshot s WHERE s.storeId = :storeId AND s.itemId = :itemId " +
-            "AND s.qtyBaseUnit > 0 AND s.expDate IS NOT NULL ORDER BY s.expDate ASC")
+            "AND s.qtyBaseUnit > 0 ORDER BY CASE WHEN s.expDate IS NULL THEN 1 ELSE 0 END, s.expDate ASC")
     List<InventorySnapshot> findAvailableLotsByFifo(
             @Param("storeId") Long storeId, @Param("itemId") Long itemId);
 

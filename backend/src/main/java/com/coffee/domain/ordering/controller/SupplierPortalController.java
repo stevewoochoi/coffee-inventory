@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/supplier-portal")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('SUPER_ADMIN','BRAND_ADMIN','FULFILLMENT')")
+@PreAuthorize("hasAnyRole('SUPPLIER', 'FULFILLMENT', 'SUPER_ADMIN', 'BRAND_ADMIN')")
 public class SupplierPortalController {
 
     private final SupplierPortalService portalService;

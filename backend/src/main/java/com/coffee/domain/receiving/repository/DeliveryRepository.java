@@ -18,4 +18,6 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
 
     List<Delivery> findByStoreIdAndStatusAndCreatedAtBetweenOrderByCreatedAtDesc(
             Long storeId, DeliveryStatus status, LocalDateTime from, LocalDateTime to);
+
+    List<Delivery> findByOrderPlanId(Long orderPlanId);
 }

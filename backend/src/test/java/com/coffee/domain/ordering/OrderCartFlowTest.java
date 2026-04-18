@@ -82,9 +82,9 @@ class OrderCartFlowTest {
         packaging2Id = pkg2.getId();
 
         Supplier sup1 = supplierRepository.save(Supplier.builder()
-                .brandId(brand.getId()).name("Supplier A").build());
+                .brandId(brand.getId()).name("Supplier A").email("a@test.com").build());
         Supplier sup2 = supplierRepository.save(Supplier.builder()
-                .brandId(brand.getId()).name("Supplier B").build());
+                .brandId(brand.getId()).name("Supplier B").email("b@test.com").build());
         supplier1Id = sup1.getId();
         supplier2Id = sup2.getId();
 

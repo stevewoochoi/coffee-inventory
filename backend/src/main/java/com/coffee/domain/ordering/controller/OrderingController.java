@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/ordering")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'BRAND_ADMIN', 'STORE_MANAGER', 'JP_ORDERER')")
 public class OrderingController {
 
     private final OrderingService orderingService;
@@ -110,9 +112,12 @@ public class OrderingController {
             @PathVariable Long orderId,
             @RequestParam Long storeId,
             @AuthenticationPrincipal CustomUserDetails user) {
-        Long userId = user != null ? user.getId() : 1L;
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Authentication required"));
+        }
         return ResponseEntity.ok(ApiResponse.ok(
-                orderCartService.copyOrderToCart(storeId, userId, orderId),
+                orderCartService.copyOrderToCart(storeId, user.getId(), orderId),
                 "Order copied to cart"));
     }
 

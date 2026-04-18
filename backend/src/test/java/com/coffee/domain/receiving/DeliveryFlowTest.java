@@ -74,7 +74,7 @@ class DeliveryFlowTest {
         packagingId = packaging.getId();
 
         Supplier supplier = supplierRepository.save(Supplier.builder()
-                .brandId(brand.getId()).name("Supplier").build());
+                .brandId(brand.getId()).name("Supplier").email("supplier@test.com").build());
         supplierId = supplier.getId();
 
         token = jwtUtil.generateAccessToken(1L, "a@t.com", "STORE_MANAGER",

@@ -6,11 +6,13 @@ import com.coffee.domain.ordering.service.FulfillmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/admin/ordering")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'BRAND_ADMIN', 'KR_INVENTORY', 'FULFILLMENT')")
 public class AdminOrderController {
 
     private final FulfillmentService fulfillmentService;

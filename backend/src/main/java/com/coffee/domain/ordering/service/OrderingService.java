@@ -65,7 +65,7 @@ public class OrderingService {
     private OrderPlanDto.DetailedResponse toDetailedResponse(OrderPlan plan) {
         Supplier supplier = supplierRepository.findById(plan.getSupplierId()).orElse(null);
         Store store = storeRepository.findById(plan.getStoreId()).orElse(null);
-        List<OrderLine> lines = lineRepository.findByOrderPlanId(plan.getId());
+        List<OrderLine> lines = lineRepository.findByOrderPlanIdAndIsActiveTrue(plan.getId());
 
         List<OrderPlanDto.HistoryLine> historyLines = lines.stream().map(line -> {
             Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);

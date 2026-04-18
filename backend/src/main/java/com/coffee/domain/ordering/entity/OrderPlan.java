@@ -51,11 +51,11 @@ public class OrderPlan {
     @Column(name = "delivery_policy_id")
     private Long deliveryPolicyId;
 
-    @Column(name = "total_amount", precision = 12, scale = 2)
+    @Column(name = "total_amount", precision = 15, scale = 2)
     @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
-    @Column(name = "vat_amount", precision = 12, scale = 2)
+    @Column(name = "vat_amount", precision = 15, scale = 2)
     @Builder.Default
     private BigDecimal vatAmount = BigDecimal.ZERO;
 
@@ -71,8 +71,17 @@ public class OrderPlan {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

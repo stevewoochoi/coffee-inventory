@@ -6,9 +6,12 @@ import com.coffee.domain.inventory.entity.StockLedger;
 import com.coffee.domain.inventory.repository.InventorySnapshotRepository;
 import com.coffee.domain.inventory.repository.StockLedgerRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -17,13 +20,16 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InventoryService {
+
+    private static final int MAX_RETRY = 3;
 
     private final StockLedgerRepository stockLedgerRepository;
     private final InventorySnapshotRepository snapshotRepository;
 
     /**
-     * 재고 변동 기록 (lot/유통기한 포함)
+     * 재고 변동 기록 (lot/유통기한 포함) - 낙관적 잠금 + 재시도
      */
     @Transactional
     public StockLedger recordStockChange(Long storeId, Long itemId, BigDecimal qty,
@@ -44,19 +50,36 @@ public class InventoryService {
                 .build();
         stockLedgerRepository.save(ledger);
 
-        InventorySnapshot snapshot = snapshotRepository
-                .findByStoreIdAndItemIdAndExpDateAndLotNo(storeId, itemId, expDate, lotNo)
-                .orElseGet(() -> InventorySnapshot.builder()
-                        .storeId(storeId)
-                        .itemId(itemId)
-                        .expDate(expDate)
-                        .lotNo(lotNo)
-                        .qtyBaseUnit(BigDecimal.ZERO)
-                        .build());
-        snapshot.setQtyBaseUnit(snapshot.getQtyBaseUnit().add(qty));
-        snapshotRepository.save(snapshot);
+        updateSnapshotWithRetry(storeId, itemId, qty, expDate, lotNo);
 
         return ledger;
+    }
+
+    private void updateSnapshotWithRetry(Long storeId, Long itemId, BigDecimal qty,
+                                          LocalDate expDate, String lotNo) {
+        for (int attempt = 0; attempt < MAX_RETRY; attempt++) {
+            try {
+                InventorySnapshot snapshot = snapshotRepository
+                        .findByStoreIdAndItemIdAndExpDateAndLotNo(storeId, itemId, expDate, lotNo)
+                        .orElseGet(() -> InventorySnapshot.builder()
+                                .storeId(storeId)
+                                .itemId(itemId)
+                                .expDate(expDate)
+                                .lotNo(lotNo)
+                                .qtyBaseUnit(BigDecimal.ZERO)
+                                .build());
+                snapshot.setQtyBaseUnit(snapshot.getQtyBaseUnit().add(qty));
+                snapshotRepository.saveAndFlush(snapshot);
+                return;
+            } catch (ObjectOptimisticLockingFailureException e) {
+                log.warn("Optimistic lock conflict on snapshot (store={}, item={}, attempt={}), retrying...",
+                        storeId, itemId, attempt + 1);
+                if (attempt == MAX_RETRY - 1) {
+                    throw e;
+                }
+                snapshotRepository.flush();
+            }
+        }
     }
 
     /**

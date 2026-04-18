@@ -8,4 +8,8 @@ import java.util.List;
 public interface OrderLineRepository extends JpaRepository<OrderLine, Long> {
 
     List<OrderLine> findByOrderPlanId(Long orderPlanId);
+
+    List<OrderLine> findByOrderPlanIdAndIsActiveTrue(Long orderPlanId);
+
+    List<OrderLine> findByOrderPlanIdOrderByModificationVersionDescCreatedAtDesc(Long orderPlanId);
 }

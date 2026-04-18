@@ -360,7 +360,7 @@ class V6Backend1Test {
                     .orderUnitName("BAG").build());
 
             Supplier supplier = supplierRepository.save(Supplier.builder()
-                    .brandId(brandId).name("Main Supplier").build());
+                    .brandId(brandId).name("Main Supplier").email("main@test.com").build());
             supplierItemRepository.save(SupplierItem.builder()
                     .supplierId(supplier.getId()).packagingId(fridayPkg.getId())
                     .price(new BigDecimal("15000")).leadTimeDays(1).build());

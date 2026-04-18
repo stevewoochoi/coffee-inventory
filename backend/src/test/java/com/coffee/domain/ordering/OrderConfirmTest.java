@@ -90,9 +90,9 @@ class OrderConfirmTest {
         packaging2Id = pkg2.getId();
 
         Supplier sup1 = supplierRepository.save(Supplier.builder()
-                .brandId(brandId).name("Supplier A").build());
+                .brandId(brandId).name("Supplier A").email("a@test.com").build());
         Supplier sup2 = supplierRepository.save(Supplier.builder()
-                .brandId(brandId).name("Supplier B").build());
+                .brandId(brandId).name("Supplier B").email("b@test.com").build());
         supplier1Id = sup1.getId();
         supplier2Id = sup2.getId();
 
@@ -232,8 +232,8 @@ class OrderConfirmTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo("CONFIRMED");
 
-        // Verify line was updated
-        List<OrderLine> lines = lineRepository.findByOrderPlanId(plan.getId());
+        // Verify active line was updated (old lines soft-deleted for audit)
+        List<OrderLine> lines = lineRepository.findByOrderPlanIdAndIsActiveTrue(plan.getId());
         assertThat(lines).hasSize(1);
         assertThat(lines.get(0).getPackQty()).isEqualTo(5);
     }

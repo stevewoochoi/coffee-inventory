@@ -24,7 +24,7 @@ public class Supplier {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 200)
+    @Column(nullable = false, length = 200)
     private String email;
 
     @Column(name = "biz_no", length = 20)
@@ -50,8 +50,17 @@ public class Supplier {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

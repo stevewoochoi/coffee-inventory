@@ -281,15 +281,51 @@ export default function ReceivingPage() {
                     </div>
                     <div>
                       <Label className="text-xs text-gray-500">{t('receiving.fromOrder.received')}</Label>
-                      <Input
-                        type="number"
-                        value={receiveLine?.packQty ?? 0}
-                        onChange={(e) => updateReceiveLine(idx, 'packQty', Math.max(0, Number(e.target.value)))}
-                        className="h-10 text-lg font-bold"
-                        inputMode="numeric"
-                        min={0}
-                      />
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-10 w-10 p-0 text-lg font-bold shrink-0"
+                          onClick={() => updateReceiveLine(idx, 'packQty', Math.max(0, (receiveLine?.packQty ?? 0) - 1))}
+                        >-</Button>
+                        <Input
+                          type="number"
+                          value={receiveLine?.packQty ?? 0}
+                          onChange={(e) => updateReceiveLine(idx, 'packQty', Math.max(0, Number(e.target.value)))}
+                          className="h-10 text-lg font-bold text-center"
+                          inputMode="numeric"
+                          min={0}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-10 w-10 p-0 text-lg font-bold shrink-0"
+                          onClick={() => updateReceiveLine(idx, 'packQty', (receiveLine?.packQty ?? 0) + 1)}
+                        >+</Button>
+                      </div>
                     </div>
+                  </div>
+                  {/* Quick quantity buttons */}
+                  <div className="flex gap-1.5 flex-wrap">
+                    {[0, 1, 3, 5, 10].map(q => (
+                      <Button
+                        key={q}
+                        type="button"
+                        variant={receiveLine?.packQty === q ? 'default' : 'outline'}
+                        size="sm"
+                        className="min-h-[36px] min-w-[44px]"
+                        onClick={() => updateReceiveLine(idx, 'packQty', q)}
+                      >{q === line.orderedPackQty ? `${q} (${t('receiving.fromOrder.match')})` : q}</Button>
+                    ))}
+                    {!([0, 1, 3, 5, 10].includes(line.orderedPackQty)) && (
+                      <Button
+                        type="button"
+                        variant={receiveLine?.packQty === line.orderedPackQty ? 'default' : 'outline'}
+                        size="sm"
+                        className="min-h-[36px]"
+                        onClick={() => updateReceiveLine(idx, 'packQty', line.orderedPackQty)}
+                      >{line.orderedPackQty} ({t('receiving.fromOrder.match')})</Button>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">

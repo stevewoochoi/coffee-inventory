@@ -161,7 +161,7 @@ public class DeliveryService {
 
         return plans.stream().map(plan -> {
             Supplier supplier = supplierRepository.findById(plan.getSupplierId()).orElse(null);
-            List<OrderLine> lines = orderLineRepository.findByOrderPlanId(plan.getId());
+            List<OrderLine> lines = orderLineRepository.findByOrderPlanIdAndIsActiveTrue(plan.getId());
             List<OrderReceivingDto.OrderLineDetail> lineDetails = lines.stream()
                     .map(line -> {
                         Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
@@ -224,20 +224,31 @@ public class DeliveryService {
             );
         }
 
-        // Compare received vs ordered to determine status
-        List<OrderLine> orderedLines = orderLineRepository.findByOrderPlanId(orderPlanId);
+        // Compare total received (all deliveries) vs ordered to determine status
+        List<OrderLine> orderedLines = orderLineRepository.findByOrderPlanIdAndIsActiveTrue(orderPlanId);
         Map<Long, Integer> orderedQtyMap = new java.util.HashMap<>();
         for (OrderLine ol : orderedLines) {
             orderedQtyMap.merge(ol.getPackagingId(), ol.getPackQty(), Integer::sum);
         }
 
-        Map<Long, Integer> receivedQtyMap = new java.util.HashMap<>();
+        // Sum all deliveries for this order (including previous partial receives)
+        List<Delivery> allDeliveries = deliveryRepository.findByOrderPlanId(orderPlanId);
+        Map<Long, Integer> totalReceivedQtyMap = new java.util.HashMap<>();
+        for (Delivery d : allDeliveries) {
+            if (d.getStatus() == DeliveryStatus.COMPLETED) {
+                List<DeliveryScan> deliveryScans = scanRepository.findByDeliveryId(d.getId());
+                for (DeliveryScan ds : deliveryScans) {
+                    totalReceivedQtyMap.merge(ds.getPackagingId(), ds.getPackCountScanned(), Integer::sum);
+                }
+            }
+        }
+        // Also add current receive lines (this delivery has no scans yet)
         for (OrderReceivingDto.ReceiveLine rl : request.getLines()) {
-            receivedQtyMap.merge(rl.getPackagingId(), rl.getPackQty(), Integer::sum);
+            totalReceivedQtyMap.merge(rl.getPackagingId(), rl.getPackQty(), Integer::sum);
         }
 
         boolean fullReceive = orderedQtyMap.entrySet().stream()
-                .allMatch(e -> receivedQtyMap.getOrDefault(e.getKey(), 0) >= e.getValue());
+                .allMatch(e -> totalReceivedQtyMap.getOrDefault(e.getKey(), 0) >= e.getValue());
 
         plan.setStatus(fullReceive ? OrderStatus.DELIVERED : OrderStatus.PARTIALLY_RECEIVED);
         if (fullReceive) {

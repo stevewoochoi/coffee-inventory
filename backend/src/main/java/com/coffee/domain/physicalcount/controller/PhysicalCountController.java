@@ -6,6 +6,7 @@ import com.coffee.domain.physicalcount.dto.PhysicalCountLineDto;
 import com.coffee.domain.physicalcount.service.PhysicalCountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/physical-count")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'BRAND_ADMIN', 'STORE_MANAGER', 'JP_ORDERER')")
 public class PhysicalCountController {
 
     private final PhysicalCountService physicalCountService;

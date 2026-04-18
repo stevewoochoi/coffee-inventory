@@ -53,10 +53,12 @@ export const storeNavGroups: StoreNavGroup[] = [
   },
 ];
 
-/** Mobile bottom tab bar — 4 tabs */
+/** Mobile bottom tab bar — 6 tabs for quick store access */
 export const storeBottomTabs: StoreNavItem[] = [
   { key: 'nav.store.home', to: '/store/dashboard', icon: Home },
   { key: 'nav.store.newOrder', to: '/store/ordering/new', icon: ShoppingCart },
+  { key: 'nav.receiving', to: '/store/receiving', icon: Package },
+  { key: 'nav.inventory', to: '/store/inventory', icon: Warehouse },
   { key: 'nav.store.orderHistory', to: '/store/ordering', icon: ClipboardList },
   { key: 'nav.store.more', to: '/store/menu', icon: Menu },
 ];

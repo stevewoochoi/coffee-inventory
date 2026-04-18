@@ -64,7 +64,28 @@ export default function StoreDashboardPage() {
   useEffect(() => { load(); }, [load]);
 
   if (loading) {
-    return <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>;
+    return (
+      <div className="space-y-4">
+        <div className="h-7 w-48 bg-gray-200 rounded animate-pulse" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="rounded-xl border-2 border-gray-200 p-3 space-y-2">
+              <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
+              <div className="h-8 w-12 bg-gray-200 rounded animate-pulse" />
+              <div className="h-3 w-24 bg-gray-100 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+        <div className="bg-white rounded-xl border p-4 h-52 flex items-center justify-center">
+          <div className="h-full w-full bg-gray-100 rounded animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {[1,2,3,4,5].map(i => (
+            <div key={i} className="h-14 bg-gray-200 rounded-lg animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (error || !data) {

@@ -132,31 +132,51 @@ export default function PhysicalCountDetailPage() {
 
                   {isActive ? (
                     isEditing ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          value={inputValue}
-                          onChange={(e) => setInputValue(e.target.value)}
-                          className="w-32 h-14 text-2xl text-center border-2 border-slate-400 rounded-lg focus:outline-none focus:border-slate-600"
-                          autoFocus
-                          inputMode="decimal"
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSave(line);
-                            if (e.key === 'Escape') { setEditingLine(null); setInputValue(''); }
-                          }}
-                        />
-                        <button
-                          onClick={() => handleSave(line)}
-                          className="px-4 h-14 bg-slate-600 text-white rounded-lg font-medium hover:bg-slate-600"
-                        >
-                          {t('common.save')}
-                        </button>
-                        <button
-                          onClick={() => { setEditingLine(null); setInputValue(''); }}
-                          className="px-3 h-14 bg-gray-200 rounded-lg hover:bg-gray-300"
-                        >
-                          {t('common.cancel')}
-                        </button>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setInputValue(String(Math.max(0, (parseFloat(inputValue) || 0) - 1)))}
+                            className="w-12 h-14 bg-gray-200 rounded-lg text-2xl font-bold hover:bg-gray-300"
+                          >-</button>
+                          <input
+                            type="number"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            className="w-28 h-14 text-2xl text-center border-2 border-slate-400 rounded-lg focus:outline-none focus:border-slate-600"
+                            autoFocus
+                            inputMode="decimal"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSave(line);
+                              if (e.key === 'Escape') { setEditingLine(null); setInputValue(''); }
+                            }}
+                          />
+                          <button
+                            onClick={() => setInputValue(String((parseFloat(inputValue) || 0) + 1))}
+                            className="w-12 h-14 bg-gray-200 rounded-lg text-2xl font-bold hover:bg-gray-300"
+                          >+</button>
+                          <button
+                            onClick={() => handleSave(line)}
+                            className="px-4 h-14 bg-slate-600 text-white rounded-lg font-medium hover:bg-slate-700"
+                          >
+                            {t('common.save')}
+                          </button>
+                        </div>
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => setInputValue(String(line.systemQty))}
+                            className="px-3 h-9 bg-blue-50 text-blue-700 rounded-md text-sm font-medium hover:bg-blue-100 border border-blue-200"
+                          >= {t('physicalCount.system')}</button>
+                          <button
+                            onClick={() => setInputValue('0')}
+                            className="px-3 h-9 bg-red-50 text-red-700 rounded-md text-sm font-medium hover:bg-red-100 border border-red-200"
+                          >0</button>
+                          <button
+                            onClick={() => { setEditingLine(null); setInputValue(''); }}
+                            className="px-3 h-9 bg-gray-200 rounded-md text-sm hover:bg-gray-300 ml-auto"
+                          >
+                            {t('common.cancel')}
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <button

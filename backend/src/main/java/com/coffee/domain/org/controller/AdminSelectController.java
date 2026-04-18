@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'BRAND_ADMIN')")
+@PreAuthorize("isAuthenticated()")
 public class AdminSelectController {
 
     private final BrandRepository brandRepository;

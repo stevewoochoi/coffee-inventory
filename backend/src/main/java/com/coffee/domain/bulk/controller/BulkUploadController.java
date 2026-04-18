@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/admin/bulk")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('SUPER_ADMIN','BRAND_ADMIN','KR_INVENTORY')")
+@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'BRAND_ADMIN')")
 public class BulkUploadController {
 
     private final BulkUploadService bulkUploadService;

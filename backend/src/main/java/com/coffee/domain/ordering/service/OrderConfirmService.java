@@ -158,9 +158,15 @@ public class OrderConfirmService {
             throw new BusinessException("Cannot modify order after cutoff time", HttpStatus.BAD_REQUEST);
         }
 
-        // Delete existing lines and recreate
-        List<OrderLine> existingLines = lineRepository.findByOrderPlanId(planId);
-        lineRepository.deleteAll(existingLines);
+        // Soft-delete existing lines for audit trail, then create new version
+        List<OrderLine> existingLines = lineRepository.findByOrderPlanIdAndIsActiveTrue(planId);
+        int nextVersion = existingLines.stream()
+                .mapToInt(l -> l.getModificationVersion() != null ? l.getModificationVersion() : 0)
+                .max().orElse(0) + 1;
+        for (OrderLine line : existingLines) {
+            line.setIsActive(false);
+        }
+        lineRepository.saveAll(existingLines);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
 
@@ -186,6 +192,7 @@ public class OrderConfirmService {
                         .orderPlanId(planId)
                         .packagingId(lineDto.getPackagingId())
                         .packQty(lineDto.getPackQty())
+                        .modificationVersion(nextVersion)
                         .build());
 
                 totalAmount = totalAmount.add(linePrice.multiply(BigDecimal.valueOf(lineDto.getPackQty())));

@@ -261,7 +261,7 @@ public class OrderCartService {
                 .orElseThrow(() -> new ResourceNotFoundException("OrderPlan", orderPlanId));
 
         OrderCart cart = getOrCreateCart(storeId, userId);
-        List<OrderLine> lines = lineRepository.findByOrderPlanId(orderPlanId);
+        List<OrderLine> lines = lineRepository.findByOrderPlanIdAndIsActiveTrue(orderPlanId);
 
         for (OrderLine line : lines) {
             Optional<OrderCartItem> existing = cartItemRepository
