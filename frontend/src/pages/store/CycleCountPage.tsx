@@ -100,7 +100,7 @@ export default function CycleCountPage() {
               {GRADE_OPTIONS.map((g) => (
                 <button key={g} onClick={() => setSelectedGrade(g)}
                   className={`flex-1 px-3 py-3 rounded-lg text-sm font-medium border-2 transition-colors ${
-                    selectedGrade === g ? 'border-slate-700 bg-slate-700 text-white' : 'border-gray-200 hover:border-slate-400'
+                    selectedGrade === g ? 'border-slate-700 bg-[#0077cc] text-white' : 'border-gray-200 hover:border-slate-400'
                   }`}>
                   {t(`operational.grade${g}`)}
                 </button>
@@ -117,18 +117,18 @@ export default function CycleCountPage() {
             <div className="flex gap-1.5 flex-wrap">
               <button onClick={() => setSelectedZone(null)}
                 className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
-                  !selectedZone ? 'border-slate-700 bg-slate-100 text-slate-700' : 'border-gray-200 hover:border-gray-300'
+                  !selectedZone ? 'border-slate-700 bg-slate-100 text-[#343741]' : 'border-gray-200 hover:border-gray-300'
                 }`}>{t('cycleCount.all')}</button>
               {ZONE_OPTIONS.map((z) => (
                 <button key={z} onClick={() => setSelectedZone(z)}
                   className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
-                    selectedZone === z ? 'border-slate-700 bg-slate-100 text-slate-700' : 'border-gray-200 hover:border-gray-300'
+                    selectedZone === z ? 'border-slate-700 bg-slate-100 text-[#343741]' : 'border-gray-200 hover:border-gray-300'
                   }`}>{t(`operational.${z.toLowerCase()}`)}</button>
               ))}
             </div>
           </div>
 
-          <Button className="w-full h-12 bg-slate-700 hover:bg-slate-800 text-base"
+          <Button className="w-full h-12 bg-[#0077cc] hover:bg-[#005ea3] text-base"
             onClick={handleStart} disabled={starting}>
             {starting ? t('common.processing') : t('cycleCount.startSession')}
           </Button>

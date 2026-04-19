@@ -192,7 +192,7 @@ export default function OrderingPage() {
           </Button>
           <Button
             size="lg"
-            className="bg-slate-700 hover:bg-slate-800 text-base px-6 py-3"
+            className="bg-[#0077cc] hover:bg-[#005ea3] text-base px-6 py-3"
             onClick={() => navigate('/store/ordering/new')}
           >
             {t('ordering.newOrder')}
@@ -206,12 +206,12 @@ export default function OrderingPage() {
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-slate-700">{t('ordering.main.cartPending')}</p>
-                <p className="text-sm text-slate-600">
+                <p className="font-semibold text-[#343741]">{t('ordering.main.cartPending')}</p>
+                <p className="text-sm text-[#69707d]">
                   {t('ordering.cart.items', { count: cartInfo.totalItems })} | {'\u20A9'}{cartInfo.grandTotal.toLocaleString()}
                 </p>
               </div>
-              <Button size="sm" className="bg-slate-700 hover:bg-slate-800 min-h-[44px]">
+              <Button size="sm" className="bg-[#0077cc] hover:bg-[#005ea3] min-h-[44px]">
                 {t('ordering.main.continueOrder')}
               </Button>
             </div>
@@ -246,14 +246,14 @@ export default function OrderingPage() {
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-2 rounded-lg text-sm whitespace-nowrap flex items-center gap-1 transition-colors ${
                 activeTab === tab
-                  ? 'bg-slate-700 text-white'
+                  ? 'bg-[#0077cc] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {t(tabLabels[tab])}
               {count > 0 && (
                 <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === tab ? 'bg-slate-600' : 'bg-gray-200'
+                  activeTab === tab ? 'bg-[#0077cc]' : 'bg-gray-200'
                 }`}>
                   {count}
                 </span>
@@ -346,7 +346,7 @@ export default function OrderingPage() {
                     </div>
                     <Button
                       size="sm"
-                      className="bg-slate-700 hover:bg-slate-800 min-h-[36px]"
+                      className="bg-[#0077cc] hover:bg-[#005ea3] min-h-[36px]"
                       onClick={(e) => { e.stopPropagation(); handleConfirm(plan.id); }}
                     >
                       {t('ordering.sendOrder')}
@@ -418,7 +418,7 @@ export default function OrderingPage() {
                         <>
                           <Button
                             size="sm"
-                            className="bg-slate-700 hover:bg-slate-800 min-h-[44px]"
+                            className="bg-[#0077cc] hover:bg-[#005ea3] min-h-[44px]"
                             onClick={() => handleConfirm(plan.id)}
                           >
                             {t('ordering.sendOrder')}
@@ -436,7 +436,7 @@ export default function OrderingPage() {
                       {plan.status === 'CONFIRMED' && (
                         <Button
                           size="sm"
-                          className="bg-slate-700 hover:bg-slate-800 min-h-[44px]"
+                          className="bg-[#0077cc] hover:bg-[#005ea3] min-h-[44px]"
                           onClick={() => handleDispatch(plan.id)}
                         >
                           {t('ordering.dispatch')}

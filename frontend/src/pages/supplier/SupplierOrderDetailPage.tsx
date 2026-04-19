@@ -215,7 +215,7 @@ export default function SupplierOrderDetailPage() {
       <div className="flex gap-3 mb-6">
         <Button
           onClick={() => setNotifyDialogOpen(true)}
-          className="bg-slate-700 hover:bg-slate-800"
+          className="bg-[#0077cc] hover:bg-[#005ea3]"
         >
           {t('supplierPortal.sendNotification')}
         </Button>
@@ -280,7 +280,7 @@ export default function SupplierOrderDetailPage() {
             <Button
               onClick={handleNotify}
               disabled={sending || !notifyMessage.trim()}
-              className="bg-slate-700 hover:bg-slate-800"
+              className="bg-[#0077cc] hover:bg-[#005ea3]"
             >
               {sending ? t('common.processing') : t('common.submit')}
             </Button>

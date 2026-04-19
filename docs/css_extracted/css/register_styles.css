@@ -1,0 +1,242 @@
+:root {
+    --app-bg: #f7f8fc;
+    --app-surface: #ffffff;
+    --app-surface-soft: #f7f8fc;
+    --app-border: #e8eaf0;
+    --app-text: #343741;
+    --app-title: #1a1c21;
+    --app-muted: #69707d;
+    --app-primary: #0077cc;
+    --app-primary-hover: #005ea3;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Pretendard", "PretendardJp", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    color: var(--app-text);
+    background-color: var(--app-bg);
+    line-height: 1.5;
+    padding: 24px 32px;
+}
+
+.register-studio {
+    width: min(100%, 1440px);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.register-studio-intro {
+    display: grid;
+    gap: 16px;
+}
+
+.studio-kicker,
+.panel-kicker {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--app-primary);
+}
+
+.register-studio-intro h1,
+.register-vc-form h1,
+.register-device-form h1,
+.panel-heading h2 {
+    margin-bottom: 18px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--app-title);
+}
+
+.studio-description {
+    color: var(--app-muted);
+    line-height: 1.6;
+}
+
+.studio-meta-list {
+    display: grid;
+    gap: 12px;
+}
+
+.studio-meta-card {
+    padding: 16px;
+    border-radius: 12px;
+    background-color: var(--app-surface);
+    border: 1px solid var(--app-border);
+}
+
+.meta-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--app-muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.register-studio-main {
+    display: grid;
+    gap: 20px;
+}
+
+.register-vc-container {
+    display: grid;
+    grid-template-columns: minmax(360px, 480px) minmax(0, 1fr);
+    gap: 24px;
+    width: min(100%, 1440px);
+    margin: 0 auto;
+    align-items: start;
+}
+
+.register-vc-form,
+.register-device-form {
+    background-color: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.register-device-container {
+    width: min(100%, 880px);
+    margin: 0 auto;
+}
+
+.panel-heading {
+    margin-bottom: 16px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--app-text);
+}
+
+select,
+input {
+    width: 100%;
+    min-height: 40px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(17, 43, 134, 0.1);
+    background-color: #ffffff;
+    color: var(--app-text);
+    font: inherit;
+    outline: none;
+}
+
+select:focus,
+input:focus {
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.08);
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.button-group button,
+.register-vc-form button,
+.register-device-form button {
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid var(--app-primary);
+    background-color: var(--app-primary);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.button-group button:hover,
+.register-vc-form button:hover,
+.register-device-form button:hover {
+    background-color: var(--app-primary-hover);
+    border-color: var(--app-primary-hover);
+}
+
+.register-device-form form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 20px;
+}
+
+.register-device-form .form-group {
+    margin-bottom: 0;
+}
+
+.register-device-form .button-group {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+}
+
+.vc-display {
+    background-color: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.iframe-container {
+    width: 100%;
+    height: 340px;
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    background-color: #ffffff;
+}
+
+.iframe-container iframe {
+    transform: scale(0.3);
+    transform-origin: 0 0;
+    border: none;
+}
+
+@media (max-width: 1080px) {
+    .register-studio,
+    .register-vc-container {
+        grid-template-columns: 1fr;
+    }
+
+    .register-device-form form {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 16px;
+    }
+
+    .register-vc-form,
+    .register-device-form,
+    .vc-display,
+    .studio-meta-card {
+        padding: 18px;
+    }
+
+    .iframe-container {
+        height: 220px;
+    }
+}

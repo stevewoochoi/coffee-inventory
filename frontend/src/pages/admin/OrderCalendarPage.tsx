@@ -140,7 +140,7 @@ export default function OrderCalendarPage() {
                     dayData ? getStatusColor(dayData.orders) : 'border-gray-200 hover:border-gray-400'
                   }`}
                 >
-                  <div className={`font-medium ${isToday ? 'text-slate-700' : ''}`}>{day}</div>
+                  <div className={`font-medium ${isToday ? 'text-[#343741]' : ''}`}>{day}</div>
                   {dayData && (
                     <div className="mt-0.5">
                       <span className="hidden sm:inline text-[10px] text-gray-600">

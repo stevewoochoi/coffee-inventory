@@ -19,7 +19,7 @@ import {
 import { auditApi, type AuditResponse, type AuditLineResponse } from '@/api/audit';
 
 const statusColor: Record<string, string> = {
-  IN_PROGRESS: 'bg-slate-100 text-slate-700',
+  IN_PROGRESS: 'bg-slate-100 text-[#343741]',
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-gray-100 text-gray-800',
 };
@@ -213,7 +213,7 @@ export default function AuditDetailPage() {
       {isInProgress && stats.total > 0 && (
         <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
           <div
-            className="h-full bg-slate-500 rounded-full transition-all"
+            className="h-full bg-[#0077cc] rounded-full transition-all"
             style={{ width: `${Math.round((stats.counted / stats.total) * 100)}%` }}
           />
         </div>
@@ -317,7 +317,7 @@ export default function AuditDetailPage() {
                       </Button>
                       <Button
                         size="sm"
-                        className="bg-slate-700 hover:bg-slate-800 min-h-[40px]"
+                        className="bg-[#0077cc] hover:bg-[#005ea3] min-h-[40px]"
                         onClick={() => handleUpdateLine(line.id)}
                       >
                         {t('common.save')}
@@ -357,7 +357,7 @@ export default function AuditDetailPage() {
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
-                className="flex-1 bg-slate-700 hover:bg-slate-800 min-h-[48px]"
+                className="flex-1 bg-[#0077cc] hover:bg-[#005ea3] min-h-[48px]"
                 disabled={stats.uncounted > 0}
               >
                 {t('audit.detail.completeAudit')}

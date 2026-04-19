@@ -10,7 +10,7 @@ import {
 
 function getStatusBadge(status: PhysicalCount['status']) {
   const styles: Record<string, string> = {
-    IN_PROGRESS: 'bg-slate-500 text-white',
+    IN_PROGRESS: 'bg-[#0077cc] text-white',
     COMPLETED: 'bg-green-500 text-white',
     CANCELLED: 'bg-gray-500 text-white',
   };
@@ -64,7 +64,7 @@ export default function PhysicalCountPage() {
         <button
           onClick={handleStart}
           disabled={starting}
-          className="px-6 py-3 bg-slate-600 text-white font-medium rounded-lg hover:bg-slate-600 disabled:opacity-50 text-lg"
+          className="px-6 py-3 bg-[#0077cc] text-white font-medium rounded-lg hover:bg-[#0077cc] disabled:opacity-50 text-lg"
         >
           {starting ? t('physicalCount.starting') : t('physicalCount.newCount')}
         </button>
@@ -101,7 +101,7 @@ export default function PhysicalCountPage() {
                       {c.completedAt ? new Date(c.completedAt).toLocaleString() : '-'}
                     </TableCell>
                     <TableCell>
-                      <span className="text-slate-600 text-sm">{t('common.view')}</span>
+                      <span className="text-[#69707d] text-sm">{t('common.view')}</span>
                     </TableCell>
                   </TableRow>
                 ))}

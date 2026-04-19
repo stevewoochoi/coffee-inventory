@@ -235,7 +235,7 @@ export default function ItemsPage() {
             className="hidden"
             onChange={handleExcelUpload}
           />
-          <Button onClick={openCreate} className="bg-slate-700 hover:bg-slate-800">
+          <Button onClick={openCreate} className="bg-[#0077cc] hover:bg-[#005ea3]">
             {t('items.addItem')}
           </Button>
         </div>
@@ -396,13 +396,13 @@ export default function ItemsPage() {
           {editItem && (
             <div className="flex border-b mb-2">
               <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'basic' ? 'border-slate-700 text-slate-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'basic' ? 'border-slate-700 text-[#343741]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                 onClick={() => setActiveTab('basic')}
               >
                 {t('items.basicInfo', { defaultValue: '기본 정보' })}
               </button>
               <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'operational' ? 'border-slate-700 text-slate-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'operational' ? 'border-slate-700 text-[#343741]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                 onClick={() => setActiveTab('operational')}
               >
                 {t('operational.title')}
@@ -680,7 +680,7 @@ export default function ItemsPage() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
-            <Button onClick={handleSave} className="bg-slate-700 hover:bg-slate-800">{t('common.save')}</Button>
+            <Button onClick={handleSave} className="bg-[#0077cc] hover:bg-[#005ea3]">{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

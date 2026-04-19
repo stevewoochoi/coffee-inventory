@@ -1,0 +1,57 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    font-size: 14px; /* 기본 폰트 크기 증가 */
+    background-color: #f0f0f0;
+}
+
+.login-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 24px; /* 제목 폰트 크기 증가 */
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+    font-size: 16px; /* 폼 그룹 폰트 크기 증가 */
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px; /* 패딩 크기 증가 */
+    box-sizing: border-box;
+    font-size: 16px; /* 입력 필드 폰트 크기 증가 */
+}
+
+button {
+    padding: 12px 15px; /* 패딩 크기 증가 */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px; /* 버튼 폰트 크기 증가 */
+}
+
+button:hover {
+    background-color: #0056b3;
+}

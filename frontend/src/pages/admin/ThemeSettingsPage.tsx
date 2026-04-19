@@ -60,7 +60,7 @@ export default function ThemeSettingsPage() {
 
               {/* Selected indicator */}
               {isSelected && (
-                <div className="absolute top-2 right-2 w-6 h-6 bg-slate-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                <div className="absolute top-2 right-2 w-6 h-6 bg-[#0077cc] text-white rounded-full flex items-center justify-center text-xs font-bold">
                   ✓
                 </div>
               )}

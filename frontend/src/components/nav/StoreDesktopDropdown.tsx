@@ -48,8 +48,8 @@ export function StoreDesktopDropdown({ group, headerHover, headerText }: StoreDe
       <NavLink
         to={group.to}
         className={({ isActive }) =>
-          `px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-            isActive ? `${headerHover} text-white` : `${headerText} hover:bg-white/10`
+          `px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            isActive ? 'bg-[rgba(0,119,204,0.08)] text-[#0077cc] font-bold' : 'text-[#69707d] hover:bg-[#f7f8fc] hover:text-[#343741]'
           }`
         }
       >
@@ -68,7 +68,7 @@ export function StoreDesktopDropdown({ group, headerHover, headerText }: StoreDe
       <button
         onClick={() => setOpen(!open)}
         className={`px-3 py-1.5 rounded text-sm font-medium flex items-center gap-1 transition-colors ${
-          isGroupActive ? `${headerHover} text-white font-bold` : `${headerText} hover:bg-white/10`
+          isGroupActive ? 'bg-[rgba(0,119,204,0.08)] text-[#0077cc] font-bold' : 'text-[#69707d] hover:bg-[#f7f8fc] hover:text-[#343741]'
         }`}
       >
         {t(group.key)}
@@ -76,7 +76,7 @@ export function StoreDesktopDropdown({ group, headerHover, headerText }: StoreDe
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1 min-w-[180px] bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+        <div className="absolute top-full left-0 mt-1 min-w-[180px] bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-[#e8eaf0] py-1 z-50">
           {group.children?.map(child => (
             <NavLink
               key={child.to}
@@ -84,7 +84,7 @@ export function StoreDesktopDropdown({ group, headerHover, headerText }: StoreDe
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
-                  isActive ? 'bg-accent text-accent-foreground font-semibold' : 'text-gray-700 hover:bg-gray-50'
+                  isActive ? 'bg-[rgba(0,119,204,0.06)] text-[#0077cc] font-semibold' : 'text-[#343741] hover:bg-[#f7f8fc]'
                 }`
               }
             >

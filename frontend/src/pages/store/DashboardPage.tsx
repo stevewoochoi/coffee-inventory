@@ -94,7 +94,7 @@ export default function StoreDashboardPage() {
         <p className="text-gray-500 mb-4">데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.</p>
         <button
           onClick={load}
-          className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-600"
+          className="px-4 py-2 bg-[#0077cc] text-white rounded-lg hover:bg-[#0077cc]"
         >
           {t('common.retry') ?? '다시 시도'}
         </button>
@@ -242,7 +242,7 @@ export default function StoreDashboardPage() {
             <h3 className="font-semibold">{t('dashboard.recentOrders')}</h3>
             <button
               onClick={() => navigate('/store/ordering/history')}
-              className="text-sm text-slate-600 hover:text-slate-700 font-medium"
+              className="text-sm text-[#69707d] hover:text-[#343741] font-medium"
             >
               {t('dashboard.viewAll')}
             </button>
@@ -310,7 +310,7 @@ export default function StoreDashboardPage() {
                       <span className="text-gray-600">{Number(item.totalQty).toFixed(0)} {item.baseUnit}</span>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-slate-500 rounded-full" style={{ width: `${pct}%` }} />
+                      <div className="h-full bg-[#0077cc] rounded-full" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -327,7 +327,7 @@ export default function StoreDashboardPage() {
         <h3 className="text-lg font-semibold mb-3">{t('dashboard.quickActions')}</h3>
         <div className="grid grid-cols-3 lg:grid-cols-5 gap-3">
           <button onClick={() => navigate('/store/ordering/new')}
-            className="p-4 bg-slate-600 text-white rounded-xl font-medium hover:bg-slate-600 text-center min-h-[60px]">
+            className="p-4 bg-[#0077cc] text-white rounded-xl font-medium hover:bg-[#0077cc] text-center min-h-[60px]">
             {t('dashboard.quickOrder')}
           </button>
           <button onClick={() => navigate('/store/receiving')}

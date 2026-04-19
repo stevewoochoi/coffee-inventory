@@ -165,11 +165,11 @@ export default function OrderDetailPage() {
                 <div key={step} className="flex items-center flex-1">
                   <div className="flex flex-col items-center">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                      idx <= fulfillmentIndex ? 'bg-slate-600 text-white' : 'bg-gray-100 text-gray-400'
+                      idx <= fulfillmentIndex ? 'bg-[#0077cc] text-white' : 'bg-gray-100 text-gray-400'
                     }`}>
                       {idx <= fulfillmentIndex ? '\u2713' : idx + 1}
                     </div>
-                    <span className={`text-xs mt-1 ${idx <= fulfillmentIndex ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
+                    <span className={`text-xs mt-1 ${idx <= fulfillmentIndex ? 'text-[#343741] font-medium' : 'text-gray-400'}`}>
                       {t(`ordering.fulfillment.${step}`)}
                     </span>
                   </div>

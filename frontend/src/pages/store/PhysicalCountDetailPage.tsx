@@ -82,13 +82,13 @@ export default function PhysicalCountDetailPage() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <button onClick={() => navigate('/store/physical-count')}
-            className="text-slate-600 text-sm mb-1 hover:underline">
+            className="text-[#69707d] text-sm mb-1 hover:underline">
             &larr; {t('physicalCount.backToList')}
           </button>
           <h2 className="text-xl font-bold">
             {t('physicalCount.detailTitle', { id: count.id })}
             <span className={`ml-3 px-2 py-0.5 text-xs font-bold rounded-full ${
-              count.status === 'IN_PROGRESS' ? 'bg-slate-500 text-white' :
+              count.status === 'IN_PROGRESS' ? 'bg-[#0077cc] text-white' :
               count.status === 'COMPLETED' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'
             }`}>
               {count.status}
@@ -156,7 +156,7 @@ export default function PhysicalCountDetailPage() {
                           >+</button>
                           <button
                             onClick={() => handleSave(line)}
-                            className="px-4 h-14 bg-slate-600 text-white rounded-lg font-medium hover:bg-slate-700"
+                            className="px-4 h-14 bg-[#0077cc] text-white rounded-lg font-medium hover:bg-[#0077cc]"
                           >
                             {t('common.save')}
                           </button>
@@ -187,7 +187,7 @@ export default function PhysicalCountDetailPage() {
                         className={`px-6 h-14 rounded-lg font-medium text-lg ${
                           line.actualQty !== null
                             ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-300'
+                            : 'bg-slate-100 text-[#69707d] hover:bg-slate-300'
                         }`}
                       >
                         {line.actualQty !== null ? line.actualQty : t('physicalCount.countBtn')}

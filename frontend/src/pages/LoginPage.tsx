@@ -2,11 +2,6 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -42,19 +37,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-slate-700">
-            {t('auth.appTitle')}
-          </CardTitle>
-          <p className="text-sm text-gray-500 mt-1">{t('auth.loginSubtitle')}</p>
-        </CardHeader>
-        <CardContent>
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{
+        background: 'radial-gradient(circle at top left, rgba(10,110,209,0.12), transparent 32%), linear-gradient(180deg, #f9fbfd 0%, #eef3f8 100%)',
+      }}
+    >
+      <div className="w-full max-w-[380px]">
+        {/* Login Card */}
+        <div className="bg-white rounded-[14px] border border-[#d5dde5] shadow-[0_20px_45px_rgba(28,55,90,0.12)] p-7">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <h1 className="text-[30px] font-extrabold text-[#223548] tracking-tight leading-tight">
+              {t('auth.appTitle')}
+            </h1>
+            <p className="text-sm text-[#607080] mt-2">{t('auth.loginSubtitle')}</p>
+          </div>
+
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('auth.email')}</Label>
-              <Input
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-[13px] font-bold text-[#223548]">
+                {t('auth.email')}
+              </label>
+              <input
                 id="email"
                 type="email"
                 placeholder="name@example.com"
@@ -62,11 +68,14 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
+                className="w-full h-11 px-3 rounded-lg border border-[#b7c4d0] text-[15px] text-[#223548] bg-white transition-all duration-200 focus:outline-none focus:border-[#0a6ed1] focus:ring-[3px] focus:ring-[rgba(10,110,209,0.14)] placeholder:text-[#98a6b5]"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">{t('auth.password')}</Label>
-              <Input
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="block text-[13px] font-bold text-[#223548]">
+                {t('auth.password')}
+              </label>
+              <input
                 id="password"
                 type="password"
                 placeholder={t('auth.passwordPlaceholder')}
@@ -74,23 +83,29 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                className="w-full h-11 px-3 rounded-lg border border-[#b7c4d0] text-[15px] text-[#223548] bg-white transition-all duration-200 focus:outline-none focus:border-[#0a6ed1] focus:ring-[3px] focus:ring-[rgba(10,110,209,0.14)] placeholder:text-[#98a6b5]"
               />
             </div>
+
             {error && (
-              <p className="text-sm text-red-600">{error}</p>
+              <div className="bg-[#fff1f0] border border-[#f3c7c3] rounded-lg px-3 py-2.5 text-[13px] font-bold text-[#b42318]">
+                {error}
+              </div>
             )}
-            <Button
+
+            <button
               type="submit"
-              className="w-full bg-slate-700 hover:bg-slate-800"
               disabled={isLoading}
+              className="w-full h-11 bg-[#0a6ed1] text-white text-[15px] font-bold rounded-lg transition-all duration-200 hover:bg-[#085caf] hover:-translate-y-px active:translate-y-0 disabled:opacity-55 disabled:hover:translate-y-0"
             >
               {isLoading ? t('auth.loggingIn') : t('auth.login')}
-            </Button>
-            <Separator />
+            </button>
 
-            <p className="text-center text-sm text-gray-500">
+            <div className="h-px bg-[#e8eaf0] my-1" />
+
+            <p className="text-center text-sm text-[#607080]">
               {t('auth.noAccount')}{' '}
-              <Link to="/register" className="text-slate-600 hover:underline font-medium">
+              <Link to="/register" className="text-[#0a6ed1] hover:underline font-semibold">
                 {t('auth.register')}
               </Link>
             </p>
@@ -99,7 +114,7 @@ export default function LoginPage() {
               <select
                 value={i18n.language?.substring(0, 2) || 'en'}
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
-                className="text-sm text-gray-500 border rounded px-2 py-1"
+                className="text-sm text-[#607080] border border-[#d5dde5] rounded-md px-2 py-1.5 bg-white"
               >
                 <option value="en">English</option>
                 <option value="ko">한국어</option>
@@ -107,8 +122,8 @@ export default function LoginPage() {
               </select>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

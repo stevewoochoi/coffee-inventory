@@ -84,7 +84,7 @@ export default function RegisterPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-slate-700">
+            <CardTitle className="text-2xl font-bold text-[#343741]">
               {t('auth.appTitle')}
             </CardTitle>
           </CardHeader>
@@ -97,7 +97,7 @@ export default function RegisterPage() {
             <p className="text-lg font-semibold text-gray-800">{t('auth.registerComplete')}</p>
             <p className="text-sm text-gray-500">{t('auth.registerCompleteMsg')}</p>
             <Button
-              className="w-full bg-slate-700 hover:bg-slate-800"
+              className="w-full bg-[#0077cc] hover:bg-[#005ea3]"
               onClick={() => navigate('/login')}
             >
               {t('auth.goToLogin')}
@@ -112,7 +112,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-slate-700">
+          <CardTitle className="text-2xl font-bold text-[#343741]">
             {t('auth.appTitle')}
           </CardTitle>
           <p className="text-sm text-gray-500 mt-1">{t('auth.registerSubtitle')}</p>
@@ -213,7 +213,7 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              className="w-full bg-slate-700 hover:bg-slate-800"
+              className="w-full bg-[#0077cc] hover:bg-[#005ea3]"
               disabled={isLoading || emailAvailable === false || passwordsMatch === false}
             >
               {isLoading ? t('auth.registering') : t('auth.register')}
@@ -223,7 +223,7 @@ export default function RegisterPage() {
 
             <p className="text-center text-sm text-gray-500">
               {t('auth.haveAccount')}{' '}
-              <Link to="/login" className="text-slate-600 hover:underline font-medium">
+              <Link to="/login" className="text-[#69707d] hover:underline font-medium">
                 {t('auth.login')}
               </Link>
             </p>

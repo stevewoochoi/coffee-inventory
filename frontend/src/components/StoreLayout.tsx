@@ -17,19 +17,19 @@ export function StoreLayout() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-[hsl(var(--background))]">
+    <div className="min-h-[100dvh] flex flex-col bg-[#f7f8fc]">
       {/* Desktop header */}
-      <header className={`${theme.headerBg} text-white shadow`}>
-        <div className="px-4 py-3 flex items-center justify-between">
+      <header className="bg-white border-b border-[#e8eaf0] shadow-sm">
+        <div className="px-4 lg:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-lg font-bold">{t('auth.storeTitle')}</h1>
+            <h1 className="text-lg font-bold text-[#1a1c21]">{t('auth.storeTitle')}</h1>
             <nav className="hidden md:flex gap-1 items-center">
               {storeNavGroups.map((group) => (
                 <StoreDesktopDropdown
                   key={group.key}
                   group={group}
-                  headerHover={theme.headerHover}
-                  headerText={theme.headerText}
+                  headerHover="bg-[#0077cc] text-white"
+                  headerText="text-[#69707d]"
                 />
               ))}
             </nav>
@@ -38,16 +38,19 @@ export function StoreLayout() {
             <select
               value={i18n.language?.substring(0, 2) || 'en'}
               onChange={(e) => changeLanguage(e.target.value)}
-              className="bg-white/10 text-white text-sm rounded px-2 py-1 border border-white/20 min-h-[44px]"
+              className="h-9 rounded-md border border-[#e8eaf0] px-2 text-sm bg-white text-[#343741]"
             >
               <option value="en">EN</option>
               <option value="ko">KO</option>
               <option value="ja">JA</option>
             </select>
-            <span className={`text-sm ${theme.headerText} hidden sm:inline`}>{user?.email}</span>
+            <div className="w-8 h-8 rounded-full bg-[rgba(0,119,204,0.18)] text-[#0077cc] flex items-center justify-center text-xs font-bold">
+              {user?.email?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <span className="text-sm text-[#69707d] hidden sm:inline">{user?.email}</span>
             <button
               onClick={logout}
-              className={`text-sm ${theme.headerText} hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center`}
+              className="text-sm text-[#69707d] hover:text-[#0077cc] min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
             >
               {t('common.logout')}
             </button>
@@ -61,8 +64,8 @@ export function StoreLayout() {
         <Outlet />
       </main>
 
-      {/* Mobile bottom navigation — 4 tabs */}
-      <nav className="md:hidden shrink-0 bg-white border-t border-gray-200 z-50 sticky bottom-0 safe-area-bottom">
+      {/* Mobile bottom navigation */}
+      <nav className="md:hidden shrink-0 bg-white border-t border-[#e8eaf0] z-50 sticky bottom-0 safe-area-bottom shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
         <div className="flex">
           {storeBottomTabs.map((tab) => {
             const isActive = tab.to === '/store/menu'
@@ -85,8 +88,8 @@ export function StoreLayout() {
                 to={tab.to}
                 className={`flex-1 flex flex-col items-center justify-center py-2 min-h-[56px] text-xs font-medium transition-colors ${
                   isActive
-                    ? 'text-[hsl(var(--primary))] border-t-2 border-[hsl(var(--primary))] bg-[hsl(var(--accent))]'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-[#0077cc] border-t-2 border-[#0077cc] bg-[rgba(0,119,204,0.04)]'
+                    : 'text-[#69707d] hover:text-[#343741]'
                 }`}
               >
                 <tab.icon className="w-5 h-5 mb-0.5" />

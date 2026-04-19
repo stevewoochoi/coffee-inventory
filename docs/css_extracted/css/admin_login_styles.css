@@ -1,0 +1,259 @@
+:root {
+    --sap-bg: #f5f7fa;
+    --sap-surface: #ffffff;
+    --sap-border: #d5dde5;
+    --sap-border-strong: #b7c4d0;
+    --sap-text: #223548;
+    --sap-muted: #607080;
+    --sap-primary: #0a6ed1;
+    --sap-primary-hover: #085caf;
+    --sap-shadow: 0 20px 45px rgba(28, 55, 90, 0.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: "72", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    background:
+        radial-gradient(circle at top left, rgba(10, 110, 209, 0.12), transparent 32%),
+        linear-gradient(180deg, #f9fbfd 0%, #eef3f8 100%);
+    padding: 24px;
+}
+
+.login-container {
+    background: var(--sap-surface);
+    padding: 28px;
+    border-radius: 14px;
+    box-shadow: var(--sap-shadow);
+    width: min(100%, 380px);
+    text-align: center;
+    border: 1px solid var(--sap-border);
+}
+
+.language-switcher {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.language-switcher label {
+    margin: 0;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.language-switcher select {
+    min-height: 38px;
+    border-radius: 8px;
+    border: 1px solid var(--sap-border-strong);
+    padding: 8px 10px;
+    background: #fff;
+}
+
+h1 {
+    margin: 0 0 22px;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #10263d;
+}
+
+.form-group {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.input-with-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.input-with-checkbox input[type="text"] {
+    width: 100%;
+    margin-right: 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sap-muted);
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--sap-border-strong);
+    font-size: 15px;
+    color: var(--sap-text);
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: var(--sap-primary);
+    box-shadow: 0 0 0 3px rgba(10, 110, 209, 0.14);
+}
+
+button {
+    padding: 12px 16px;
+    background: var(--sap-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 15px;
+    font-weight: 700;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background: var(--sap-primary-hover);
+    transform: translateY(-1px);
+}
+
+a {
+    color: var(--sap-primary);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.login-error {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fff1f0;
+    border: 1px solid #f3c7c3;
+    color: #b42318;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.login-helper {
+    margin-top: 16px;
+    color: var(--sap-muted);
+}
+
+.modal {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(15, 23, 42, 0.42);
+    padding: 24px;
+}
+
+.modal-content {
+    width: min(100%, 420px);
+    margin: 10vh auto 0;
+    background: #ffffff;
+    border: 1px solid var(--sap-border);
+    border-radius: 14px;
+    box-shadow: var(--sap-shadow);
+    padding: 24px;
+    text-align: left;
+}
+
+.modal-content h2 {
+    margin: 0 0 10px;
+    font-size: 24px;
+    font-weight: 800;
+    color: #10263d;
+}
+
+.modal-content p {
+    margin: 0 0 14px;
+    color: var(--sap-muted);
+    line-height: 1.5;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-content input[type="text"] {
+    margin-bottom: 0;
+}
+
+.modal-actions {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.modal-actions button,
+.modal-content button {
+    width: 100%;
+}
+
+.modal-secondary {
+    background: #eaf2fb;
+    color: var(--sap-primary);
+}
+
+.modal-secondary:hover {
+    background: #dcecff;
+}
+
+.modal-muted {
+    background: #d9e2ec;
+    color: #243b53;
+}
+
+.modal-muted:hover {
+    background: #c8d4df;
+}
+
+#contact-admin {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #fff8e1;
+    border: 1px solid #f1d08a;
+    color: #8a5a00;
+    font-weight: 700;
+}
+
+@media (max-width: 560px) {
+    body {
+        padding: 16px;
+        align-items: stretch;
+    }
+
+    .login-container {
+        width: 100%;
+        padding: 22px 18px;
+        border-radius: 12px;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+
+    .language-switcher {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

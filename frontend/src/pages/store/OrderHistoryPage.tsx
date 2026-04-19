@@ -132,7 +132,7 @@ export default function OrderHistoryPage() {
                 {/* Date header */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-slate-600">{group.date}</span>
+                    <span className="text-base font-bold text-[#69707d]">{group.date}</span>
                     <span className="font-semibold text-base">{t('ordering.historyPage.orderStatus')}</span>
                   </div>
                   {hasMore && (
@@ -182,7 +182,7 @@ export default function OrderHistoryPage() {
                   {hasMore && !isExpanded && (
                     <button
                       onClick={() => toggleExpand(group.date)}
-                      className="w-full py-3 text-sm text-slate-600 font-medium hover:bg-slate-50 transition-colors"
+                      className="w-full py-3 text-sm text-[#69707d] font-medium hover:bg-slate-50 transition-colors"
                     >
                       {t('ordering.historyPage.viewDetail')} ({group.lines.length - MAX_PREVIEW}{t('ordering.historyPage.moreItems')})
                     </button>

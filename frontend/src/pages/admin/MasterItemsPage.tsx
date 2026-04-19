@@ -161,7 +161,7 @@ export default function MasterItemsPage() {
           <div className="p-4 border-b">
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-semibold text-gray-700">All Master Items</h3>
-              <Button size="sm" onClick={openCreate} className="bg-slate-700 hover:bg-slate-800">
+              <Button size="sm" onClick={openCreate} className="bg-[#0077cc] hover:bg-[#005ea3]">
                 + {t('items.addItem')}
               </Button>
             </div>
@@ -228,7 +228,7 @@ export default function MasterItemsPage() {
                   onClick={() => setSelectedBrandId(brand.id)}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                     selectedBrandId === brand.id
-                      ? 'bg-slate-700 text-white'
+                      ? 'bg-[#0077cc] text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
@@ -319,7 +319,7 @@ export default function MasterItemsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
-            <Button onClick={handleSave} className="bg-slate-700 hover:bg-slate-800">{t('common.save')}</Button>
+            <Button onClick={handleSave} className="bg-[#0077cc] hover:bg-[#005ea3]">{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -392,7 +392,7 @@ function BrandItemRow({ brandItem, onUnassign, onUpdate }: {
           {!editing && (
             <div className="text-xs mt-1">
               {brandItem.price != null ? (
-                <span className="text-slate-600 font-medium">
+                <span className="text-[#69707d] font-medium">
                   ¥{brandItem.price.toLocaleString()}
                   {brandItem.vatInclusive ? ' (tax incl.)' : ' (tax excl.)'}
                 </span>
@@ -421,7 +421,7 @@ function BrandItemRow({ brandItem, onUnassign, onUpdate }: {
               <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setEditing(false)}>
                 Cancel
               </Button>
-              <Button size="sm" className="h-7 text-xs bg-slate-700" onClick={handleSave}>
+              <Button size="sm" className="h-7 text-xs bg-[#0077cc]" onClick={handleSave}>
                 Save
               </Button>
             </>

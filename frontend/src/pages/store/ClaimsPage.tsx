@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { claimsApi, type ClaimResponse, type ClaimSummary } from '@/api/claims';
 
 const statusColor: Record<string, string> = {
-  SUBMITTED: 'bg-slate-100 text-slate-700',
+  SUBMITTED: 'bg-slate-100 text-[#343741]',
   IN_REVIEW: 'bg-yellow-100 text-yellow-800',
   RESOLVED: 'bg-green-100 text-green-800',
   CLOSED: 'bg-gray-100 text-gray-800',
@@ -96,7 +96,7 @@ export default function ClaimsPage() {
         <h2 className="text-xl font-bold">{t('claims.title')}</h2>
         <Button
           size="lg"
-          className="bg-slate-700 hover:bg-slate-800 text-base px-6 py-3"
+          className="bg-[#0077cc] hover:bg-[#005ea3] text-base px-6 py-3"
           onClick={() => navigate('/store/claims/new')}
         >
           {t('claims.newClaim')}
@@ -108,8 +108,8 @@ export default function ClaimsPage() {
         <div className="grid grid-cols-3 gap-3">
           <Card className="border-slate-300 bg-slate-50">
             <CardContent className="py-3 text-center">
-              <div className="text-2xl font-bold text-slate-700">{summary.submitted}</div>
-              <div className="text-xs text-slate-600">{t('claims.status.SUBMITTED')}</div>
+              <div className="text-2xl font-bold text-[#343741]">{summary.submitted}</div>
+              <div className="text-xs text-[#69707d]">{t('claims.status.SUBMITTED')}</div>
             </CardContent>
           </Card>
           <Card className="border-yellow-200 bg-yellow-50">
@@ -153,14 +153,14 @@ export default function ClaimsPage() {
               onClick={() => setActiveTab(tab)}
               className={`px-3 py-2 rounded-lg text-sm whitespace-nowrap flex items-center gap-1 transition-colors ${
                 activeTab === tab
-                  ? 'bg-slate-700 text-white'
+                  ? 'bg-[#0077cc] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {t(`claims.status.${tab}`)}
               {count > 0 && (
                 <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === tab ? 'bg-slate-600' : 'bg-gray-200'
+                  activeTab === tab ? 'bg-[#0077cc]' : 'bg-gray-200'
                 }`}>
                   {count}
                 </span>

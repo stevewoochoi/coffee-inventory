@@ -32,7 +32,7 @@ const STATUS_STYLES: Record<string, string> = {
 
 const ROLE_STYLES: Record<string, string> = {
   SUPER_ADMIN: 'bg-purple-600',
-  BRAND_ADMIN: 'bg-slate-600',
+  BRAND_ADMIN: 'bg-[#0077cc]',
   STORE_MANAGER: 'bg-teal-600',
 };
 
@@ -337,7 +337,7 @@ export default function UsersPage() {
             onClick={() => { setCurrentTab(tab); setPage(0); }}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors relative ${
               currentTab === tab
-                ? 'bg-slate-700 text-white'
+                ? 'bg-[#0077cc] text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >

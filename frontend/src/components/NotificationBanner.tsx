@@ -41,7 +41,7 @@ export default function NotificationBanner() {
 
   return (
     <div className="bg-slate-50 border border-slate-300 rounded-lg p-3 mb-4 flex items-center justify-between gap-3">
-      <p className="text-sm text-slate-700">
+      <p className="text-sm text-[#343741]">
         {status === 'done'
           ? t('notification.enabled')
           : t('notification.prompt')}
@@ -57,7 +57,7 @@ export default function NotificationBanner() {
           </Button>
           <Button
             size="sm"
-            className="bg-slate-700 hover:bg-slate-800"
+            className="bg-[#0077cc] hover:bg-[#005ea3]"
             onClick={handleEnable}
             disabled={status === 'loading'}
           >

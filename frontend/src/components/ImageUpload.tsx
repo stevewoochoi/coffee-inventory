@@ -104,7 +104,7 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
       {uploading && (
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
-            className="bg-slate-600 h-2 rounded-full transition-all duration-300"
+            className="bg-[#0077cc] h-2 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -115,7 +115,7 @@ export default function ImageUpload({ onUploadComplete, currentImageUrl, classNa
       {selectedFileRef.current && !uploading && (
         <Button
           size="sm"
-          className="w-full bg-slate-700 hover:bg-slate-800"
+          className="w-full bg-[#0077cc] hover:bg-[#005ea3]"
           onClick={handleUpload}
         >
           {t('imageUpload.uploadBtn')}

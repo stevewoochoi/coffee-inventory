@@ -144,7 +144,7 @@ export default function PackagingsPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-900">{t('packagings.title')}</h2>
-        <Button onClick={openCreate} className="bg-slate-700 hover:bg-slate-800">
+        <Button onClick={openCreate} className="bg-[#0077cc] hover:bg-[#005ea3]">
           {t('packagings.addPackaging')}
         </Button>
       </div>
@@ -416,7 +416,7 @@ export default function PackagingsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
-            <Button onClick={handleSave} className="bg-slate-700 hover:bg-slate-800">{t('common.save')}</Button>
+            <Button onClick={handleSave} className="bg-[#0077cc] hover:bg-[#005ea3]">{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -94,7 +94,7 @@ export default function CycleCountDetailPage() {
 
       {/* Progress bar */}
       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div className="h-full bg-slate-700 rounded-full transition-all"
+        <div className="h-full bg-[#0077cc] rounded-full transition-all"
           style={{ width: `${session.itemCount > 0 ? (session.completedCount / session.itemCount) * 100 : 0}%` }} />
       </div>
 
@@ -147,7 +147,7 @@ export default function CycleCountDetailPage() {
       {/* Bottom action bar */}
       {session.status !== 'COMPLETED' && (
         <div className="sticky bottom-[56px] md:bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 -mx-4 px-4 z-40 shadow-[0_-2px_8px_rgba(0,0,0,0.1)]">
-          <Button className="w-full h-12 bg-slate-700 hover:bg-slate-800 text-base"
+          <Button className="w-full h-12 bg-[#0077cc] hover:bg-[#005ea3] text-base"
             onClick={() => setShowCompleteDialog(true)}>
             {t('cycleCount.completeSession')}
             {varianceCount > 0 && ` (${varianceCount} ${t('cycleCount.variance')})`}
@@ -173,7 +173,7 @@ export default function CycleCountDetailPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction className="bg-slate-700 hover:bg-slate-800"
+            <AlertDialogAction className="bg-[#0077cc] hover:bg-[#005ea3]"
               onClick={handleComplete} disabled={completing}>
               {completing ? t('common.processing') : t('common.confirm')}
             </AlertDialogAction>

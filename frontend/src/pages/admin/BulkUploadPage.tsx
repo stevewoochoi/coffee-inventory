@@ -138,7 +138,7 @@ export default function BulkUploadPage() {
                   value={type}
                   checked={uploadType === type}
                   onChange={() => setUploadType(type)}
-                  className="w-4 h-4 text-slate-700"
+                  className="w-4 h-4 text-[#343741]"
                 />
                 <span className="text-sm">{t(`bulkUpload.type.${type}`)}</span>
               </label>
@@ -185,7 +185,7 @@ export default function BulkUploadPage() {
               <Button
                 onClick={handleUpload}
                 disabled={uploading}
-                className="bg-slate-700 hover:bg-slate-800"
+                className="bg-[#0077cc] hover:bg-[#005ea3]"
               >
                 {uploading ? t('common.processing') : t('bulkUpload.upload')}
               </Button>

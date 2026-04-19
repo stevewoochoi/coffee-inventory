@@ -223,17 +223,17 @@ export default function NewOrderPage() {
     <div className="flex items-center gap-2 mb-6">
       {[1, 2, 3].map((s) => (
         <div key={s} className="flex items-center flex-1">
-          <div className={`flex items-center gap-2 ${s <= step ? 'text-slate-700' : 'text-gray-400'}`}>
+          <div className={`flex items-center gap-2 ${s <= step ? 'text-[#343741]' : 'text-gray-400'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
-              s < step ? 'bg-slate-700 border-slate-700 text-white' :
-              s === step ? 'border-slate-700 text-slate-700' :
+              s < step ? 'bg-[#0077cc] border-slate-700 text-white' :
+              s === step ? 'border-slate-700 text-[#343741]' :
               'border-gray-300 text-gray-400'
             }`}>
               {s < step ? '\u2713' : s}
             </div>
             <span className="text-xs font-medium hidden sm:inline">{t(STEP_LABELS_KEYS[s - 1])}</span>
           </div>
-          {s < 3 && <div className={`flex-1 h-0.5 mx-2 ${s < step ? 'bg-slate-700' : 'bg-gray-200'}`} />}
+          {s < 3 && <div className={`flex-1 h-0.5 mx-2 ${s < step ? 'bg-[#0077cc]' : 'bg-gray-200'}`} />}
         </div>
       ))}
     </div>
@@ -278,7 +278,7 @@ export default function NewOrderPage() {
           <Button variant="outline" className="flex-1 h-12" onClick={() => navigate('/store/ordering')}>
             {t('ordering.complete.viewOrders')}
           </Button>
-          <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800" onClick={() => navigate('/store/dashboard')}>
+          <Button className="flex-1 h-12 bg-[#0077cc] hover:bg-[#005ea3]" onClick={() => navigate('/store/dashboard')}>
             {t('ordering.complete.goToMain')}
           </Button>
         </div>
@@ -315,7 +315,7 @@ export default function NewOrderPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center text-sm font-bold ${
-                        isSelected ? 'bg-slate-700 text-white' : 'bg-gray-100 text-gray-700'
+                        isSelected ? 'bg-[#0077cc] text-white' : 'bg-gray-100 text-gray-700'
                       }`}>
                         <span className="text-xs">{dateInfo.dayOfWeek}</span>
                         <span>{new Date(dateInfo.date + 'T00:00:00').getDate()}</span>
@@ -332,7 +332,7 @@ export default function NewOrderPage() {
                         <Badge className="bg-green-100 text-green-800">{t('ordering.steps.recommended')}</Badge>
                       )}
                       {isSelected && (
-                        <div className="w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 bg-[#0077cc] rounded-full flex items-center justify-center">
                           <span className="text-white text-xs">{'\u2713'}</span>
                         </div>
                       )}
@@ -358,7 +358,7 @@ export default function NewOrderPage() {
         <div className="bg-slate-50 border border-slate-300 rounded-lg p-3 flex items-center justify-between">
           <div className="text-sm">
             <span className="font-medium">{t('ordering.steps.deliveryDate')}: </span>
-            <span className="text-slate-700 font-bold">{formatDate(selectedDate!)}</span>
+            <span className="text-[#343741] font-bold">{formatDate(selectedDate!)}</span>
           </div>
           <span className="text-xs text-gray-500">
             {t('ordering.steps.deadlineBy')} {formatDateTime(selectedDateInfo.orderDeadline)}
@@ -372,7 +372,7 @@ export default function NewOrderPage() {
           <button
             onClick={() => setActiveCategory(null)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[44px] ${
-              activeCategory === null ? 'bg-slate-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
+              activeCategory === null ? 'bg-[#0077cc] text-white' : 'bg-gray-100 hover:bg-gray-200'
             }`}
           >
             {t('ordering.catalog.allCategories')}
@@ -383,7 +383,7 @@ export default function NewOrderPage() {
               onClick={() => setActiveCategory(cat.id)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[44px] ${
                 activeCategory === cat.id || cat.children?.some(c => c.id === activeCategory)
-                  ? 'bg-slate-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                  ? 'bg-[#0077cc] text-white' : 'bg-gray-100 hover:bg-gray-200'
               }`}
             >
               {cat.name}
@@ -401,7 +401,7 @@ export default function NewOrderPage() {
                   <button
                     onClick={() => setActiveCategory(parent.id)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${
-                      activeCategory === parent.id ? 'bg-slate-100 text-slate-700 border border-slate-400' : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+                      activeCategory === parent.id ? 'bg-slate-100 text-[#343741] border border-slate-400' : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
                     }`}
                   >{t('ordering.catalog.allCategories')}</button>
                   {parent.children.map(sub => (
@@ -409,7 +409,7 @@ export default function NewOrderPage() {
                       key={sub.id}
                       onClick={() => setActiveCategory(sub.id)}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${
-                        activeCategory === sub.id ? 'bg-slate-100 text-slate-700 border border-slate-400' : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
+                        activeCategory === sub.id ? 'bg-slate-100 text-[#343741] border border-slate-400' : 'bg-gray-50 hover:bg-gray-100 border border-gray-200'
                       }`}
                     >{sub.name}</button>
                   ))}
@@ -489,7 +489,7 @@ export default function NewOrderPage() {
                           </div>
                           <div className="text-xs text-gray-400 mt-0.5">
                             {pkg.label} / {'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}
-                            <span className="ml-1.5 text-slate-600 font-medium">(1박스={formatPackUnit(pkg.unitsPerPack, item.unit)} ₩{pkg.unitPrice.toLocaleString()})</span>
+                            <span className="ml-1.5 text-[#69707d] font-medium">(1박스={formatPackUnit(pkg.unitsPerPack, item.unit)} ₩{pkg.unitPrice.toLocaleString()})</span>
                           </div>
                         </>
                       )}
@@ -500,7 +500,7 @@ export default function NewOrderPage() {
                           onClick={() => updateCartQty(item, 0, -1)} disabled={qty === 0}>-</Button>
                         <div className="flex flex-col items-center w-16">
                           <span className="text-sm font-bold">{qty}</span>
-                          {qty > 0 && <span className="text-[10px] text-slate-600">{qty}박스</span>}
+                          {qty > 0 && <span className="text-[10px] text-[#69707d]">{qty}박스</span>}
                         </div>
                         <Button size="sm" variant="outline" className="h-10 w-10 p-0 text-lg"
                           onClick={() => updateCartQty(item, 0, 1)}>+</Button>
@@ -539,7 +539,7 @@ export default function NewOrderPage() {
                     ) : (
                       <>
                         <p className="text-xs text-gray-500">{'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}</p>
-                        <p className="text-xs text-slate-600 font-medium">1박스={formatPackUnit(pkg.unitsPerPack, item.unit)}</p>
+                        <p className="text-xs text-[#69707d] font-medium">1박스={formatPackUnit(pkg.unitsPerPack, item.unit)}</p>
                       </>
                     )}
                   </div>
@@ -548,7 +548,7 @@ export default function NewOrderPage() {
                       <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, -1)} disabled={qty === 0}>-</Button>
                       <div className="w-10 text-center">
                         <span className="text-sm font-bold">{qty}</span>
-                        {qty > 0 && <span className="block text-[9px] text-slate-600">{qty}박스</span>}
+                        {qty > 0 && <span className="block text-[9px] text-[#69707d]">{qty}박스</span>}
                       </div>
                       <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => updateCartQty(item, 0, 1)}>+</Button>
                     </div>
@@ -563,7 +563,7 @@ export default function NewOrderPage() {
       {/* Floating cart bar */}
       {totalCartItems > 0 && (
         <div
-          className="sticky bottom-0 left-0 right-0 bg-slate-700 text-white p-4 shadow-lg cursor-pointer z-40"
+          className="sticky bottom-0 left-0 right-0 bg-[#0077cc] text-white p-4 shadow-lg cursor-pointer z-40"
           onClick={() => setStep(3)}
         >
           <div className="max-w-lg mx-auto flex items-center justify-between">
@@ -626,7 +626,7 @@ export default function NewOrderPage() {
                           })}>-</Button>
                         <div className="w-12 text-center">
                           <span className="font-bold text-sm">{item.quantity}</span>
-                          <span className="block text-[10px] text-slate-600">{item.quantity}박스</span>
+                          <span className="block text-[10px] text-[#69707d]">{item.quantity}박스</span>
                         </div>
                         <Button size="sm" variant="outline" className="h-9 w-9 p-0"
                           onClick={() => setLocalCart(prev =>
@@ -691,17 +691,17 @@ export default function NewOrderPage() {
               </Button>
             )}
             {step === 1 && (
-              <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800" onClick={() => setStep(2)} disabled={!selectedDate}>
+              <Button className="flex-1 h-12 bg-[#0077cc] hover:bg-[#005ea3]" onClick={() => setStep(2)} disabled={!selectedDate}>
                 {t('common.next')}
               </Button>
             )}
             {step === 2 && (
-              <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800" onClick={() => setStep(3)} disabled={totalCartItems === 0}>
+              <Button className="flex-1 h-12 bg-[#0077cc] hover:bg-[#005ea3]" onClick={() => setStep(3)} disabled={totalCartItems === 0}>
                 {t('ordering.steps.viewCart')} ({totalCartItems})
               </Button>
             )}
             {step === 3 && (
-              <Button className="flex-1 h-12 bg-slate-700 hover:bg-slate-800"
+              <Button className="flex-1 h-12 bg-[#0077cc] hover:bg-[#005ea3]"
                 onClick={() => setShowConfirmDialog(true)} disabled={totalCartItems === 0 || confirming}>
                 {confirming ? t('common.processing') : t('ordering.cart.confirmOrder')}
               </Button>
@@ -724,7 +724,7 @@ export default function NewOrderPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-            <AlertDialogAction className="bg-slate-700 hover:bg-slate-800" onClick={handleConfirmOrder} disabled={confirming}>
+            <AlertDialogAction className="bg-[#0077cc] hover:bg-[#005ea3]" onClick={handleConfirmOrder} disabled={confirming}>
               {confirming ? t('common.processing') : t('common.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>

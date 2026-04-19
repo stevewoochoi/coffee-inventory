@@ -69,7 +69,7 @@ export default function SupplierOrdersPage() {
             onClick={() => setStatusFilter(tab)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap min-h-[44px] ${
               statusFilter === tab
-                ? 'bg-slate-700 text-white'
+                ? 'bg-[#0077cc] text-white'
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}
           >
