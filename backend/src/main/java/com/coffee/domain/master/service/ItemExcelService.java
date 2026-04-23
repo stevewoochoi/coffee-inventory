@@ -193,7 +193,8 @@ public class ItemExcelService {
     private String getStringValue(Row row, int col) {
         Cell cell = row.getCell(col);
         if (cell == null) return null;
-        return switch (cell.getCellType()) {
+        CellType type = cell.getCellType() == CellType.FORMULA ? cell.getCachedFormulaResultType() : cell.getCellType();
+        return switch (type) {
             case STRING -> cell.getStringCellValue().trim();
             case NUMERIC -> {
                 double d = cell.getNumericCellValue();
@@ -210,7 +211,8 @@ public class ItemExcelService {
     private BigDecimal getNumericValue(Row row, int col) {
         Cell cell = row.getCell(col);
         if (cell == null) return null;
-        return switch (cell.getCellType()) {
+        CellType type = cell.getCellType() == CellType.FORMULA ? cell.getCachedFormulaResultType() : cell.getCellType();
+        return switch (type) {
             case NUMERIC -> BigDecimal.valueOf(cell.getNumericCellValue());
             case STRING -> {
                 String s = cell.getStringCellValue().trim();
