@@ -56,7 +56,7 @@ export default function ReceivingPage() {
   const [showHistory, setShowHistory] = useState(false);
 
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const { t } = useTranslation();
 
   // Online/offline detection

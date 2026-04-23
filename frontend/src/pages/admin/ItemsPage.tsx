@@ -25,7 +25,7 @@ export default function ItemsPage() {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [editItem, setEditItem] = useState<Item | null>(null);
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
   const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [categoryTree, setCategoryTree] = useState<CategoryTreeNode[]>([]);

@@ -30,7 +30,7 @@ const CELL_BASE = `min-w-[3rem] w-12 ${CELL_H}`;
 
 export default function DailyInventoryPage() {
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
 
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());

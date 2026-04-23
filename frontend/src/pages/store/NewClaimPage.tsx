@@ -35,7 +35,7 @@ export default function NewClaimPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
 
   const [step, setStep] = useState(1);
   const [recentOrders, setRecentOrders] = useState<OrderHistory[]>([]);

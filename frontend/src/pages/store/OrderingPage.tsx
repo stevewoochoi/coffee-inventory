@@ -41,8 +41,8 @@ export default function OrderingPage() {
   const [cartInfo, setCartInfo] = useState<CartResponse | null>(null);
   const [lowStockCount, setLowStockCount] = useState(0);
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
-  const userId = user?.id ?? 1;
+  const storeId = user?.storeId;
+  const userId = user?.id;
   const brandId = user?.brandId;
   const { t } = useTranslation();
 

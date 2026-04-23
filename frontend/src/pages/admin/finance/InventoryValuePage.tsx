@@ -25,7 +25,7 @@ interface ValuationData {
 export default function InventoryValuePage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
 
   const [data, setData] = useState<ValuationData | null>(null);
   const [loading, setLoading] = useState(false);

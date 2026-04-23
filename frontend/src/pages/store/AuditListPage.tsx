@@ -20,7 +20,7 @@ export default function AuditListPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
 
   const [audits, setAudits] = useState<AuditResponse[]>([]);
   const [summary, setSummary] = useState<AuditSummary | null>(null);

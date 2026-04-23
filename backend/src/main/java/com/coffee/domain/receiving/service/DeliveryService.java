@@ -231,18 +231,18 @@ public class DeliveryService {
             orderedQtyMap.merge(ol.getPackagingId(), ol.getPackQty(), Integer::sum);
         }
 
-        // Sum all deliveries for this order (including previous partial receives)
-        List<Delivery> allDeliveries = deliveryRepository.findByOrderPlanId(orderPlanId);
+        // Sum previous deliveries (exclude current one to avoid double-count)
+        List<Delivery> previousDeliveries = deliveryRepository.findByOrderPlanId(orderPlanId).stream()
+                .filter(d -> !d.getId().equals(delivery.getId()) && d.getStatus() == DeliveryStatus.COMPLETED)
+                .toList();
         Map<Long, Integer> totalReceivedQtyMap = new java.util.HashMap<>();
-        for (Delivery d : allDeliveries) {
-            if (d.getStatus() == DeliveryStatus.COMPLETED) {
-                List<DeliveryScan> deliveryScans = scanRepository.findByDeliveryId(d.getId());
-                for (DeliveryScan ds : deliveryScans) {
-                    totalReceivedQtyMap.merge(ds.getPackagingId(), ds.getPackCountScanned(), Integer::sum);
-                }
+        for (Delivery d : previousDeliveries) {
+            List<DeliveryScan> deliveryScans = scanRepository.findByDeliveryId(d.getId());
+            for (DeliveryScan ds : deliveryScans) {
+                totalReceivedQtyMap.merge(ds.getPackagingId(), ds.getPackCountScanned(), Integer::sum);
             }
         }
-        // Also add current receive lines (this delivery has no scans yet)
+        // Add current receive lines
         for (OrderReceivingDto.ReceiveLine rl : request.getLines()) {
             totalReceivedQtyMap.merge(rl.getPackagingId(), rl.getPackQty(), Integer::sum);
         }
@@ -293,12 +293,15 @@ public class DeliveryService {
         delivery.setStatus(DeliveryStatus.COMPLETED);
         deliveryRepository.save(delivery);
 
-        // If delivery is linked to an order plan, update order plan status
+        // If delivery is linked to an order plan, update order plan status (only if receivable)
         if (delivery.getOrderPlanId() != null) {
             orderPlanRepository.findById(delivery.getOrderPlanId()).ifPresent(plan -> {
-                plan.setStatus(OrderStatus.DELIVERED);
-                plan.setReceivedAt(java.time.LocalDateTime.now());
-                orderPlanRepository.save(plan);
+                if (plan.getStatus() == OrderStatus.CONFIRMED || plan.getStatus() == OrderStatus.DISPATCHED
+                        || plan.getStatus() == OrderStatus.PARTIALLY_RECEIVED) {
+                    plan.setStatus(OrderStatus.DELIVERED);
+                    plan.setReceivedAt(java.time.LocalDateTime.now());
+                    orderPlanRepository.save(plan);
+                }
             });
         }
 

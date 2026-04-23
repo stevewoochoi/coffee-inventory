@@ -38,7 +38,7 @@ const STEP_LABELS_KEYS = ['ordering.steps.deliveryDate', 'ordering.steps.product
 export default function NewOrderPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const brandId = user?.brandId;
   const { t } = useTranslation();
 

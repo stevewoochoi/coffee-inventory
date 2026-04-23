@@ -33,7 +33,7 @@ export default function InventoryPage() {
   const [adjustMemo, setAdjustMemo] = useState('');
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const brandId = user?.brandId;
   const { t } = useTranslation();
 

@@ -27,7 +27,7 @@ interface ClosingRecord {
 export default function ClosingPage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
 
   const [records, setRecords] = useState<ClosingRecord[]>([]);
   const [loading, setLoading] = useState(false);

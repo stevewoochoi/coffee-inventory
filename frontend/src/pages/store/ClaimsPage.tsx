@@ -37,7 +37,7 @@ export default function ClaimsPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
 
   const [claims, setClaims] = useState<ClaimResponse[]>([]);
   const [summary, setSummary] = useState<ClaimSummary | null>(null);

@@ -38,7 +38,7 @@ export default function OrderHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const { t } = useTranslation();
 
   const loadOrders = useCallback(async () => {

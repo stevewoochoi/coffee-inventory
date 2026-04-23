@@ -18,7 +18,7 @@ export default function WastePage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ itemId: '', qtyBaseUnit: '', reason: '' });
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const { t } = useTranslation();
 
   const loadWastes = useCallback(async () => {

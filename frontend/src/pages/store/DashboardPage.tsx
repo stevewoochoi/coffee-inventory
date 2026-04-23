@@ -44,7 +44,7 @@ export default function StoreDashboardPage() {
   const [error, setError] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const { t } = useTranslation();
 
   const load = useCallback(async () => {

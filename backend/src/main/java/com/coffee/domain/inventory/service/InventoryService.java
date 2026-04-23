@@ -5,13 +5,13 @@ import com.coffee.domain.inventory.entity.LedgerType;
 import com.coffee.domain.inventory.entity.StockLedger;
 import com.coffee.domain.inventory.repository.InventorySnapshotRepository;
 import com.coffee.domain.inventory.repository.StockLedgerRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -27,6 +27,7 @@ public class InventoryService {
 
     private final StockLedgerRepository stockLedgerRepository;
     private final InventorySnapshotRepository snapshotRepository;
+    private final EntityManager entityManager;
 
     /**
      * 재고 변동 기록 (lot/유통기한 포함) - 낙관적 잠금 + 재시도
@@ -77,7 +78,7 @@ public class InventoryService {
                 if (attempt == MAX_RETRY - 1) {
                     throw e;
                 }
-                snapshotRepository.flush();
+                entityManager.clear();
             }
         }
     }

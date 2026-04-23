@@ -33,7 +33,7 @@ export default function OrderDetailPage() {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const { t } = useTranslation();
 
   const loadOrder = useCallback(async () => {

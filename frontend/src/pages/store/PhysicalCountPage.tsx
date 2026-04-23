@@ -27,7 +27,7 @@ export default function PhysicalCountPage() {
   const [starting, setStarting] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const { t } = useTranslation();
 
   const load = useCallback(async () => {
@@ -47,7 +47,7 @@ export default function PhysicalCountPage() {
   const handleStart = async () => {
     try {
       setStarting(true);
-      const res = await physicalCountApi.start(storeId, user?.userId ?? 1);
+      const res = await physicalCountApi.start(storeId, user?.userId);
       toast.success(t('physicalCount.startSuccess') ?? '재고실사가 시작되었습니다.');
       navigate(`/store/physical-count/${res.data.data.id}`);
     } catch {

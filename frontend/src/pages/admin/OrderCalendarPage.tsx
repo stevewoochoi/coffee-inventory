@@ -18,7 +18,7 @@ interface DayOrders {
 export default function OrderCalendarPage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
 
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());

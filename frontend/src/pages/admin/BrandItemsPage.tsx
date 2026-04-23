@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 export default function BrandItemsPage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
   const [brandItems, setBrandItems] = useState<BrandItem[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [searchKeyword, setSearchKeyword] = useState('');

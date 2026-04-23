@@ -29,7 +29,7 @@ export default function ExpiryPage() {
   const [alerts, setAlerts] = useState<ExpiryAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const { t } = useTranslation();
 
   function getStatusBadge(status: ExpiryAlert['alertStatus']) {

@@ -32,7 +32,7 @@ export default function OrderingAdminPage() {
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState<'orders' | 'summary'>('orders');
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
   const { t } = useTranslation();
 
   const loadPlans = useCallback(async () => {

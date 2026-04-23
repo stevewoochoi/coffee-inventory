@@ -19,7 +19,7 @@ export default function SuppliersPage() {
   const [editSupplier, setEditSupplier] = useState<Supplier | null>(null);
   const [searchText, setSearchText] = useState('');
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
   const { t } = useTranslation();
   const [form, setForm] = useState<SupplierRequest>({
     brandId, name: '', email: '', orderMethod: 'EMAIL',
@@ -27,7 +27,7 @@ export default function SuppliersPage() {
 
   const loadSuppliers = useCallback(async () => {
     try {
-      const res = await masterApi.getSuppliers();
+      const res = await masterApi.getSuppliers(brandId);
       setSuppliers(res.data.data);
     } catch { toast.error(t('suppliers.loadFailed')); }
   }, [t]);

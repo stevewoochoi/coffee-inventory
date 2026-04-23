@@ -9,7 +9,7 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<BrandDashboard | null>(null);
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
   const { t } = useTranslation();
 
   const load = useCallback(async () => {

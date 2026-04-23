@@ -20,7 +20,7 @@ const gradeGuides: Record<string, string> = {
 export default function CycleCountPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const { t } = useTranslation();
 
   const [activeSessions, setActiveSessions] = useState<CycleCountSession[]>([]);

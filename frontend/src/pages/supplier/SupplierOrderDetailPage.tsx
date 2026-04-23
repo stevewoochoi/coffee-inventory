@@ -50,7 +50,7 @@ export default function SupplierOrderDetailPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const supplierId = user?.userId ?? 1;
+  const supplierId = user?.userId;
 
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);

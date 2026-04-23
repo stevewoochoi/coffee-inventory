@@ -23,7 +23,7 @@ type ReportTab = 'consumption' | 'waste' | 'loss-rate' | 'order-cost';
 
 export default function ReportsPage() {
   const { user } = useAuthStore();
-  const storeId = user?.storeId ?? 1;
+  const storeId = user?.storeId;
   const { t } = useTranslation();
   const today = new Date();
   const monthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;

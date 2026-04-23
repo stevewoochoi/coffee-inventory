@@ -24,7 +24,7 @@ export default function SupplierOrdersPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   // For supplier portal, userId acts as supplierId or use a dedicated field
-  const supplierId = user?.userId ?? 1;
+  const supplierId = user?.userId;
 
   const [orders, setOrders] = useState<SupplierOrder[]>([]);
   const [statusFilter, setStatusFilter] = useState('all');

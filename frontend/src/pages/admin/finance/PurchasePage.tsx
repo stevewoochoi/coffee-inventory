@@ -20,7 +20,7 @@ interface PurchaseRow {
 export default function PurchasePage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());

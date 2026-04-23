@@ -1,5 +1,6 @@
 package com.coffee.domain.master.service;
 
+import com.coffee.common.exception.BusinessException;
 import com.coffee.common.exception.ResourceNotFoundException;
 import com.coffee.domain.master.dto.ItemDto;
 import com.coffee.domain.master.entity.Item;
@@ -41,10 +42,11 @@ public class ItemService {
 
     @Transactional
     public ItemDto.Response create(ItemDto.Request request) {
-        if (request.getBrandId() != null) {
-            brandRepository.findById(request.getBrandId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Brand", request.getBrandId()));
+        if (request.getBrandId() == null) {
+            throw new BusinessException("Brand ID is required", org.springframework.http.HttpStatus.BAD_REQUEST);
         }
+        brandRepository.findById(request.getBrandId())
+                .orElseThrow(() -> new ResourceNotFoundException("Brand", request.getBrandId()));
 
         Item item = Item.builder()
                 .brandId(request.getBrandId())

@@ -34,7 +34,7 @@ interface CutoffSummary {
 export default function CutoffPage() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
 
   const [deliveryDate, setDeliveryDate] = useState('');
   const [cutoffSummary, setCutoffSummary] = useState<CutoffSummary | null>(null);

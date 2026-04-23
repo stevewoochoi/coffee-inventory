@@ -25,7 +25,7 @@ export default function PackagingsPage() {
   const [searchText, setSearchText] = useState('');
   const [showAll, setShowAll] = useState(false);
   const { user } = useAuthStore();
-  const brandId = user?.brandId ?? 1;
+  const brandId = user?.brandId;
   const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [boxPriceOverridden, setBoxPriceOverridden] = useState(false);

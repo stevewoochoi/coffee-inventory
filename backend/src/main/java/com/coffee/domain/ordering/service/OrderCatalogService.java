@@ -2,6 +2,7 @@ package com.coffee.domain.ordering.service;
 
 import com.coffee.domain.master.entity.*;
 import com.coffee.domain.master.repository.*;
+import com.coffee.domain.org.repository.StoreRepository;
 import com.coffee.domain.master.repository.ItemDeliveryScheduleRepository;
 import com.coffee.domain.master.repository.BrandItemRepository;
 import com.coffee.domain.ordering.dto.CatalogDto;
@@ -34,34 +35,37 @@ public class OrderCatalogService {
     private final OrderPlanRepository orderPlanRepository;
     private final OrderLineRepository orderLineRepository;
     private final DeliveryPolicyService policyService;
+    private final StoreRepository storeRepository;
     private final OrderRecommendationService recommendationService;
     private final ItemDeliveryScheduleRepository scheduleRepository;
 
     public Page<CatalogDto.CatalogItem> getCatalog(Long storeId, LocalDate deliveryDate,
                                                      Long categoryId, String keyword,
                                                      boolean lowStockOnly, Pageable pageable) {
-        // Get brand from store policy
+        // Get brand from store policy, fallback to store's own brandId
         var policy = policyService.getStorePolicy(storeId);
         Long brandId = policy != null ? policy.getBrandId() : null;
+        if (brandId == null) {
+            brandId = storeRepository.findById(storeId)
+                    .map(s -> s.getBrandId()).orElse(null);
+        }
+        if (brandId == null) {
+            return new PageImpl<>(List.of(), pageable, 0);
+        }
 
         // Get all active items for this brand via brand_item junction
         List<Item> allItems = new ArrayList<>();
         Map<Long, BrandItem> brandItemMap = new HashMap<>();
-        if (brandId != null) {
-            List<BrandItem> brandItems = brandItemRepository.findByBrandIdAndIsActiveTrue(brandId);
-            for (BrandItem bi : brandItems) {
-                itemRepository.findByIdAndIsActiveTrue(bi.getItemId()).ifPresent(item -> {
-                    allItems.add(item);
-                    brandItemMap.put(item.getId(), bi);
-                });
-            }
+        List<BrandItem> brandItems = brandItemRepository.findByBrandIdAndIsActiveTrue(brandId);
+        for (BrandItem bi : brandItems) {
+            itemRepository.findByIdAndIsActiveTrue(bi.getItemId()).ifPresent(item -> {
+                allItems.add(item);
+                brandItemMap.put(item.getId(), bi);
+            });
         }
         if (allItems.isEmpty()) {
-            // Fallback: use legacy brand_id on item table
-            List<Item> fallback = brandId != null
-                    ? itemRepository.findByBrandIdAndIsActiveTrue(brandId)
-                    : itemRepository.findByIsActiveTrue();
-            allItems.addAll(fallback);
+            // Fallback: use brand_id on item table (same brand only)
+            allItems.addAll(itemRepository.findByBrandIdAndIsActiveTrue(brandId));
         }
 
         // Pre-load maps for performance
