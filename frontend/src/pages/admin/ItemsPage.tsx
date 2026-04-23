@@ -200,6 +200,10 @@ export default function ItemsPage() {
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!brandId) {
+      toast.error('브랜드 정보가 없습니다. 다시 로그인해주세요.');
+      return;
+    }
     setUploading(true);
     try {
       const res = await masterApi.uploadItemExcel(brandId, file);

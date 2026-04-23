@@ -83,7 +83,6 @@ public class ItemExcelService {
         }
     }
 
-    @Transactional
     public BatchUploadResult batchUpload(Long brandId, MultipartFile file) throws IOException {
         if (brandId != null) {
             brandRepository.findById(brandId)
@@ -103,12 +102,16 @@ public class ItemExcelService {
 
                 try {
                     Item item = parseRow(row, brandId, i + 1);
-                    Item saved = itemRepository.save(item);
+                    Item saved = saveItemSafely(item);
                     successItems.add(toSimpleResponse(saved));
                 } catch (Exception e) {
+                    String msg = e.getMessage();
+                    if (msg != null && msg.contains("Duplicate entry")) {
+                        msg = "중복된 상품코드입니다";
+                    }
                     errors.add(RowError.builder()
                             .row(i + 1)
-                            .message(e.getMessage())
+                            .message(msg)
                             .build());
                 }
             }
@@ -121,6 +124,11 @@ public class ItemExcelService {
                 .items(successItems)
                 .errors(errors)
                 .build();
+    }
+
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    public Item saveItemSafely(Item item) {
+        return itemRepository.saveAndFlush(item);
     }
 
     private Item parseRow(Row row, Long brandId, int rowNum) {
