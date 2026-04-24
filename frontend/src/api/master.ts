@@ -262,6 +262,8 @@ export const masterApi = {
     client.post<ApiResponse<Item>>(`/master/items/${id}/image`, { imageUrl }),
   deleteItem: (id: number) =>
     client.delete<ApiResponse<void>>(`/master/items/${id}`),
+  toggleItemActive: (id: number) =>
+    client.patch<ApiResponse<Item>>(`/master/items/${id}/toggle-active`),
   downloadItemExcelSample: () =>
     client.get('/master/items/excel/sample', { responseType: 'blob' }),
   uploadItemExcel: (brandId: number, file: File) => {

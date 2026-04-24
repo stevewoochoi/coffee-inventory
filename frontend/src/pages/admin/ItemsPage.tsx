@@ -177,12 +177,14 @@ export default function ItemsPage() {
     } catch { toast.error(t('items.saveFailed')); }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm(t('items.deactivateConfirm'))) return;
+  const handleToggleActive = async (item: Item) => {
+    const action = item.isActive ? t('items.deactivateConfirm') : t('items.activateConfirm', { defaultValue: '이 상품을 활성화하시겠습니까?' });
+    if (!confirm(action)) return;
     try {
-      await masterApi.deleteItem(id);
+      await masterApi.toggleItemActive(item.id);
+      toast.success(item.isActive ? t('items.deactivated', { defaultValue: '비활성화 완료' }) : t('items.activated', { defaultValue: '활성화 완료' }));
       loadItems();
-    } catch { toast.error(t('items.deleteFailed')); }
+    } catch { toast.error(t('items.statusChangeFailed', { defaultValue: '상태 변경 실패' })); }
   };
 
   const handleDownloadSample = async () => {
@@ -308,8 +310,13 @@ export default function ItemsPage() {
                   <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
                     {t('common.edit')}
                   </Button>
-                  <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id)}>
-                    {t('common.delete')}
+                  <Button
+                    variant={item.isActive ? 'outline' : 'default'}
+                    size="sm"
+                    className={item.isActive ? 'text-red-600 hover:text-red-700' : 'bg-green-600 hover:bg-green-700 text-white'}
+                    onClick={() => handleToggleActive(item)}
+                  >
+                    {item.isActive ? t('items.deactivate', { defaultValue: '비활성화' }) : t('items.activate', { defaultValue: '활성화' })}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -365,8 +372,12 @@ export default function ItemsPage() {
               <Button variant="outline" size="sm" className="flex-1 min-h-[44px]" onClick={() => openEdit(item)}>
                 {t('common.edit')}
               </Button>
-              <Button variant="destructive" size="sm" className="flex-1 min-h-[44px]" onClick={() => handleDelete(item.id)}>
-                {t('common.delete')}
+              <Button
+                size="sm"
+                className={`flex-1 min-h-[44px] ${item.isActive ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                onClick={() => handleToggleActive(item)}
+              >
+                {item.isActive ? t('items.deactivate', { defaultValue: '비활성화' }) : t('items.activate', { defaultValue: '활성화' })}
               </Button>
             </div>
           </div>

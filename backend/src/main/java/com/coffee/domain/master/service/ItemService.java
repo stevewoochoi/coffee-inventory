@@ -117,6 +117,15 @@ public class ItemService {
     }
 
     @Transactional
+    public ItemDto.Response toggleActive(Long id) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Item", id));
+        item.setIsActive(!Boolean.TRUE.equals(item.getIsActive()));
+        itemRepository.save(item);
+        return toResponse(item);
+    }
+
+    @Transactional
     public ItemDto.Response updateItemOperational(Long id, ItemOperationalRequest request) {
         Item item = getActiveItemOrThrow(id);
 

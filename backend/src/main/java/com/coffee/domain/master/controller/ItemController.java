@@ -78,6 +78,11 @@ public class ItemController {
         return ResponseEntity.ok(ApiResponse.ok(null, "Item deactivated"));
     }
 
+    @PatchMapping("/{id}/toggle-active")
+    public ResponseEntity<ApiResponse<ItemDto.Response>> toggleActive(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(itemService.toggleActive(id)));
+    }
+
     @GetMapping("/excel/sample")
     public ResponseEntity<byte[]> downloadSampleExcel() throws Exception {
         byte[] bytes = itemExcelService.generateSampleExcel();
