@@ -151,7 +151,9 @@ public class ItemExcelService {
         String spec = getStringValue(row, 7);
         BigDecimal price = getNumericValue(row, 8);
         String vatStr = getStringValue(row, 9);
-        boolean vatInclusive = vatStr == null || vatStr.isBlank() || vatStr.equalsIgnoreCase("Y");
+        boolean vatInclusive = vatStr == null || vatStr.isBlank()
+                || vatStr.equalsIgnoreCase("Y") || vatStr.equalsIgnoreCase("YES")
+                || vatStr.equals("예") || vatStr.equals("O") || vatStr.equals("1");
         BigDecimal lossRate = getNumericValue(row, 10);
         if (lossRate != null) {
             lossRate = lossRate.divide(BigDecimal.valueOf(100), 4, java.math.RoundingMode.HALF_UP);
