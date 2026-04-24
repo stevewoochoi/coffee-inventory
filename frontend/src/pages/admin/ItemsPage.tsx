@@ -84,20 +84,57 @@ export default function ItemsPage() {
 
   const openEdit = async (item: Item) => {
     setEditItem(item);
+
+    // Match category name to tree for dropdown pre-selection
+    let matchedL1: number | '' = '';
+    let matchedL2: number | '' = '';
+    let matchedL3: number | '' = '';
+    let matchedCategoryId: number | undefined = item.categoryId ?? undefined;
+    const catName = item.category || '';
+    if (catName && categoryTree.length > 0) {
+      // Try to find matching category in tree by name or categoryId
+      for (const l1 of categoryTree) {
+        if (l1.name === catName || (matchedCategoryId && l1.id === matchedCategoryId)) {
+          matchedL1 = l1.id;
+          matchedCategoryId = l1.id;
+          break;
+        }
+        for (const l2 of (l1.children || [])) {
+          if (l2.name === catName || (matchedCategoryId && l2.id === matchedCategoryId)) {
+            matchedL1 = l1.id;
+            matchedL2 = l2.id;
+            matchedCategoryId = l2.id;
+            break;
+          }
+          for (const l3 of (l2.children || [])) {
+            if (l3.name === catName || (matchedCategoryId && l3.id === matchedCategoryId)) {
+              matchedL1 = l1.id;
+              matchedL2 = l2.id;
+              matchedL3 = l3.id;
+              matchedCategoryId = l3.id;
+              break;
+            }
+          }
+          if (matchedL2) break;
+        }
+        if (matchedL1) break;
+      }
+    }
+
     setForm({
       brandId: item.brandId ?? undefined,
       name: item.name,
       baseUnit: item.baseUnit,
-      category: item.category || '',
-      categoryId: undefined,
+      category: catName,
+      categoryId: matchedCategoryId,
       lossRate: item.lossRate,
       price: item.price ?? undefined,
       vatInclusive: item.vatInclusive ?? true,
       supplierId: item.supplierId ?? undefined,
     });
-    setSelL1('');
-    setSelL2('');
-    setSelL3('');
+    setSelL1(matchedL1);
+    setSelL2(matchedL2);
+    setSelL3(matchedL3);
     setActiveTab('basic');
     setOpForm({
       stockUnit: item.stockUnit || '',
