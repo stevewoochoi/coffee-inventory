@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { masterApi, type Item, type ItemRequest, type BrandItem, type BrandItemAssignRequest } from '@/api/master';
 import { brandApi, type Brand } from '@/api/store';
-// categoryApi removed - not needed for master items page
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,11 +25,14 @@ export default function MasterItemsPage() {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [form, setForm] = useState<ItemRequest>({ name: '', baseUnit: 'g' });
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [draggedItemId, setDraggedItemId] = useState<number | null>(null);
+
+  // Multi-select state
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [assigning, setAssigning] = useState(false);
 
   const loadItems = useCallback(async () => {
     try {
-      const res = await masterApi.getItems(undefined, 0, 200);
+      const res = await masterApi.getItems(undefined, 0, 500);
       setItems(res.data.data.content);
     } catch { toast.error('Failed to load items'); }
   }, []);
@@ -39,7 +41,6 @@ export default function MasterItemsPage() {
     try {
       const res = await brandApi.getBrands();
       setBrands(res.data.data);
-      // Load brand items for each brand
       const map: Record<number, BrandItem[]> = {};
       for (const brand of res.data.data) {
         try {
@@ -93,38 +94,53 @@ export default function MasterItemsPage() {
     } catch { toast.error(t('items.saveFailed')); }
   };
 
-  // Drag and drop
-  const handleDragStart = (e: React.DragEvent, itemId: number) => {
-    setDraggedItemId(itemId);
-    e.dataTransfer.setData('text/plain', String(itemId));
-    e.dataTransfer.effectAllowed = 'copy';
+  // Selection helpers
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
+  const selectAll = () => {
+    const unassignedIds = filteredItems.filter(i => !assignedItemIds.has(i.id)).map(i => i.id);
+    setSelectedIds(new Set(unassignedIds));
   };
 
-  const handleDrop = async (e: React.DragEvent, brandId: number) => {
-    e.preventDefault();
-    const itemId = Number(e.dataTransfer.getData('text/plain'));
-    setDraggedItemId(null);
+  const deselectAll = () => setSelectedIds(new Set());
 
-    // Check if already assigned
-    const existing = brandItemsMap[brandId]?.find(bi => bi.itemId === itemId);
-    if (existing) {
-      toast.info('This item is already assigned to this brand');
-      return;
+  // Batch assign
+  const handleBatchAssign = async () => {
+    if (!selectedBrandId || selectedIds.size === 0) return;
+    setAssigning(true);
+    let ok = 0;
+    let fail = 0;
+    for (const itemId of selectedIds) {
+      // Skip already assigned
+      if (brandItemsMap[selectedBrandId]?.find(bi => bi.itemId === itemId)) {
+        ok++;
+        continue;
+      }
+      try {
+        const req: BrandItemAssignRequest = { brandId: selectedBrandId, itemId };
+        await masterApi.assignBrandItem(req);
+        ok++;
+      } catch { fail++; }
     }
-
+    // Reload brand items
     try {
-      const req: BrandItemAssignRequest = { brandId, itemId };
-      await masterApi.assignBrandItem(req);
-      toast.success('Item assigned to brand');
-      // Reload brand items
-      const biRes = await masterApi.getBrandItems(brandId);
-      setBrandItemsMap(prev => ({ ...prev, [brandId]: biRes.data.data }));
-    } catch { toast.error('Failed to assign item'); }
+      const biRes = await masterApi.getBrandItems(selectedBrandId);
+      setBrandItemsMap(prev => ({ ...prev, [selectedBrandId!]: biRes.data.data }));
+    } catch { /* */ }
+    setSelectedIds(new Set());
+    setAssigning(false);
+    if (fail === 0) {
+      toast.success(`${ok}건 배정 완료`);
+    } else {
+      toast.warning(`${ok}건 성공, ${fail}건 실패`);
+    }
   };
 
   const handleUnassign = async (brandItemId: number, brandId: number) => {
@@ -149,19 +165,21 @@ export default function MasterItemsPage() {
   const currentBrandItems = selectedBrandId ? (brandItemsMap[selectedBrandId] || []) : [];
   const assignedItemIds = new Set(currentBrandItems.map(bi => bi.itemId));
 
+  const unassignedSelected = [...selectedIds].filter(id => !assignedItemIds.has(id));
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-900">Master Items</h2>
+        <h2 className="text-xl font-bold text-[#1a1c21]">Master Items</h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
         {/* Left: Master Items */}
-        <div className="bg-white rounded-lg border flex flex-col">
-          <div className="p-4 border-b">
+        <div className="bg-white rounded-xl border border-[#e8eaf0] flex flex-col">
+          <div className="p-4 border-b border-[#e8eaf0]">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold text-gray-700">All Master Items</h3>
-              <Button size="sm" onClick={openCreate} className="bg-[#0077cc] hover:bg-[#005ea3]">
+              <h3 className="font-semibold text-[#343741]">All Master Items</h3>
+              <Button size="sm" onClick={openCreate}>
                 + {t('items.addItem')}
               </Button>
             </div>
@@ -170,47 +188,76 @@ export default function MasterItemsPage() {
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
             />
-            <p className="text-xs text-gray-400 mt-2">Drag items to the brand panel on the right</p>
+            {/* Selection toolbar */}
+            <div className="flex items-center gap-2 mt-2">
+              <button
+                onClick={selectedIds.size > 0 ? deselectAll : selectAll}
+                className="text-xs text-[#0077cc] hover:underline font-medium"
+              >
+                {selectedIds.size > 0 ? `선택 해제 (${selectedIds.size})` : '미배정 전체 선택'}
+              </button>
+              {unassignedSelected.length > 0 && selectedBrandId && (
+                <Button
+                  size="sm"
+                  className="ml-auto h-8 text-xs"
+                  disabled={assigning}
+                  onClick={handleBatchAssign}
+                >
+                  {assigning ? '배정 중...' : `${unassignedSelected.length}건 → ${brands.find(b => b.id === selectedBrandId)?.name || 'Brand'} 배정`}
+                </Button>
+              )}
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            {filteredItems.map(item => (
-              <div
-                key={item.id}
-                draggable
-                onDragStart={(e) => handleDragStart(e, item.id)}
-                className={`flex items-center gap-3 p-3 rounded-lg border cursor-grab active:cursor-grabbing hover:bg-slate-50 transition-colors ${
-                  assignedItemIds.has(item.id) ? 'bg-green-50 border-green-200' : 'bg-white'
-                } ${draggedItemId === item.id ? 'opacity-50' : ''}`}
-              >
-                {item.imageUrl ? (
-                  <img src={item.imageUrl} alt={item.name}
-                    className="w-10 h-10 rounded object-cover flex-shrink-0" />
-                ) : (
-                  <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-xs flex-shrink-0">
-                    IMG
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm truncate">{getLocalizedName(item.name, item.nameEn, item.nameJa, item.nameKo)}</div>
-                  <div className="text-xs text-gray-500">
-                    {item.baseUnit} {item.category && `· ${item.category}`}
-                    {item.itemCode && ` · ${item.itemCode}`}
-                  </div>
-                </div>
-                <div className="flex-shrink-0 flex gap-1">
-                  {assignedItemIds.has(item.id) && (
-                    <Badge variant="outline" className="text-green-600 border-green-300 text-xs">Assigned</Badge>
+            {filteredItems.map(item => {
+              const isAssigned = assignedItemIds.has(item.id);
+              const isChecked = selectedIds.has(item.id);
+
+              return (
+                <div
+                  key={item.id}
+                  className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
+                    isChecked ? 'bg-[rgba(0,119,204,0.06)] border-[#0077cc]' :
+                    isAssigned ? 'bg-green-50 border-green-200' : 'bg-white border-[#e8eaf0]'
+                  }`}
+                >
+                  {/* Checkbox */}
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => toggleSelect(item.id)}
+                    className="h-4 w-4 rounded border-gray-300 text-[#0077cc] focus:ring-[#0077cc] shrink-0"
+                  />
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt={item.name}
+                      className="w-10 h-10 rounded object-cover shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-xs shrink-0">
+                      IMG
+                    </div>
                   )}
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(item)}>
-                    <span className="text-xs">&#9998;</span>
-                  </Button>
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
-                    onClick={() => { setSelectedItem(item); setImageDialogOpen(true); }}>
-                    <span className="text-xs">&#128247;</span>
-                  </Button>
+                  <div className="flex-1 min-w-0 cursor-pointer" onClick={() => toggleSelect(item.id)}>
+                    <div className="font-medium text-sm truncate">{getLocalizedName(item.name, item.nameEn, item.nameJa, item.nameKo)}</div>
+                    <div className="text-xs text-[#69707d]">
+                      {item.baseUnit} {item.category && `· ${item.category}`}
+                      {item.itemCode && ` · ${item.itemCode}`}
+                    </div>
+                  </div>
+                  <div className="shrink-0 flex gap-1">
+                    {isAssigned && (
+                      <Badge variant="outline" className="text-green-600 border-green-300 text-xs">Assigned</Badge>
+                    )}
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(item)}>
+                      <span className="text-xs">&#9998;</span>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0"
+                      onClick={() => { setSelectedItem(item); setImageDialogOpen(true); }}>
+                      <span className="text-xs">&#128247;</span>
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {filteredItems.length === 0 && (
               <div className="text-center text-gray-400 py-8">{t('items.noItems')}</div>
             )}
@@ -218,9 +265,9 @@ export default function MasterItemsPage() {
         </div>
 
         {/* Right: Brand assignment panel */}
-        <div className="bg-white rounded-lg border flex flex-col">
-          <div className="p-4 border-b">
-            <h3 className="font-semibold text-gray-700 mb-3">Brand Items</h3>
+        <div className="bg-white rounded-xl border border-[#e8eaf0] flex flex-col">
+          <div className="p-4 border-b border-[#e8eaf0]">
+            <h3 className="font-semibold text-[#343741] mb-3">Brand Items</h3>
             <div className="flex gap-2 flex-wrap">
               {brands.map(brand => (
                 <button
@@ -229,25 +276,24 @@ export default function MasterItemsPage() {
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                     selectedBrandId === brand.id
                       ? 'bg-[#0077cc] text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : 'bg-gray-100 text-[#69707d] hover:bg-gray-200'
                   }`}
                 >
                   {brand.name}
+                  {brandItemsMap[brand.id] && (
+                    <span className="ml-1 opacity-70">({brandItemsMap[brand.id].length})</span>
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
           {selectedBrandId && (
-            <div
-              className="flex-1 overflow-y-auto p-2 space-y-1"
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, selectedBrandId)}
-            >
+            <div className="flex-1 overflow-y-auto p-2 space-y-1">
               {currentBrandItems.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-full text-gray-400 py-12 border-2 border-dashed rounded-lg">
-                  <div className="text-4xl mb-2">&#x2B07;</div>
-                  <p className="text-sm">Drag items here to assign</p>
+                  <p className="text-sm mb-2">좌측에서 아이템을 선택 후</p>
+                  <p className="text-sm font-medium text-[#0077cc]">배정 버튼을 눌러주세요</p>
                 </div>
               )}
               {currentBrandItems.map(bi => (
@@ -319,7 +365,7 @@ export default function MasterItemsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>{t('common.cancel')}</Button>
-            <Button onClick={handleSave} className="bg-[#0077cc] hover:bg-[#005ea3]">{t('common.save')}</Button>
+            <Button onClick={handleSave}>{t('common.save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -372,19 +418,19 @@ function BrandItemRow({ brandItem, onUnassign, onUpdate }: {
   };
 
   return (
-    <div className="p-3 rounded-lg border bg-white hover:bg-gray-50">
+    <div className="p-3 rounded-lg border border-[#e8eaf0] bg-white hover:bg-[#f7f8fc]">
       <div className="flex items-center gap-3">
         {brandItem.imageUrl ? (
           <img src={brandItem.imageUrl} alt={brandItem.itemName || ''}
-            className="w-10 h-10 rounded object-cover flex-shrink-0" />
+            className="w-10 h-10 rounded object-cover shrink-0" />
         ) : (
-          <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-xs flex-shrink-0">
+          <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-xs shrink-0">
             IMG
           </div>
         )}
         <div className="flex-1 min-w-0">
           <div className="font-medium text-sm truncate">{getLocalizedName(brandItem.itemName, brandItem.itemNameEn, brandItem.itemNameJa, brandItem.itemNameKo)}</div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-[#69707d]">
             {brandItem.baseUnit}
             {brandItem.categoryName && ` · ${brandItem.categoryName}`}
             {brandItem.supplierName && ` · ${brandItem.supplierName}`}
@@ -405,7 +451,7 @@ function BrandItemRow({ brandItem, onUnassign, onUpdate }: {
             </div>
           )}
         </div>
-        <div className="flex-shrink-0 flex gap-1">
+        <div className="shrink-0 flex gap-1">
           {!editing ? (
             <>
               <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setEditing(true)}>
@@ -421,7 +467,7 @@ function BrandItemRow({ brandItem, onUnassign, onUpdate }: {
               <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setEditing(false)}>
                 Cancel
               </Button>
-              <Button size="sm" className="h-7 text-xs bg-[#0077cc]" onClick={handleSave}>
+              <Button size="sm" className="h-7 text-xs" onClick={handleSave}>
                 Save
               </Button>
             </>
