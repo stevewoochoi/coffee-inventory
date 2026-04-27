@@ -83,6 +83,13 @@ public class ItemController {
         return ResponseEntity.ok(ApiResponse.ok(itemService.toggleActive(id)));
     }
 
+    @DeleteMapping("/batch")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<Integer>> batchDelete(@RequestParam Long brandId) {
+        int count = itemService.deleteAllByBrandId(brandId);
+        return ResponseEntity.ok(ApiResponse.ok(count, count + " items deleted"));
+    }
+
     @GetMapping("/excel/sample")
     public ResponseEntity<byte[]> downloadSampleExcel() throws Exception {
         byte[] bytes = itemExcelService.generateSampleExcel();

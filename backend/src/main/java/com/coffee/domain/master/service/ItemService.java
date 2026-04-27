@@ -117,6 +117,16 @@ public class ItemService {
     }
 
     @Transactional
+    public int deleteAllByBrandId(Long brandId) {
+        List<Item> items = itemRepository.findByBrandId(brandId);
+        for (Item item : items) {
+            item.setIsActive(false);
+        }
+        itemRepository.saveAll(items);
+        return items.size();
+    }
+
+    @Transactional
     public ItemDto.Response toggleActive(Long id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Item", id));

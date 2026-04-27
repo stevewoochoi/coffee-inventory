@@ -19,4 +19,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByIsActiveTrue();
 
     Optional<Item> findByIdAndIsActiveTrue(Long id);
+
+    List<Item> findByBrandId(Long brandId);
 }

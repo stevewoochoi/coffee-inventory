@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 
@@ -7,6 +7,9 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { login, isLoading, error: rawError } = useAuthStore();
+
+  const [searchParams] = useSearchParams();
+  const sessionExpired = searchParams.get('expired') === '1';
 
   const ERROR_MESSAGES: Record<string, string> = {
     ACCOUNT_PENDING: t('auth.accountPending'),
@@ -87,6 +90,11 @@ export default function LoginPage() {
               />
             </div>
 
+            {sessionExpired && !error && (
+              <div className="bg-[#fff8e1] border border-[#f1d08a] rounded-lg px-3 py-2.5 text-[13px] font-bold text-[#8a5a00]">
+                세션이 만료되었습니다. 다시 로그인해주세요.
+              </div>
+            )}
             {error && (
               <div className="bg-[#fff1f0] border border-[#f3c7c3] rounded-lg px-3 py-2.5 text-[13px] font-bold text-[#b42318]">
                 {error}

@@ -259,11 +259,27 @@ export default function ItemsPage() {
     e.target.value = '';
   };
 
+  const handleBatchDelete = async () => {
+    if (!brandId) { toast.error('브랜드 정보가 없습니다.'); return; }
+    if (!confirm(`현재 브랜드의 모든 상품(${items.length}건)을 비활성화합니다. 계속하시겠습니까?`)) return;
+    if (!confirm('정말 일괄 비활성화하시겠습니까? 이 작업은 되돌릴 수 있습니다.')) return;
+    try {
+      const res = await masterApi.batchDeleteItems(brandId);
+      toast.success(`${res.data.data}건 비활성화 완료`);
+      loadItems();
+    } catch { toast.error('일괄 비활성화 실패'); }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-900">{t('items.title')}</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {items.length > 0 && (
+            <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={handleBatchDelete}>
+              일괄 비활성화
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={handleDownloadSample}>
             샘플 다운로드
           </Button>

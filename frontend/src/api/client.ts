@@ -9,9 +9,36 @@ const client = axios.create({
   },
 });
 
+// Check if token is expired
+function isTokenExpired(): boolean {
+  const token = localStorage.getItem('accessToken');
+  if (!token) return true;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 < Date.now();
+  } catch {
+    return true;
+  }
+}
+
+// Force logout and redirect
+function forceLogout() {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  // Only redirect if not already on login page
+  if (!window.location.pathname.startsWith('/login')) {
+    window.location.href = '/login?expired=1';
+  }
+}
+
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) {
+    // Check expiry before sending request
+    if (isTokenExpired()) {
+      forceLogout();
+      return Promise.reject(new axios.Cancel('Token expired'));
+    }
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
@@ -20,6 +47,8 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (response) => response,
   async (error) => {
+    if (axios.isCancel(error)) return Promise.reject(error);
+
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -39,13 +68,16 @@ client.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return client(originalRequest);
         } catch {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login';
+          forceLogout();
         }
       } else {
-        window.location.href = '/login';
+        forceLogout();
       }
+    }
+
+    // 403 with expired token should also logout
+    if (error.response?.status === 403 && isTokenExpired()) {
+      forceLogout();
     }
 
     return Promise.reject(error);

@@ -264,6 +264,8 @@ export const masterApi = {
     client.delete<ApiResponse<void>>(`/master/items/${id}`),
   toggleItemActive: (id: number) =>
     client.patch<ApiResponse<Item>>(`/master/items/${id}/toggle-active`),
+  batchDeleteItems: (brandId: number) =>
+    client.delete<ApiResponse<number>>(`/master/items/batch`, { params: { brandId } }),
   downloadItemExcelSample: () =>
     client.get('/master/items/excel/sample', { responseType: 'blob' }),
   uploadItemExcel: (brandId: number, file: File) => {
