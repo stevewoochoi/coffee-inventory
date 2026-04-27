@@ -66,6 +66,9 @@ public class ItemCategoryService {
 
     @Transactional
     public ItemCategoryDto.Response create(ItemCategoryDto.Request request) {
+        if (request.getName() == null || request.getName().isBlank()) {
+            throw new BusinessException("카테고리 이름은 필수입니다", HttpStatus.BAD_REQUEST);
+        }
         int level = 1;
 
         if (request.getParentId() != null) {

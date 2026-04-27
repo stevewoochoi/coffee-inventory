@@ -72,9 +72,27 @@ public class FulfillmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("OrderPlan", planId));
 
         String newStatus = request.getFulfillmentStatus();
-        List<String> validStatuses = List.of("PENDING", "PREPARING", "SHIPPED", "DELIVERED", "CANCELLED");
-        if (!validStatuses.contains(newStatus)) {
+        List<String> validOrder = List.of("PENDING", "PREPARING", "SHIPPED", "DELIVERED");
+        if (!validOrder.contains(newStatus) && !"CANCELLED".equals(newStatus)) {
             throw new BusinessException("Invalid fulfillment status: " + newStatus, HttpStatus.BAD_REQUEST);
+        }
+
+        String currentStatus = plan.getFulfillmentStatus() != null ? plan.getFulfillmentStatus() : "PENDING";
+
+        // Block reverse transitions (except CANCELLED which is allowed from any state)
+        if (!"CANCELLED".equals(newStatus)) {
+            int currentIdx = validOrder.indexOf(currentStatus);
+            int newIdx = validOrder.indexOf(newStatus);
+            if (currentIdx >= 0 && newIdx >= 0 && newIdx < currentIdx) {
+                throw new BusinessException(
+                        String.format("상태를 되돌릴 수 없습니다 (%s → %s)", currentStatus, newStatus),
+                        HttpStatus.BAD_REQUEST);
+            }
+            if ("DELIVERED".equals(currentStatus) || "CANCELLED".equals(currentStatus)) {
+                throw new BusinessException(
+                        String.format("완료/취소된 건은 상태를 변경할 수 없습니다 (현재: %s)", currentStatus),
+                        HttpStatus.BAD_REQUEST);
+            }
         }
 
         plan.setFulfillmentStatus(newStatus);

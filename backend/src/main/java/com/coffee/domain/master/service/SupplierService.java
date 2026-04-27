@@ -1,6 +1,8 @@
 package com.coffee.domain.master.service;
 
+import com.coffee.common.exception.BusinessException;
 import com.coffee.common.exception.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
 import com.coffee.domain.master.dto.SupplierDto;
 import com.coffee.domain.master.dto.SupplierItemDto;
 import com.coffee.domain.master.entity.OrderMethod;
@@ -41,6 +43,10 @@ public class SupplierService {
     public SupplierDto.Response create(SupplierDto.Request request) {
         brandRepository.findById(request.getBrandId())
                 .orElseThrow(() -> new ResourceNotFoundException("Brand", request.getBrandId()));
+
+        if (supplierRepository.existsByBrandIdAndName(request.getBrandId(), request.getName())) {
+            throw new BusinessException("동일한 이름의 공급사가 이미 존재합니다", HttpStatus.CONFLICT);
+        }
 
         Supplier supplier = Supplier.builder()
                 .brandId(request.getBrandId())

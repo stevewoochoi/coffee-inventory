@@ -150,6 +150,9 @@ public class ItemExcelService {
         String category = getStringValue(row, 5);
         String spec = getStringValue(row, 7);
         BigDecimal price = getNumericValue(row, 8);
+        if (price != null && price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("행 " + rowNum + ": 단가는 0 이상이어야 합니다");
+        }
         String vatStr = getStringValue(row, 9);
         boolean vatInclusive = vatStr == null || vatStr.isBlank()
                 || vatStr.equalsIgnoreCase("Y") || vatStr.equalsIgnoreCase("YES")

@@ -48,6 +48,10 @@ public class ItemService {
         brandRepository.findById(request.getBrandId())
                 .orElseThrow(() -> new ResourceNotFoundException("Brand", request.getBrandId()));
 
+        if (request.getPrice() != null && request.getPrice().compareTo(java.math.BigDecimal.ZERO) < 0) {
+            throw new BusinessException("단가는 0 이상이어야 합니다", org.springframework.http.HttpStatus.BAD_REQUEST);
+        }
+
         Item item = Item.builder()
                 .brandId(request.getBrandId())
                 .name(request.getName())
