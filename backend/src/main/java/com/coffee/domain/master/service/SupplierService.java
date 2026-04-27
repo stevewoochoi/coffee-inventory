@@ -45,7 +45,7 @@ public class SupplierService {
         Supplier supplier = Supplier.builder()
                 .brandId(request.getBrandId())
                 .name(request.getName())
-                .email(request.getEmail())
+                .email(request.getEmail() != null && !request.getEmail().isBlank() ? request.getEmail() : "-")
                 .bizNo(request.getBizNo())
                 .representative(request.getRepresentative())
                 .phone(request.getPhone())

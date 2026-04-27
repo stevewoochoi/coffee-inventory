@@ -121,6 +121,10 @@ public class ItemService {
         List<Item> items = itemRepository.findByBrandId(brandId);
         for (Item item : items) {
             item.setIsActive(false);
+            // Clear item_code to avoid unique constraint conflict on re-upload
+            if (item.getItemCode() != null) {
+                item.setItemCode(null);
+            }
         }
         itemRepository.saveAll(items);
         return items.size();
@@ -130,7 +134,12 @@ public class ItemService {
     public ItemDto.Response toggleActive(Long id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Item", id));
-        item.setIsActive(!Boolean.TRUE.equals(item.getIsActive()));
+        boolean newActive = !Boolean.TRUE.equals(item.getIsActive());
+        item.setIsActive(newActive);
+        // Clear item_code when deactivating to avoid unique constraint on re-create
+        if (!newActive && item.getItemCode() != null) {
+            item.setItemCode(null);
+        }
         itemRepository.save(item);
         return toResponse(item);
     }
