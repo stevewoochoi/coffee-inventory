@@ -12,4 +12,7 @@ public class LoginResponse {
     private String role;
     private Long userId;
     private String email;
+    private Long brandId;
+    private Long storeId;
+    private Long companyId;
 }
