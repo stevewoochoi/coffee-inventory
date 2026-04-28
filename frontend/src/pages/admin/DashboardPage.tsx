@@ -8,23 +8,29 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 export default function AdminDashboardPage() {
   const [data, setData] = useState<BrandDashboard | null>(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuthStore();
+  const [error, setError] = useState(false);
+  const { user, isInitialized } = useAuthStore();
   const brandId = user?.brandId;
   const { t } = useTranslation();
 
   const load = useCallback(async () => {
-    if (!brandId) { setLoading(false); return; }
+    if (!brandId) return; // wait until brandId is available
     try {
       setLoading(true);
+      setError(false);
       const res = await dashboardApi.getBrandDashboard(brandId);
       setData(res.data.data);
-    } catch { toast.error(t('dashboard.loadFailed')); }
-    finally { setLoading(false); }
+    } catch {
+      setError(true);
+      toast.error(t('dashboard.loadFailed'));
+    } finally {
+      setLoading(false);
+    }
   }, [brandId, t]);
 
   useEffect(() => { load(); }, [load]);
 
-  if (loading) {
+  if (loading || (!data && !error && isInitialized)) {
     return (
       <div className="space-y-4">
         <div className="h-7 w-48 bg-gray-200 rounded animate-pulse" />
@@ -35,7 +41,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (!data) {
+  if (error || !data) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 mb-2">{t('dashboard.brandTitle')}</p>
