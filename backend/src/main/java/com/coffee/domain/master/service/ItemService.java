@@ -29,11 +29,26 @@ public class ItemService {
     private final ItemCategoryRepository categoryRepository;
     private final SupplierRepository supplierRepository;
 
-    public Page<ItemDto.Response> findAll(Long brandId, Pageable pageable) {
-        Page<Item> items = brandId != null
-                ? itemRepository.findByBrandIdAndIsActiveTrue(brandId, pageable)
-                : itemRepository.findByIsActiveTrue(pageable);
+    public Page<ItemDto.Response> findAll(Long brandId, String status, Pageable pageable) {
+        Page<Item> items;
+        if ("inactive".equalsIgnoreCase(status)) {
+            items = brandId != null
+                    ? itemRepository.findByBrandIdAndIsActiveFalse(brandId, pageable)
+                    : itemRepository.findByIsActiveFalse(pageable);
+        } else if ("all".equalsIgnoreCase(status)) {
+            items = brandId != null
+                    ? itemRepository.findByBrandId(brandId, pageable)
+                    : itemRepository.findAll(pageable);
+        } else {
+            items = brandId != null
+                    ? itemRepository.findByBrandIdAndIsActiveTrue(brandId, pageable)
+                    : itemRepository.findByIsActiveTrue(pageable);
+        }
         return items.map(this::toResponse);
+    }
+
+    public Page<ItemDto.Response> findAll(Long brandId, Pageable pageable) {
+        return findAll(brandId, null, pageable);
     }
 
     public ItemDto.Response findById(Long id) {

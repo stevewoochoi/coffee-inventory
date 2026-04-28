@@ -21,4 +21,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Optional<Item> findByIdAndIsActiveTrue(Long id);
 
     List<Item> findByBrandId(Long brandId);
+
+    Page<Item> findByBrandId(Long brandId, Pageable pageable);
+
+    Page<Item> findByBrandIdAndIsActiveFalse(Long brandId, Pageable pageable);
+
+    Page<Item> findByIsActiveFalse(Pageable pageable);
 }

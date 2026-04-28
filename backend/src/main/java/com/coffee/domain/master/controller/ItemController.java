@@ -31,8 +31,9 @@ public class ItemController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ItemDto.Response>>> findAll(
             @RequestParam(required = false) Long brandId,
+            @RequestParam(required = false) String status,
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.ok(itemService.findAll(brandId, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok(itemService.findAll(brandId, status, pageable)));
     }
 
     @GetMapping("/{id}")

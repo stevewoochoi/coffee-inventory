@@ -42,6 +42,7 @@ export default function ItemsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'basic' | 'operational'>('basic');
   const [opForm, setOpForm] = useState<ItemOperationalRequest>({});
+  const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | 'all'>('active');
 
   const loadSuppliers = useCallback(async () => {
     try {
@@ -59,11 +60,11 @@ export default function ItemsPage() {
 
   const loadItems = useCallback(async () => {
     try {
-      const res = await masterApi.getItems(undefined, page);
+      const res = await masterApi.getItems(brandId, page, 20, statusFilter === 'active' ? undefined : statusFilter);
       setItems(res.data.data.content);
       setTotalPages(res.data.data.totalPages);
     } catch { toast.error(t('items.loadFailed')); }
-  }, [page, t]);
+  }, [brandId, page, statusFilter, t]);
 
   useEffect(() => { loadItems(); }, [loadItems]);
   useEffect(() => { loadSuppliers(); }, [loadSuppliers]);
@@ -275,7 +276,7 @@ export default function ItemsPage() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-900">{t('items.title')}</h2>
         <div className="flex gap-2 flex-wrap">
-          {items.length > 0 && (
+          {items.length > 0 && statusFilter === 'active' && (
             <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={handleBatchDelete}>
               일괄 비활성화
             </Button>
@@ -298,6 +299,27 @@ export default function ItemsPage() {
             {t('items.addItem')}
           </Button>
         </div>
+      </div>
+
+      {/* Status filter tabs */}
+      <div className="flex gap-1 mb-4">
+        {([
+          { key: 'active', label: '활성', count: null },
+          { key: 'inactive', label: '비활성', count: null },
+          { key: 'all', label: '전체', count: null },
+        ] as const).map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => { setStatusFilter(tab.key); setPage(0); }}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              statusFilter === tab.key
+                ? 'bg-[#0077cc] text-white'
+                : 'bg-white border border-[#e8eaf0] text-[#69707d] hover:bg-[#f7f8fc]'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* Desktop: Table view */}

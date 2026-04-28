@@ -248,9 +248,9 @@ export const updateItemOperational = (itemId: number, data: ItemOperationalReque
 
 export const masterApi = {
   // Items
-  getItems: (brandId?: number, page = 0, size = 20) =>
+  getItems: (brandId?: number, page = 0, size = 20, status?: string) =>
     client.get<ApiResponse<Page<Item>>>('/master/items', {
-      params: { brandId, page, size },
+      params: { brandId, page, size, status },
     }),
   getItem: (id: number) =>
     client.get<ApiResponse<Item>>(`/master/items/${id}`),
