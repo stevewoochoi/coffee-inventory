@@ -48,6 +48,7 @@ export default function StoreDashboardPage() {
   const { t } = useTranslation();
 
   const load = useCallback(async () => {
+    if (!storeId) { setLoading(false); setError(true); return; }
     try {
       setLoading(true);
       setError(false);

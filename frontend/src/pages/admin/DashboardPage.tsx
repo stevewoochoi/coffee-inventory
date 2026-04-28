@@ -13,6 +13,7 @@ export default function AdminDashboardPage() {
   const { t } = useTranslation();
 
   const load = useCallback(async () => {
+    if (!brandId) { setLoading(false); return; }
     try {
       setLoading(true);
       const res = await dashboardApi.getBrandDashboard(brandId);
@@ -23,8 +24,27 @@ export default function AdminDashboardPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  if (loading || !data) {
-    return <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>;
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="h-7 w-48 bg-gray-200 rounded animate-pulse" />
+        <div className="bg-white rounded-lg border p-6 h-[300px] flex items-center justify-center">
+          <div className="h-full w-full bg-gray-100 rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 mb-2">{t('dashboard.brandTitle')}</p>
+        <p className="text-sm text-gray-400">데이터를 불러올 수 없습니다.</p>
+        <button onClick={load} className="mt-3 px-4 py-2 bg-[#0077cc] text-white rounded-lg text-sm hover:bg-[#005ea3]">
+          다시 시도
+        </button>
+      </div>
+    );
   }
 
   const chartData = data.storeSummaries.map(s => ({
