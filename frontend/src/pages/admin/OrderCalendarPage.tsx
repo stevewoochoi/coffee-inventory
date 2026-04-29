@@ -6,6 +6,7 @@ import { orderingApi, type OrderDetailedResponse } from '@/api/ordering';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/currency';
 
 const WEEKDAYS_KEYS = ['calendar.sun', 'calendar.mon', 'calendar.tue', 'calendar.wed', 'calendar.thu', 'calendar.fri', 'calendar.sat'];
 
@@ -154,7 +155,7 @@ export default function OrderCalendarPage() {
                         }`} />
                       </div>
                       <div className="hidden sm:block text-[10px] text-gray-500 truncate">
-                        {'\u00A5'}{Math.round(dayData.totalAmount / 1000)}K
+                        {formatCurrency(Math.round(dayData.totalAmount / 1000), undefined)}K
                       </div>
                     </div>
                   )}
@@ -196,7 +197,7 @@ export default function OrderCalendarPage() {
                               {t(`ordering.status.${order.status}`)}
                             </Badge>
                             <p className="text-sm font-medium mt-1">
-                              {'\u00A5'}{(order.totalAmount || 0).toLocaleString()}
+                              {formatCurrency(order.totalAmount || 0, order.currency)}
                             </p>
                           </div>
                         </div>

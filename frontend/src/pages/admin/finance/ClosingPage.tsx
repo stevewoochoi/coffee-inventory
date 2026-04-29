@@ -6,6 +6,7 @@ import { getClosingHistory, executeMonthlyClosing } from '@/api/finance';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/currency';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
@@ -114,10 +115,10 @@ export default function ClosingPage() {
                     </TableCell>
                     <TableCell>{getStatusBadge(record.status)}</TableCell>
                     <TableCell className="text-right">
-                      {'\u00A5'}{(record.totalPurchase ?? 0).toLocaleString()}
+                      {formatCurrency(record.totalPurchase ?? 0, undefined)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {'\u00A5'}{(record.totalInventory ?? 0).toLocaleString()}
+                      {formatCurrency(record.totalInventory ?? 0, undefined)}
                     </TableCell>
                     <TableCell className="text-right text-sm text-gray-500">
                       {record.closedAt ? new Date(record.closedAt).toLocaleString() : '-'}
@@ -143,11 +144,11 @@ export default function ClosingPage() {
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">{t('finance.totalPurchase')}</span>
-                      <span>{'\u00A5'}{(record.totalPurchase ?? 0).toLocaleString()}</span>
+                      <span>{formatCurrency(record.totalPurchase ?? 0, undefined)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">{t('finance.totalInventoryValue')}</span>
-                      <span>{'\u00A5'}{(record.totalInventory ?? 0).toLocaleString()}</span>
+                      <span>{formatCurrency(record.totalInventory ?? 0, undefined)}</span>
                     </div>
                     {record.closedAt && (
                       <div className="flex justify-between text-xs text-gray-400">

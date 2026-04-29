@@ -1,6 +1,9 @@
 package com.coffee.domain.ordering.service;
 
 import com.coffee.common.exception.ResourceNotFoundException;
+import com.coffee.domain.master.entity.Item;
+import com.coffee.domain.master.repository.ItemRepository;
+import com.coffee.domain.master.repository.PackagingRepository;
 import com.coffee.domain.ordering.dto.SupplierPortalDto;
 import com.coffee.domain.ordering.entity.*;
 import com.coffee.domain.ordering.repository.*;
@@ -21,6 +24,8 @@ public class SupplierPortalService {
     private final OrderLineRepository lineRepository;
     private final SupplierOrderNotificationRepository notificationRepository;
     private final StoreRepository storeRepository;
+    private final PackagingRepository packagingRepository;
+    private final ItemRepository itemRepository;
 
     public List<SupplierPortalDto.OrderSummary> getSupplierOrders(Long supplierId, String status) {
         List<OrderPlan> plans;
@@ -37,7 +42,13 @@ public class SupplierPortalService {
 
         return plans.stream().map(p -> {
             Store store = storeRepository.findById(p.getStoreId()).orElse(null);
-            int lineCount = lineRepository.findByOrderPlanId(p.getId()).size();
+            List<OrderLine> orderLines = lineRepository.findByOrderPlanId(p.getId());
+            String currency = orderLines.stream()
+                    .findFirst()
+                    .flatMap(l -> packagingRepository.findById(l.getPackagingId()))
+                    .flatMap(pkg -> itemRepository.findById(pkg.getItemId()))
+                    .map(Item::getCurrency)
+                    .orElse("JPY");
             return SupplierPortalDto.OrderSummary.builder()
                     .orderPlanId(p.getId())
                     .storeId(p.getStoreId())
@@ -46,7 +57,8 @@ public class SupplierPortalService {
                     .status(p.getStatus().name())
                     .fulfillmentStatus(p.getFulfillmentStatus())
                     .totalAmount(p.getTotalAmount())
-                    .lineCount(lineCount)
+                    .currency(currency)
+                    .lineCount(orderLines.size())
                     .createdAt(p.getCreatedAt())
                     .build();
         }).toList();

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { orderingApi, type OrderDetailedResponse } from '@/api/ordering';
 import OrderTimeline from '@/components/store/OrderTimeline';
+import { formatCurrency } from '@/lib/currency';
 
 const statusColor: Record<string, string> = {
   DRAFT: 'bg-gray-100 text-gray-800',
@@ -225,8 +226,8 @@ export default function OrderDetailPage() {
                   <p className="text-xs text-gray-500">{line.packName}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-medium">{line.packQty} x {'\u00A5'}{line.price.toLocaleString()}</p>
-                  <p className="text-xs text-gray-500">{'\u00A5'}{(line.packQty * line.price).toLocaleString()}</p>
+                  <p className="text-sm font-medium">{line.packQty} x {formatCurrency(line.price, line.currency)}</p>
+                  <p className="text-xs text-gray-500">{formatCurrency(line.packQty * line.price, line.currency)}</p>
                 </div>
               </div>
             ))}
@@ -236,15 +237,15 @@ export default function OrderDetailPage() {
           <div className="border-t mt-3 pt-3 space-y-1">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">{t('ordering.cart.subtotal')}</span>
-              <span>{'\u00A5'}{lineTotal.toLocaleString()}</span>
+              <span>{formatCurrency(lineTotal, order.currency)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">{t('ordering.steps.vat')}</span>
-              <span>{'\u00A5'}{vat.toLocaleString()}</span>
+              <span>{formatCurrency(vat, order.currency)}</span>
             </div>
             <div className="flex justify-between text-base font-bold">
               <span>{t('ordering.cart.total')}</span>
-              <span>{'\u00A5'}{total.toLocaleString()}</span>
+              <span>{formatCurrency(total, order.currency)}</span>
             </div>
           </div>
         </CardContent>

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { getPurchaseSummary } from '@/api/finance';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/currency';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
@@ -101,19 +102,19 @@ export default function PurchasePage() {
                   <TableRow key={row.supplierId}>
                     <TableCell className="font-medium">{row.supplierName}</TableCell>
                     <TableCell className="text-right">{row.orderCount}</TableCell>
-                    <TableCell className="text-right">{'\u00A5'}{row.totalAmount.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">{'\u00A5'}{row.vatAmount.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(row.totalAmount, undefined)}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(row.vatAmount, undefined)}</TableCell>
                     <TableCell className="text-right font-medium">
-                      {'\u00A5'}{(row.totalAmount + row.vatAmount).toLocaleString()}
+                      {formatCurrency(row.totalAmount + row.vatAmount, undefined)}
                     </TableCell>
                   </TableRow>
                 ))}
                 <TableRow className="bg-gray-50 font-bold">
                   <TableCell>{t('finance.grandTotal')}</TableCell>
                   <TableCell className="text-right">{data.reduce((s, r) => s + r.orderCount, 0)}</TableCell>
-                  <TableCell className="text-right">{'\u00A5'}{grandTotal.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{'\u00A5'}{grandVat.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{'\u00A5'}{(grandTotal + grandVat).toLocaleString()}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(grandTotal, undefined)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(grandVat, undefined)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(grandTotal + grandVat, undefined)}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -130,11 +131,11 @@ export default function PurchasePage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">{t('finance.purchaseAmount')}</span>
-                    <span className="font-medium">{'\u00A5'}{row.totalAmount.toLocaleString()}</span>
+                    <span className="font-medium">{formatCurrency(row.totalAmount, undefined)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">{t('finance.vatAmount')}</span>
-                    <span>{'\u00A5'}{row.vatAmount.toLocaleString()}</span>
+                    <span>{formatCurrency(row.vatAmount, undefined)}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -143,7 +144,7 @@ export default function PurchasePage() {
               <CardContent className="py-3">
                 <div className="flex justify-between font-bold">
                   <span>{t('finance.grandTotal')}</span>
-                  <span>{'\u00A5'}{(grandTotal + grandVat).toLocaleString()}</span>
+                  <span>{formatCurrency(grandTotal + grandVat, undefined)}</span>
                 </div>
               </CardContent>
             </Card>

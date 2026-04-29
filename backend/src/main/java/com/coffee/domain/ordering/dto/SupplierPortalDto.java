@@ -20,6 +20,7 @@ public class SupplierPortalDto {
         private String status;
         private String fulfillmentStatus;
         private BigDecimal totalAmount;
+        private String currency;
         private int lineCount;
         private LocalDateTime createdAt;
     }

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { formatCurrency } from '@/lib/currency';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
@@ -22,6 +23,7 @@ interface OrderLine {
   packQty: number;
   unitsPerPack: number;
   price: number;
+  currency?: string;
 }
 
 interface OrderDetail {
@@ -31,6 +33,7 @@ interface OrderDetail {
   deliveryDate: string | null;
   totalAmount: number;
   vatAmount: number;
+  currency?: string;
   lines: OrderLine[];
   createdAt: string;
 }
@@ -155,7 +158,7 @@ export default function SupplierOrderDetailPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500">{t('ordering.cart.total')}</p>
-              <p className="font-bold">{'\u00A5'}{(order.totalAmount ?? 0).toLocaleString()}</p>
+              <p className="font-bold">{formatCurrency(order.totalAmount ?? 0, order.currency)}</p>
             </div>
           </div>
         </CardContent>
@@ -184,9 +187,9 @@ export default function SupplierOrderDetailPage() {
                     <TableCell className="font-medium">{line.itemName}</TableCell>
                     <TableCell>{line.packName}</TableCell>
                     <TableCell className="text-right">{line.packQty}</TableCell>
-                    <TableCell className="text-right">{'\u00A5'}{(line.price ?? 0).toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(line.price ?? 0, line.currency)}</TableCell>
                     <TableCell className="text-right font-medium">
-                      {'\u00A5'}{((line.price ?? 0) * line.packQty).toLocaleString()}
+                      {formatCurrency((line.price ?? 0) * line.packQty, line.currency)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -203,7 +206,7 @@ export default function SupplierOrderDetailPage() {
                   <p className="text-xs text-gray-500">{line.packName} x {line.packQty}</p>
                 </div>
                 <span className="font-medium text-sm">
-                  {'\u00A5'}{((line.price ?? 0) * line.packQty).toLocaleString()}
+                  {formatCurrency((line.price ?? 0) * line.packQty, line.currency)}
                 </span>
               </div>
             ))}

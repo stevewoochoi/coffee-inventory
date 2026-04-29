@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { orderingApi, type OrderPlan, type OrderHistory, type OrderDetailedResponse, type CartResponse, type OrderNeedsResponse } from '@/api/ordering';
 import OrderTimeline from '@/components/store/OrderTimeline';
+import { formatCurrency } from '@/lib/currency';
 
 const statusColor: Record<string, string> = {
   DRAFT: 'bg-gray-100 text-gray-800',
@@ -208,7 +209,7 @@ export default function OrderingPage() {
               <div>
                 <p className="font-semibold text-[#343741]">{t('ordering.main.cartPending')}</p>
                 <p className="text-sm text-[#69707d]">
-                  {t('ordering.cart.items', { count: cartInfo.totalItems })} | {'\u00A5'}{cartInfo.grandTotal.toLocaleString()}
+                  {t('ordering.cart.items', { count: cartInfo.totalItems })} | {formatCurrency(cartInfo.grandTotal, cartInfo.supplierGroups[0]?.items[0]?.currency)}
                 </p>
               </div>
               <Button size="sm" className="bg-[#0077cc] hover:bg-[#005ea3] min-h-[44px]">

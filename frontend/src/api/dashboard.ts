@@ -19,6 +19,7 @@ export interface RecentOrder {
   status: string;
   supplierName: string;
   totalAmount: number;
+  currency?: string;
   createdAt: string;
   deliveryDate: string | null;
   itemCount: number;
@@ -51,6 +52,7 @@ export interface StoreDashboard {
   recentReceivingDate: string | null;
   monthlyOrderCount: number;
   monthlyOrderAmount: number;
+  monthlyOrderCurrency?: string;
   nextDeliveryDate: string | null;
   nextDeadline: string | null;
 }

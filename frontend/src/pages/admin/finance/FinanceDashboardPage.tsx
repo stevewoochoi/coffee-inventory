@@ -6,6 +6,7 @@ import { getMonthlyReport, getInventoryValuation } from '@/api/finance';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { formatCurrency } from '@/lib/currency';
 
 interface MonthlyData {
   month: string;
@@ -83,7 +84,7 @@ export default function FinanceDashboardPage() {
               <CardContent className="py-6 text-center">
                 <p className="text-sm text-gray-500 mb-1">{t('finance.totalPurchase')}</p>
                 <p className="text-3xl font-bold text-[#343741]">
-                  {'\u00A5'}{totalPurchase.toLocaleString()}
+                  {formatCurrency(totalPurchase, undefined)}
                 </p>
               </CardContent>
             </Card>
@@ -91,7 +92,7 @@ export default function FinanceDashboardPage() {
               <CardContent className="py-6 text-center">
                 <p className="text-sm text-gray-500 mb-1">{t('finance.totalInventoryValue')}</p>
                 <p className="text-3xl font-bold text-green-700">
-                  {'\u00A5'}{totalInventoryValue.toLocaleString()}
+                  {formatCurrency(totalInventoryValue, undefined)}
                 </p>
               </CardContent>
             </Card>
@@ -108,7 +109,7 @@ export default function FinanceDashboardPage() {
                     <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${Math.round(v / 10000)}${t('finance.manUnit')}`} />
                     <Tooltip
-                      formatter={(value) => [`${'\u00A5'}${Number(value).toLocaleString()}`, '']}
+                      formatter={(value) => [formatCurrency(Number(value), undefined), '']}
                     />
                     <Legend />
                     <Line

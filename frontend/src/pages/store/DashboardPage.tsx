@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { dashboardApi, type StoreDashboard } from '@/api/dashboard';
+import { formatCurrency } from '@/lib/currency';
 import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -191,7 +192,7 @@ export default function StoreDashboardPage() {
           </div>
           <div className="flex flex-col">
             <span className="text-gray-500">{t('ordering.monthlyOrders')}</span>
-            <span className="font-medium">{data.monthlyOrderCount ?? 0}{t('dashboard.items2', { defaultValue: '건' })} / {'\u00A5'}{(data.monthlyOrderAmount ?? 0).toLocaleString()}</span>
+            <span className="font-medium">{data.monthlyOrderCount ?? 0}{t('dashboard.items2', { defaultValue: '건' })} / {formatCurrency(data.monthlyOrderAmount ?? 0, data.monthlyOrderCurrency)}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-gray-500">{t('ordering.nextDelivery')}</span>
@@ -266,7 +267,7 @@ export default function StoreDashboardPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">{'\u00A5'}{order.totalAmount.toLocaleString()}</span>
+                  <span className="text-sm font-medium">{formatCurrency(order.totalAmount, order.currency)}</span>
                   <Badge className={statusColor[order.status] || ''}>
                     {t(`ordering.status.${order.status}`)}
                   </Badge>

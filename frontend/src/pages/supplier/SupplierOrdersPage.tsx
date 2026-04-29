@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { getSupplierOrders } from '@/api/supplierPortal';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/currency';
 
 interface SupplierOrder {
   id: number;
@@ -13,6 +14,7 @@ interface SupplierOrder {
   status: string;
   deliveryDate: string | null;
   totalAmount: number;
+  currency?: string;
   lineCount: number;
   createdAt: string;
 }
@@ -104,7 +106,7 @@ export default function SupplierOrdersPage() {
                   )}
                   <span>{order.lineCount} {t('supplierPortal.items')}</span>
                   <span className="font-medium text-gray-700">
-                    {'\u00A5'}{(order.totalAmount ?? 0).toLocaleString()}
+                    {formatCurrency(order.totalAmount ?? 0, order.currency)}
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mt-1">

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/currency';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
@@ -153,7 +154,7 @@ export default function CutoffPage() {
           <Card>
             <CardContent className="py-4 text-center">
               <p className="text-sm text-gray-500">{t('cutoff.totalAmount')}</p>
-              <p className="text-2xl font-bold">{'\u00A5'}{(cutoffSummary.totalAmount ?? 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold">{formatCurrency(cutoffSummary.totalAmount ?? 0, undefined)}</p>
             </CardContent>
           </Card>
           <Card>
