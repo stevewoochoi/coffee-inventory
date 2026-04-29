@@ -46,8 +46,8 @@ public class PdfGeneratorService {
             PDFont fontBold;
             PDFont fontRegular;
             try {
-                InputStream boldStream = new ClassPathResource("fonts/NotoSansJP-Bold.ttf").getInputStream();
-                InputStream regularStream = new ClassPathResource("fonts/NotoSansJP-Regular.ttf").getInputStream();
+                InputStream boldStream = new ClassPathResource("fonts/NotoSansJP-Bold.otf").getInputStream();
+                InputStream regularStream = new ClassPathResource("fonts/NotoSansJP-Regular.otf").getInputStream();
                 fontBold = PDType0Font.load(document, boldStream);
                 fontRegular = PDType0Font.load(document, regularStream);
             } catch (IOException e) {
