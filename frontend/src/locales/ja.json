@@ -549,7 +549,13 @@
     "updated": "副資材が更新されました",
     "created": "副資材が登録されました",
     "saveFailed": "副資材の保存に失敗しました",
-    "deleteFailed": "副資材の削除に失敗しました"
+    "deleteFailed": "副資材の削除に失敗しました",
+    "currency": "通貨"
+  },
+  "currency": {
+    "JPY": "円",
+    "KRW": "ウォン",
+    "USD": "ドル"
   },
   "packagings": {
     "title": "包装単位管理",

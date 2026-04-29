@@ -79,6 +79,7 @@ public class OrderCartDto {
         private Integer packQty;
         private BigDecimal price;
         private BigDecimal lineTotal;
+        private String currency;
     }
 
     @Getter

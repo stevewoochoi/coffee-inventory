@@ -110,11 +110,15 @@ public class FulfillmentService {
             Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
             String itemName = null;
             Long itemId = null;
+            String lineCurrency = "JPY";
             BigDecimal price = BigDecimal.ZERO;
             if (pkg != null) {
                 itemId = pkg.getItemId();
-                itemName = itemRepository.findById(pkg.getItemId())
-                        .map(com.coffee.domain.master.entity.Item::getName).orElse(null);
+                var itemOpt = itemRepository.findById(pkg.getItemId());
+                if (itemOpt.isPresent()) {
+                    itemName = itemOpt.get().getName();
+                    if (itemOpt.get().getCurrency() != null) lineCurrency = itemOpt.get().getCurrency();
+                }
             }
             return OrderPlanDto.HistoryLine.builder()
                     .packagingId(line.getPackagingId())
@@ -124,6 +128,7 @@ public class FulfillmentService {
                     .packQty(line.getPackQty())
                     .unitsPerPack(pkg != null ? pkg.getUnitsPerPack() : BigDecimal.ZERO)
                     .price(price)
+                    .currency(lineCurrency)
                     .build();
         }).toList();
 

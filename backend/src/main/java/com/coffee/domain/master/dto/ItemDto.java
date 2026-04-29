@@ -41,6 +41,7 @@ public class ItemDto {
 
         private BigDecimal lossRate;
         private BigDecimal price;
+        private String currency;
         private Boolean vatInclusive;
         private Long supplierId;
         private BigDecimal minStockQty;
@@ -71,6 +72,7 @@ public class ItemDto {
         private String baseUnit;
         private BigDecimal lossRate;
         private BigDecimal price;
+        private String currency;
         private Boolean vatInclusive;
         private Long supplierId;
         private String supplierName;

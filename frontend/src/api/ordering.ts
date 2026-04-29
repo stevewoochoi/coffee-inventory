@@ -20,6 +20,7 @@ export interface SupplierSummary {
   supplierName: string;
   orderCount: number;
   totalAmount: number;
+  currency: string;
 }
 
 export interface OrderLineDto {
@@ -92,6 +93,7 @@ export interface CartItemResponse {
   packQty: number;
   price: number;
   lineTotal: number;
+  currency: string;
 }
 
 export interface CartSupplierGroup {
@@ -165,6 +167,7 @@ export interface CatalogItem {
   suggestedByAi: boolean;
   daysUntilEmpty: number | null;
   orderable: boolean;
+  currency: string;
   itemGrade?: string;
   stockUnit?: string;
   orderUnit?: string;
@@ -199,6 +202,7 @@ export interface HistoryLine {
   packQty: number;
   unitsPerPack: number;
   price: number;
+  currency: string;
 }
 
 export interface OrderHistory {
@@ -215,6 +219,7 @@ export interface OrderHistory {
 export interface OrderDetailedResponse {
   id: number;
   storeId: number;
+  storeName?: string;
   supplierId: number;
   supplierName: string;
   status: string;
@@ -223,6 +228,7 @@ export interface OrderDetailedResponse {
   cutoffAt: string | null;
   totalAmount: number | null;
   vatAmount: number | null;
+  currency: string;
   recommendedByAi: boolean;
   lines: HistoryLine[];
   createdAt: string;

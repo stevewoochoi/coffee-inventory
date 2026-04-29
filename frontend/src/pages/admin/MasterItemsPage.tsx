@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import ImageUpload from '@/components/ImageUpload';
 import { getLocalizedName } from '@/lib/utils';
+import { formatCurrency, getCurrencySymbol } from '@/lib/currency';
 
 export default function MasterItemsPage() {
   const { t } = useTranslation();
@@ -439,7 +440,7 @@ function BrandItemRow({ brandItem, onUnassign, onUpdate }: {
             <div className="text-xs mt-1">
               {brandItem.price != null ? (
                 <span className="text-[#69707d] font-medium">
-                  ¥{brandItem.price.toLocaleString()}
+                  {formatCurrency(brandItem.price, brandItem.currency)}
                   {brandItem.vatInclusive ? ' (tax incl.)' : ' (tax excl.)'}
                 </span>
               ) : (
@@ -477,7 +478,7 @@ function BrandItemRow({ brandItem, onUnassign, onUpdate }: {
       {editing && (
         <div className="mt-3 grid grid-cols-3 gap-2">
           <div>
-            <label className="text-xs text-gray-500">Price (¥)</label>
+            <label className="text-xs text-gray-500">Price ({getCurrencySymbol(brandItem.currency)})</label>
             <Input className="h-8 text-sm" type="number" value={price}
               onChange={(e) => setPrice(e.target.value)} />
           </div>

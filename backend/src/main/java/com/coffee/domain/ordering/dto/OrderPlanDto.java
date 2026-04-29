@@ -37,6 +37,7 @@ public class OrderPlanDto {
         private String status;
         private Boolean recommendedByAi;
         private LocalDateTime createdAt;
+        private String currency;
     }
 
     @Getter
@@ -67,6 +68,7 @@ public class OrderPlanDto {
         private LocalDateTime cutoffAt;
         private BigDecimal totalAmount;
         private BigDecimal vatAmount;
+        private String currency;
         private Boolean recommendedByAi;
         private List<HistoryLine> lines;
         private LocalDateTime createdAt;
@@ -86,6 +88,7 @@ public class OrderPlanDto {
         private Integer packQty;
         private BigDecimal unitsPerPack;
         private BigDecimal price;
+        private String currency;
     }
 
     @Getter
@@ -105,6 +108,7 @@ public class OrderPlanDto {
         private String supplierName;
         private Long orderCount;
         private BigDecimal totalAmount;
+        private String currency;
     }
 
     @Getter

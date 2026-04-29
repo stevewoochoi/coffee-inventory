@@ -335,14 +335,19 @@ public class OrderCartService {
                 BigDecimal lineTotal = price.multiply(BigDecimal.valueOf(ci.getPackQty()));
                 subtotal = subtotal.add(lineTotal);
 
-                // Load item name
+                // Load item name + currency
                 String itemName = null;
+                String currency = "JPY";
                 Long itemId = ci.getItemId();
                 if (itemId == null && pkg != null) {
                     itemId = pkg.getItemId();
                 }
                 if (itemId != null) {
-                    itemName = itemRepository.findById(itemId).map(Item::getName).orElse(null);
+                    Item linked = itemRepository.findById(itemId).orElse(null);
+                    if (linked != null) {
+                        itemName = linked.getName();
+                        if (linked.getCurrency() != null) currency = linked.getCurrency();
+                    }
                 }
 
                 cartItems.add(OrderCartDto.CartItemResponse.builder()
@@ -355,6 +360,7 @@ public class OrderCartService {
                         .packQty(ci.getPackQty())
                         .price(price)
                         .lineTotal(lineTotal)
+                        .currency(currency)
                         .build());
             }
 

@@ -48,6 +48,7 @@ public class PackagingDto {
         private List<SupplierItemInfo> supplierItems;
         private BigDecimal itemPrice;
         private Boolean vatInclusive;
+        private String currency;
     }
 
     @Getter

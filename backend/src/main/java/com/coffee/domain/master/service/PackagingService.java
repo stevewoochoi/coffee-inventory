@@ -220,6 +220,7 @@ public class PackagingService {
                 .supplierItems(supplierItems)
                 .itemPrice(item != null ? item.getPrice() : null)
                 .vatInclusive(item != null ? item.getVatInclusive() : null)
+                .currency(item != null && item.getCurrency() != null ? item.getCurrency() : "JPY")
                 .build();
     }
 }

@@ -13,6 +13,7 @@ export interface Item {
   baseUnit: string;
   lossRate: number;
   price: number | null;
+  currency: string;
   vatInclusive: boolean;
   supplierId: number | null;
   supplierName: string | null;
@@ -54,6 +55,7 @@ export interface BrandItem {
   imageUrl: string | null;
   temperatureZone: string | null;
   price: number | null;
+  currency: string;
   vatInclusive: boolean;
   supplierId: number | null;
   supplierName: string | null;
@@ -95,6 +97,7 @@ export interface ItemRequest {
   baseUnit: string;
   lossRate?: number;
   price?: number;
+  currency?: string;
   vatInclusive?: boolean;
   supplierId?: number;
   itemCode?: string;
@@ -137,6 +140,7 @@ export interface Packaging {
   supplierItems: SupplierItemInfo[];
   itemPrice: number | null;
   vatInclusive: boolean | null;
+  currency: string;
 }
 
 export interface PackagingRequest {

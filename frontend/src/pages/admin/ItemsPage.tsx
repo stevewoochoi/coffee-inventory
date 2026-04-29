@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import ImageUpload from '@/components/ImageUpload';
+import { formatCurrency, getCurrencySymbol, SUPPORTED_CURRENCIES } from '@/lib/currency';
 
 export default function ItemsPage() {
   const [items, setItems] = useState<Item[]>([]);
@@ -72,7 +73,7 @@ export default function ItemsPage() {
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ brandId, name: '', baseUnit: 'g', category: '', categoryId: undefined, lossRate: 0, price: undefined, vatInclusive: true, supplierId: undefined });
+    setForm({ brandId, name: '', baseUnit: 'g', category: '', categoryId: undefined, lossRate: 0, price: undefined, currency: 'JPY', vatInclusive: true, supplierId: undefined });
     setSelL1('');
     setSelL2('');
     setSelL3('');
@@ -130,6 +131,7 @@ export default function ItemsPage() {
       categoryId: matchedCategoryId,
       lossRate: item.lossRate,
       price: item.price ?? undefined,
+      currency: item.currency || 'JPY',
       vatInclusive: item.vatInclusive ?? true,
       supplierId: item.supplierId ?? undefined,
     });
@@ -366,11 +368,11 @@ export default function ItemsPage() {
                 <TableCell>{item.supplierName || '-'}</TableCell>
                 <TableCell>{item.baseUnit}</TableCell>
                 <TableCell>{(item.lossRate * 100).toFixed(1)}%</TableCell>
-                <TableCell>{item.price != null ? `¥${item.price.toLocaleString()}` : '-'}</TableCell>
+                <TableCell>{formatCurrency(item.price, item.currency)}</TableCell>
                 <TableCell>
                   {item.price != null && item.vatInclusive ? (
                     <span className="text-xs text-orange-600 font-medium">
-                      {t('items.vatIncl')} ¥{Math.round(item.price * 0.1).toLocaleString()}
+                      {t('items.vatIncl')} {formatCurrency(item.price * 0.1, item.currency)}
                     </span>
                   ) : item.price != null && !item.vatInclusive ? (
                     <span className="text-xs text-gray-400">{t('items.vatExcl')}</span>
@@ -436,9 +438,9 @@ export default function ItemsPage() {
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
                   {item.category || '-'} · {item.supplierName || '-'} · {item.baseUnit} · {(item.lossRate * 100).toFixed(1)}%
-                  {item.price != null && ` · ¥${item.price.toLocaleString()}`}
+                  {item.price != null && ` · ${formatCurrency(item.price, item.currency)}`}
                   {item.price != null && item.vatInclusive && (
-                    <span className="text-orange-600"> ({t('items.vatIncl')} ¥{Math.round(item.price * 0.1).toLocaleString()})</span>
+                    <span className="text-orange-600"> ({t('items.vatIncl')} {formatCurrency(item.price * 0.1, item.currency)})</span>
                   )}
                 </div>
               </div>
@@ -606,11 +608,23 @@ export default function ItemsPage() {
                   onChange={(e) => setForm({ ...form, lossRate: parseFloat(e.target.value) || 0 })} />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label>{t('items.currency', { defaultValue: '통화' })}</Label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={form.currency || 'JPY'}
+                  onChange={(e) => setForm({ ...form, currency: e.target.value })}
+                >
+                  {SUPPORTED_CURRENCIES.map((c) => (
+                    <option key={c} value={c}>{`${getCurrencySymbol(c)} ${t(`currency.${c}`, { defaultValue: c })}`}</option>
+                  ))}
+                </select>
+              </div>
               <div className="space-y-2">
                 <Label>{t('items.price')}</Label>
                 <Input type="number" step="0.01" value={form.price ?? ''}
-                  placeholder="¥"
+                  placeholder={getCurrencySymbol(form.currency)}
                   onChange={(e) => setForm({ ...form, price: e.target.value ? parseFloat(e.target.value) : undefined })} />
               </div>
               <div className="space-y-2">
@@ -627,7 +641,7 @@ export default function ItemsPage() {
               <div className="space-y-2">
                 <Label>{t('items.vatAmount')}</Label>
                 <Input readOnly
-                  value={form.price && form.vatInclusive ? `¥${Math.round(form.price * 0.1).toLocaleString()}` : '-'}
+                  value={form.price && form.vatInclusive ? formatCurrency(form.price * 0.1, form.currency) : '-'}
                   className="bg-gray-50" />
               </div>
             </div>

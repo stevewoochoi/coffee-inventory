@@ -18,6 +18,7 @@ import {
   type LossRateReport,
   type OrderCostReport,
 } from '@/api/report';
+import { formatCurrency } from '@/lib/currency';
 
 type ReportTab = 'consumption' | 'waste' | 'loss-rate' | 'order-cost';
 
@@ -336,7 +337,7 @@ export default function ReportsPage() {
         <div className="space-y-2">
           <div className="flex gap-4 text-sm text-gray-500">
             <span>{t('reports.orders')} <span className="font-bold text-gray-900">{orderCost.totalOrders}</span></span>
-            <span>{t('reports.totalCost')} <span className="font-bold text-gray-900">¥{orderCost.totalCost.toLocaleString()}</span></span>
+            <span>{t('reports.totalCost')} <span className="font-bold text-gray-900">{formatCurrency(orderCost.totalCost, orderCost.currency)}</span></span>
           </div>
           {/* Desktop */}
           <div className="hidden md:block">
@@ -356,8 +357,8 @@ export default function ReportsPage() {
                     <TableCell>{line.itemName}</TableCell>
                     <TableCell>{line.packName}</TableCell>
                     <TableCell className="text-right">{line.totalPackQty}</TableCell>
-                    <TableCell className="text-right">¥{line.unitPrice.toLocaleString()}</TableCell>
-                    <TableCell className="text-right font-medium">¥{line.lineCost.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(line.unitPrice, line.currency || orderCost.currency)}</TableCell>
+                    <TableCell className="text-right font-medium">{formatCurrency(line.lineCost, line.currency || orderCost.currency)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -371,7 +372,7 @@ export default function ReportsPage() {
                 <div className="text-sm text-gray-500 mb-2">{line.packName}</div>
                 <div className="flex items-center justify-between text-sm">
                   <span>{t('expiry.qty')}: {line.totalPackQty}</span>
-                  <span className="font-bold">¥{line.lineCost.toLocaleString()}</span>
+                  <span className="font-bold">{formatCurrency(line.lineCost, line.currency || orderCost.currency)}</span>
                 </div>
               </div>
             ))}

@@ -50,6 +50,10 @@ public class Item {
     @Column(name = "price", precision = 12, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "currency", nullable = false, length = 8)
+    @Builder.Default
+    private String currency = "JPY";
+
     @Column(name = "vat_inclusive")
     @Builder.Default
     private Boolean vatInclusive = true;

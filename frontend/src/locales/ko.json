@@ -551,12 +551,18 @@
     "saveFailed": "부재료 저장에 실패했습니다",
     "deleteFailed": "부재료 삭제에 실패했습니다",
     "price": "단가",
+    "currency": "통화",
     "vat": "부가세",
     "vatIncl": "과세",
     "vatExcl": "면세",
     "vatAmount": "부가세 (10%)",
     "supplier": "공급사",
     "selectSupplier": "공급사 선택"
+  },
+  "currency": {
+    "JPY": "엔",
+    "KRW": "원",
+    "USD": "달러"
   },
   "packagings": {
     "title": "포장단위 관리",

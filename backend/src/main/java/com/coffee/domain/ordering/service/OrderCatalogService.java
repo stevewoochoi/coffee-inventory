@@ -96,6 +96,7 @@ public class OrderCatalogService {
                                 .suggestedQty(ci.getSuggestedQty()).suggestedByAi(ci.isSuggestedByAi())
                                 .daysUntilEmpty(ci.getDaysUntilEmpty())
                                 .orderable(orderable)
+                                .currency(ci.getCurrency())
                                 .build();
                     }
                     return CatalogDto.CatalogItem.builder()
@@ -110,6 +111,7 @@ public class OrderCatalogService {
                             .suggestedQty(ci.getSuggestedQty()).suggestedByAi(ci.isSuggestedByAi())
                             .daysUntilEmpty(ci.getDaysUntilEmpty())
                             .orderable(true)
+                            .currency(ci.getCurrency())
                             .build();
                 })
                 .filter(ci -> !lowStockOnly || ci.isLowStock())
@@ -240,6 +242,7 @@ public class OrderCatalogService {
                 .suggestedQty(suggestedQty)
                 .suggestedByAi(false)
                 .daysUntilEmpty(daysUntilEmpty)
+                .currency(item.getCurrency() != null ? item.getCurrency() : "JPY")
                 .build();
     }
 

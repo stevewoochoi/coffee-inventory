@@ -57,6 +57,7 @@ public class BrandItemDto {
         private String imageUrl;
         private String temperatureZone;
         private BigDecimal price;
+        private String currency;
         private Boolean vatInclusive;
         private Long supplierId;
         private String supplierName;

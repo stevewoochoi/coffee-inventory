@@ -33,6 +33,7 @@ public class CatalogDto {
         private boolean suggestedByAi;
         private Double daysUntilEmpty;
         private boolean orderable;
+        private String currency;
     }
 
     @Getter

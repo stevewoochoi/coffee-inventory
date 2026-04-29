@@ -50,6 +50,7 @@ export interface OrderCostLine {
   totalPackQty: number;
   unitPrice: number;
   lineCost: number;
+  currency?: string;
 }
 
 export interface OrderCostReport {
@@ -58,6 +59,7 @@ export interface OrderCostReport {
   lines: OrderCostLine[];
   totalCost: number;
   totalOrders: number;
+  currency?: string;
 }
 
 export const reportApi = {

@@ -14,6 +14,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { formatCurrency, getCurrencySymbol } from '@/lib/currency';
 
 export default function BrandItemsPage() {
   const { t } = useTranslation();
@@ -124,7 +125,7 @@ export default function BrandItemsPage() {
                 <TableCell>{bi.categoryName || '-'}</TableCell>
                 <TableCell>{bi.baseUnit}</TableCell>
                 <TableCell>
-                  {bi.price != null ? `¥${bi.price.toLocaleString()}` : '-'}
+                  {formatCurrency(bi.price, bi.currency)}
                 </TableCell>
                 <TableCell>
                   {bi.price != null && bi.vatInclusive ? (
@@ -175,7 +176,7 @@ export default function BrandItemsPage() {
                 <div className="font-semibold truncate">{getLocalizedName(bi.itemName, bi.itemNameEn, bi.itemNameJa, bi.itemNameKo)}</div>
                 <div className="text-sm text-gray-500 mt-1">
                   {bi.categoryName || '-'} · {bi.baseUnit}
-                  {bi.price != null && ` · ¥${bi.price.toLocaleString()}`}
+                  {bi.price != null && ` · ${formatCurrency(bi.price, bi.currency)}`}
                   {bi.supplierName && ` · ${bi.supplierName}`}
                 </div>
               </div>
@@ -201,7 +202,7 @@ export default function BrandItemsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>{t('items.price')} (¥)</Label>
+                <Label>{t('items.price')} ({getCurrencySymbol(editingItem?.currency)})</Label>
                 <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
               </div>
               <div className="space-y-2">

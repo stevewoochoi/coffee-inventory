@@ -67,6 +67,7 @@ public class OrderingService {
         Store store = storeRepository.findById(plan.getStoreId()).orElse(null);
         List<OrderLine> lines = lineRepository.findByOrderPlanIdAndIsActiveTrue(plan.getId());
 
+        java.util.concurrent.atomic.AtomicReference<String> orderCurrencyRef = new java.util.concurrent.atomic.AtomicReference<>("JPY");
         List<OrderPlanDto.HistoryLine> historyLines = lines.stream().map(line -> {
             Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
             Item item = pkg != null ? itemRepository.findById(pkg.getItemId()).orElse(null) : null;
@@ -74,6 +75,8 @@ public class OrderingService {
                     .findBySupplierIdAndPackagingId(plan.getSupplierId(), line.getPackagingId())
                     .map(SupplierItem::getPrice)
                     .orElse(BigDecimal.ZERO);
+            String lineCurrency = item != null && item.getCurrency() != null ? item.getCurrency() : "JPY";
+            orderCurrencyRef.set(lineCurrency);
 
             return OrderPlanDto.HistoryLine.builder()
                     .packagingId(line.getPackagingId())
@@ -83,6 +86,7 @@ public class OrderingService {
                     .packQty(line.getPackQty())
                     .unitsPerPack(pkg != null ? pkg.getUnitsPerPack() : BigDecimal.ZERO)
                     .price(price)
+                    .currency(lineCurrency)
                     .build();
         }).toList();
 
@@ -98,6 +102,7 @@ public class OrderingService {
                 .cutoffAt(plan.getCutoffAt())
                 .totalAmount(plan.getTotalAmount())
                 .vatAmount(plan.getVatAmount())
+                .currency(orderCurrencyRef.get())
                 .recommendedByAi(plan.getRecommendedByAi())
                 .lines(historyLines)
                 .createdAt(plan.getCreatedAt())
@@ -236,6 +241,7 @@ public class OrderingService {
                                 .packQty(line.getPackQty())
                                 .unitsPerPack(pkg != null ? pkg.getUnitsPerPack() : BigDecimal.ZERO)
                                 .price(price)
+                                .currency(item != null && item.getCurrency() != null ? item.getCurrency() : "JPY")
                                 .build();
                     }).toList();
 
@@ -300,11 +306,20 @@ public class OrderingService {
                     .map(OrderPlan::getTotalAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+            String currency = supplierPlans.stream()
+                    .flatMap(p -> lineRepository.findByOrderPlanIdAndIsActiveTrue(p.getId()).stream())
+                    .findFirst()
+                    .flatMap(l -> packagingRepository.findById(l.getPackagingId()))
+                    .flatMap(pkg -> itemRepository.findById(pkg.getItemId()))
+                    .map(Item::getCurrency)
+                    .orElse("JPY");
+
             return OrderPlanDto.SummaryResponse.builder()
                     .supplierId(sid)
                     .supplierName(supplier != null ? supplier.getName() : "Unknown")
                     .orderCount((long) supplierPlans.size())
                     .totalAmount(total)
+                    .currency(currency)
                     .build();
         }).toList();
     }

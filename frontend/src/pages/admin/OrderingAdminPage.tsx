@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import { orderingApi, type OrderDetailedResponse, type SupplierSummary } from '@/api/ordering';
 import { masterApi, type Supplier } from '@/api/master';
+import { formatCurrency } from '@/lib/currency';
 
 const statusColor: Record<string, string> = {
   DRAFT: 'bg-gray-100 text-gray-800',
@@ -91,9 +92,9 @@ export default function OrderingAdminPage() {
            (String(p.id).includes(q));
   });
 
-  const formatPrice = (n: number | null | undefined) => {
+  const formatPrice = (n: number | null | undefined, currency?: string) => {
     if (n == null) return '-';
-    return `¥${n.toLocaleString()}`;
+    return formatCurrency(n, currency || 'JPY');
   };
 
   return (
@@ -186,7 +187,7 @@ export default function OrderingAdminPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>{plan.deliveryDate || '-'}</TableCell>
-                        <TableCell>{formatPrice(plan.totalAmount)}</TableCell>
+                        <TableCell>{formatPrice(plan.totalAmount, plan.currency)}</TableCell>
                         <TableCell>{new Date(plan.createdAt).toLocaleDateString()}</TableCell>
                       </TableRow>
                     ))}
@@ -210,7 +211,7 @@ export default function OrderingAdminPage() {
                     </div>
                     <div className="flex items-center justify-between mt-2 text-sm">
                       <span className="text-gray-400">{new Date(plan.createdAt).toLocaleDateString()}</span>
-                      <span className="font-medium">{formatPrice(plan.totalAmount)}</span>
+                      <span className="font-medium">{formatPrice(plan.totalAmount, plan.currency)}</span>
                     </div>
                   </div>
                 ))}
@@ -235,7 +236,7 @@ export default function OrderingAdminPage() {
                 <TableRow key={s.supplierId}>
                   <TableCell className="font-medium">{s.supplierName}</TableCell>
                   <TableCell>{s.orderCount}{t('orderAdmin.countUnit')}</TableCell>
-                  <TableCell>{formatPrice(s.totalAmount)}</TableCell>
+                  <TableCell>{formatPrice(s.totalAmount, s.currency)}</TableCell>
                 </TableRow>
               ))}
               {summary.length === 0 && (

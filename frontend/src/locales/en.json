@@ -551,12 +551,18 @@
     "saveFailed": "Failed to save item",
     "deleteFailed": "Failed to delete item",
     "price": "Unit Price",
+    "currency": "Currency",
     "vat": "VAT",
     "vatIncl": "Taxable",
     "vatExcl": "Tax-free",
     "vatAmount": "VAT (10%)",
     "supplier": "Supplier",
     "selectSupplier": "Select Supplier"
+  },
+  "currency": {
+    "JPY": "Yen",
+    "KRW": "Won",
+    "USD": "Dollar"
   },
   "packagings": {
     "title": "Packaging Management",

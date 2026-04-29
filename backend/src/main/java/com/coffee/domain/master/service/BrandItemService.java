@@ -126,6 +126,7 @@ public class BrandItemService {
                 .imageUrl(item != null ? item.getImageUrl() : null)
                 .temperatureZone(item != null ? item.getTemperatureZone() : null)
                 .price(bi.getPrice())
+                .currency(item != null && item.getCurrency() != null ? item.getCurrency() : "JPY")
                 .vatInclusive(bi.getVatInclusive())
                 .supplierId(bi.getSupplierId())
                 .supplierName(supplierName)

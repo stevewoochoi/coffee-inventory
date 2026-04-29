@@ -78,6 +78,7 @@ public class ItemService {
                 .baseUnit(request.getBaseUnit())
                 .lossRate(request.getLossRate() != null ? request.getLossRate() : java.math.BigDecimal.ZERO)
                 .price(request.getPrice())
+                .currency(normalizeCurrency(request.getCurrency()))
                 .vatInclusive(request.getVatInclusive() != null ? request.getVatInclusive() : true)
                 .supplierId(request.getSupplierId())
                 .itemCode(request.getItemCode())
@@ -101,6 +102,9 @@ public class ItemService {
             item.setLossRate(request.getLossRate());
         }
         item.setPrice(request.getPrice());
+        if (request.getCurrency() != null) {
+            item.setCurrency(normalizeCurrency(request.getCurrency()));
+        }
         if (request.getVatInclusive() != null) {
             item.setVatInclusive(request.getVatInclusive());
         }
@@ -187,6 +191,18 @@ public class ItemService {
         return toResponse(itemRepository.save(item));
     }
 
+    private static final java.util.Set<String> ALLOWED_CURRENCIES = java.util.Set.of("JPY", "KRW", "USD");
+
+    private String normalizeCurrency(String currency) {
+        if (currency == null || currency.isBlank()) return "JPY";
+        String upper = currency.trim().toUpperCase();
+        if (!ALLOWED_CURRENCIES.contains(upper)) {
+            throw new BusinessException("Unsupported currency: " + currency,
+                    org.springframework.http.HttpStatus.BAD_REQUEST);
+        }
+        return upper;
+    }
+
     private Item getActiveItemOrThrow(Long id) {
         return itemRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Item", id));
@@ -216,6 +232,7 @@ public class ItemService {
                 .baseUnit(item.getBaseUnit())
                 .lossRate(item.getLossRate())
                 .price(item.getPrice())
+                .currency(item.getCurrency() != null ? item.getCurrency() : "JPY")
                 .vatInclusive(item.getVatInclusive())
                 .supplierId(item.getSupplierId())
                 .supplierName(supplierName)

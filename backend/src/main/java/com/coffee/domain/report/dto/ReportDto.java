@@ -79,6 +79,7 @@ public class ReportDto {
         private List<OrderCostLine> lines;
         private BigDecimal totalCost;
         private int totalOrders;
+        private String currency;
     }
 
     @Getter
@@ -91,5 +92,6 @@ public class ReportDto {
         private int totalPackQty;
         private BigDecimal unitPrice;
         private BigDecimal lineCost;
+        private String currency;
     }
 }

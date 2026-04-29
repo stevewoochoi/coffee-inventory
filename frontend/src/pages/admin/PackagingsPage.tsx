@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import ImageUpload from '@/components/ImageUpload';
+import { formatCurrency, getCurrencySymbol } from '@/lib/currency';
 
 export default function PackagingsPage() {
   const [packagings, setPackagings] = useState<Packaging[]>([]);
@@ -129,15 +130,15 @@ export default function PackagingsPage() {
     } catch { toast.error(t('packagings.deprecateFailed')); }
   };
 
-  const formatPrice = (price: number | null) => {
+  const formatPrice = (price: number | null, currency?: string) => {
     if (price == null) return '-';
-    return `¥${price.toLocaleString()}`;
+    return formatCurrency(price, currency || 'JPY');
   };
 
   const getUnitPrice = (pkg: Packaging) => {
     const si = pkg.supplierItems?.[0];
     if (!si?.price || !pkg.unitsPerPack) return '-';
-    return formatPrice(Math.round(si.price / pkg.unitsPerPack));
+    return formatPrice(si.price / pkg.unitsPerPack, pkg.currency);
   };
 
   return (
@@ -211,11 +212,11 @@ export default function PackagingsPage() {
                 <TableCell>{pkg.baseUnit || '-'}</TableCell>
                 <TableCell>{pkg.unitsPerPack}</TableCell>
                 <TableCell>{pkg.supplierItems?.[0]?.supplierName || '-'}</TableCell>
-                <TableCell>{formatPrice(pkg.supplierItems?.[0]?.price ?? null)}</TableCell>
+                <TableCell>{formatPrice(pkg.supplierItems?.[0]?.price ?? null, pkg.currency)}</TableCell>
                 <TableCell>
                   {pkg.supplierItems?.[0]?.price != null && pkg.vatInclusive ? (
                     <span className="text-xs text-orange-600 font-medium">
-                      {t('items.vatIncl')} ¥{Math.round((pkg.supplierItems[0].price) * 0.1).toLocaleString()}
+                      {t('items.vatIncl')} {formatCurrency(pkg.supplierItems[0].price * 0.1, pkg.currency)}
                     </span>
                   ) : pkg.supplierItems?.[0]?.price != null && !pkg.vatInclusive ? (
                     <span className="text-xs text-gray-400">{t('items.vatExcl')}</span>
@@ -367,7 +368,7 @@ export default function PackagingsPage() {
                 <div className="space-y-2">
                   <Label>{t('packagings.boxPrice')}</Label>
                   <Input type="number" step="1" value={form.boxPrice ?? ''}
-                    placeholder="¥"
+                    placeholder={getCurrencySymbol(items.find(i => i.id === form.itemId)?.currency)}
                     onChange={(e) => {
                       const val = e.target.value ? parseFloat(e.target.value) : undefined;
                       setBoxPriceOverridden(val != null);
@@ -380,19 +381,20 @@ export default function PackagingsPage() {
                 <div className="space-y-2">
                   <Label>{t('packagings.unitPriceCalc')}</Label>
                   <Input readOnly
-                    value={form.boxPrice && form.unitsPerPack ? `¥${Math.round(form.boxPrice / form.unitsPerPack).toLocaleString()}` : '-'} />
+                    value={form.boxPrice && form.unitsPerPack ? formatCurrency(form.boxPrice / form.unitsPerPack, items.find(i => i.id === form.itemId)?.currency) : '-'} />
                 </div>
               </div>
               {(() => {
                 const selectedItem = items.find(i => i.id === form.itemId);
                 const isVat = selectedItem?.vatInclusive ?? false;
+                const cur = selectedItem?.currency;
                 return form.boxPrice != null && isVat ? (
                   <div className="flex items-center gap-2 px-1">
                     <span className="text-xs text-orange-600 font-medium">
-                      {t('items.vatIncl')} 10%: ¥{Math.round(form.boxPrice * 0.1).toLocaleString()}
+                      {t('items.vatIncl')} 10%: {formatCurrency(form.boxPrice * 0.1, cur)}
                     </span>
                     <span className="text-xs text-gray-400">
-                      ({t('packagings.vatTotal')}: ¥{Math.round(form.boxPrice * 1.1).toLocaleString()})
+                      ({t('packagings.vatTotal')}: {formatCurrency(form.boxPrice * 1.1, cur)})
                     </span>
                   </div>
                 ) : null;

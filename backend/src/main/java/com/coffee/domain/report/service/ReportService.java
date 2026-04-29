@@ -162,8 +162,9 @@ public class ReportService {
                     Packaging packaging = packagingRepository.findById(packagingId).orElse(null);
                     String packName = packaging != null ? packaging.getPackName() : "Unknown";
                     Long itemId = packaging != null ? packaging.getItemId() : 0L;
-                    String itemName = itemRepository.findById(itemId)
-                            .map(Item::getName).orElse("Unknown");
+                    Item itemRef = itemRepository.findById(itemId).orElse(null);
+                    String itemName = itemRef != null ? itemRef.getName() : "Unknown";
+                    String currency = itemRef != null && itemRef.getCurrency() != null ? itemRef.getCurrency() : "JPY";
 
                     BigDecimal lineCost = price.multiply(BigDecimal.valueOf(totalPackQty));
 
@@ -174,6 +175,7 @@ public class ReportService {
                             .totalPackQty(totalPackQty)
                             .unitPrice(price)
                             .lineCost(lineCost)
+                            .currency(currency)
                             .build();
                 })
                 .sorted(Comparator.comparing(ReportDto.OrderCostLine::getLineCost).reversed())
@@ -183,12 +185,19 @@ public class ReportService {
                 .map(ReportDto.OrderCostLine::getLineCost)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        String reportCurrency = costLines.stream()
+                .map(ReportDto.OrderCostLine::getCurrency)
+                .filter(java.util.Objects::nonNull)
+                .findFirst()
+                .orElse("JPY");
+
         return ReportDto.OrderCostReport.builder()
                 .storeId(storeId)
                 .month(month)
                 .lines(costLines)
                 .totalCost(totalCost)
                 .totalOrders(plans.size())
+                .currency(reportCurrency)
                 .build();
     }
 
