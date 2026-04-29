@@ -453,11 +453,11 @@ export default function NewOrderPage() {
         <div className="space-y-2">
           {catalog.map(item => {
             const pkg = item.packagings[0];
-            if (!pkg) return null;
-            const qty = getCartQty(item.itemId, pkg.packagingId);
+            const noPkg = !pkg;
+            const qty = noPkg ? 0 : getCartQty(item.itemId, pkg.packagingId);
             const fillPct = item.minStock > 0 ? Math.min(100, Math.max(0, (item.currentStock / item.minStock) * 100)) : 100;
             const barColor = fillPct <= 25 ? 'bg-red-500' : fillPct <= 50 ? 'bg-amber-500' : 'bg-green-500';
-            const isDisabled = item.orderable === false;
+            const isDisabled = item.orderable === false || noPkg;
 
             return (
               <Card key={item.itemId} className={`border-2 ${isDisabled ? 'border-gray-100 opacity-60' : item.isLowStock ? 'border-red-200' : 'border-gray-200'}`}>
@@ -471,7 +471,10 @@ export default function NewOrderPage() {
                           <Badge variant="outline" className="text-[10px] text-gray-500 border-gray-300">{item.deliveryDays}</Badge>
                         )}
                       </div>
-                      {isDisabled && (
+                      {noPkg && (
+                        <p className="text-xs text-orange-500 mb-1">포장단위 미설정 (본사에 문의)</p>
+                      )}
+                      {!noPkg && isDisabled && (
                         <p className="text-xs text-gray-400 mb-1">{t('ordering.catalog.notOrderable')}</p>
                       )}
                       {!isDisabled && (
@@ -516,9 +519,9 @@ export default function NewOrderPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {catalog.map(item => {
             const pkg = item.packagings[0];
-            if (!pkg) return null;
-            const qty = getCartQty(item.itemId, pkg.packagingId);
-            const isDisabled = item.orderable === false;
+            const noPkg = !pkg;
+            const qty = noPkg ? 0 : getCartQty(item.itemId, pkg.packagingId);
+            const isDisabled = item.orderable === false || noPkg;
             return (
               <Card key={item.itemId} className={`border-2 ${isDisabled ? 'border-gray-100 opacity-60' : item.isLowStock ? 'border-red-200' : 'border-gray-200'}`}>
                 <CardContent className="p-3 space-y-2">
@@ -534,7 +537,9 @@ export default function NewOrderPage() {
                   </div>
                   <div>
                     <p className={`font-medium text-xs truncate ${isDisabled ? 'text-gray-400' : ''}`}>{item.itemName}</p>
-                    {isDisabled ? (
+                    {noPkg ? (
+                      <p className="text-[10px] text-orange-500">포장단위 미설정</p>
+                    ) : isDisabled ? (
                       <p className="text-[10px] text-gray-400">{t('ordering.catalog.notOrderable')}</p>
                     ) : (
                       <>
