@@ -49,6 +49,18 @@ public class WarehouseOrderService {
         return orderPlanRepository.findByStoreIdOrderByCreatedAtDesc(warehouseId);
     }
 
+    @Transactional(readOnly = true)
+    public OrderPlanDto.DetailedResponse getOrderDetail(Long warehouseId, Long brandId, Long orderId) {
+        warehouseService.getWarehouse(warehouseId, brandId);
+        OrderPlan plan = orderPlanRepository.findById(orderId).orElseThrow();
+        if (!warehouseId.equals(plan.getStoreId())) {
+            throw new com.coffee.common.exception.BusinessException(
+                    "Order does not belong to this warehouse",
+                    org.springframework.http.HttpStatus.FORBIDDEN);
+        }
+        return orderingService.findDetailedById(orderId);
+    }
+
     @Transactional
     public void cancel(Long warehouseId, Long brandId, Long orderId) {
         warehouseService.getWarehouse(warehouseId, brandId);

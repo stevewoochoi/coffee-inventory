@@ -31,5 +31,7 @@ public class ForecastDto {
         private BigDecimal daysUntilEmpty;
         private BigDecimal fillPercentage;
         private String trend; // UP, DOWN, STABLE
+        private java.time.LocalDate nearestExpDate;
+        private BigDecimal stockValue;
     }
 }

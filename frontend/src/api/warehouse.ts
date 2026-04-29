@@ -23,6 +23,8 @@ export interface ItemForecast {
   daysUntilEmpty: number;
   fillPercentage: number;
   trend: string;
+  nearestExpDate: string | null;
+  stockValue: number;
 }
 
 export interface ForecastResponse {
@@ -77,6 +79,89 @@ export interface WarehouseOrderRequest {
   lines: { packagingId: number; packQty: number }[];
 }
 
+export interface WarehouseOrder {
+  id: number;
+  storeId: number;
+  supplierId: number;
+  status: string;
+  fulfillmentStatus?: string | null;
+  recommendedByAi?: boolean;
+  totalAmount?: number | null;
+  vatAmount?: number | null;
+  deliveryDate?: string | null;
+  cutoffAt?: string | null;
+  createdAt: string;
+}
+
+export interface WarehouseOrderLine {
+  packagingId: number;
+  packName: string;
+  itemId: number;
+  itemName: string;
+  packQty: number;
+  unitsPerPack: number;
+  price: number;
+  currency?: string;
+}
+
+export interface WarehouseOrderDetail {
+  id: number;
+  storeId: number;
+  storeName?: string;
+  supplierId: number;
+  supplierName: string;
+  status: string;
+  fulfillmentStatus?: string | null;
+  deliveryDate?: string | null;
+  cutoffAt?: string | null;
+  totalAmount?: number | null;
+  vatAmount?: number | null;
+  currency?: string;
+  recommendedByAi?: boolean;
+  lines: WarehouseOrderLine[];
+  createdAt: string;
+  confirmedAt?: string | null;
+  dispatchedAt?: string | null;
+  receivedAt?: string | null;
+}
+
+export interface PendingReceipt {
+  orderPlanId: number;
+  supplierId: number;
+  supplierName: string;
+  status: string;
+  expectedAt?: string | null;
+  lines: { packagingId: number; itemName: string; packName: string; orderedPackQty: number; unitsPerPack: number }[];
+}
+
+export interface CycleCountSession {
+  id: number;
+  storeId: number;
+  status: string;
+  gradeFilter?: string | null;
+  zoneFilter?: string | null;
+  itemCount: number;
+  completedCount: number;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+export interface CycleCountLine {
+  id: number;
+  itemId: number;
+  itemName: string;
+  category?: string | null;
+  systemQty: number;
+  countedQty?: number | null;
+  varianceQty?: number | null;
+  baseUnit?: string | null;
+  note?: string | null;
+}
+
+export interface CycleCountSessionDetail extends CycleCountSession {
+  lines: CycleCountLine[];
+}
+
 export const warehouseApi = {
   list: () =>
     client.get<ApiResponse<Warehouse[]>>('/admin/warehouses'),
@@ -100,44 +185,58 @@ export const warehouseApi = {
     client.get<ApiResponse<SupplierBrief[]>>(`/admin/warehouses/${warehouseId}/orders/catalog/suppliers`),
 
   listOrders: (warehouseId: number) =>
-    client.get<ApiResponse<unknown[]>>(`/admin/warehouses/${warehouseId}/orders`),
+    client.get<ApiResponse<WarehouseOrder[]>>(`/admin/warehouses/${warehouseId}/orders`),
+
+  getOrder: (warehouseId: number, orderId: number) =>
+    client.get<ApiResponse<WarehouseOrderDetail>>(`/admin/warehouses/${warehouseId}/orders/${orderId}`),
 
   createOrder: (warehouseId: number, body: WarehouseOrderRequest) =>
-    client.post<ApiResponse<unknown>>(`/admin/warehouses/${warehouseId}/orders`, body),
+    client.post<ApiResponse<{ id: number }>>(`/admin/warehouses/${warehouseId}/orders`, body),
 
   cancelOrder: (warehouseId: number, orderId: number) =>
     client.post<ApiResponse<void>>(`/admin/warehouses/${warehouseId}/orders/${orderId}/cancel`),
 
   // receiving
   pendingReceipts: (warehouseId: number) =>
-    client.get<ApiResponse<unknown[]>>(`/admin/warehouses/${warehouseId}/receiving/pending`),
+    client.get<ApiResponse<PendingReceipt[]>>(`/admin/warehouses/${warehouseId}/receiving/pending`),
 
-  receiveFromOrder: (warehouseId: number, orderId: number, body: unknown) =>
-    client.post<ApiResponse<unknown>>(`/admin/warehouses/${warehouseId}/receiving/from-order/${orderId}`, body),
+  receiveFromOrder: (warehouseId: number, orderId: number, body: ReceiveRequest) =>
+    client.post<ApiResponse<{ id: number }>>(`/admin/warehouses/${warehouseId}/receiving/from-order/${orderId}`, body),
 
   confirmDelivery: (warehouseId: number, deliveryId: number) =>
-    client.post<ApiResponse<unknown>>(`/admin/warehouses/${warehouseId}/receiving/deliveries/${deliveryId}/confirm`),
+    client.post<ApiResponse<{ id: number }>>(`/admin/warehouses/${warehouseId}/receiving/deliveries/${deliveryId}/confirm`),
 
   // cycle count
   startCycleCount: (warehouseId: number, gradeFilter?: string, zoneFilter?: string) =>
-    client.post<ApiResponse<unknown>>(`/admin/warehouses/${warehouseId}/cycle-count`,
+    client.post<ApiResponse<CycleCountSessionDetail>>(`/admin/warehouses/${warehouseId}/cycle-count`,
       null, { params: { gradeFilter, zoneFilter } }),
 
   listActiveCycleCounts: (warehouseId: number) =>
-    client.get<ApiResponse<unknown[]>>(`/admin/warehouses/${warehouseId}/cycle-count/active`),
+    client.get<ApiResponse<CycleCountSession[]>>(`/admin/warehouses/${warehouseId}/cycle-count/active`),
 
   cycleCountHistory: (warehouseId: number, page = 0, size = 20) =>
-    client.get<ApiResponse<Page<unknown>>>(`/admin/warehouses/${warehouseId}/cycle-count`,
+    client.get<ApiResponse<Page<CycleCountSession>>>(`/admin/warehouses/${warehouseId}/cycle-count`,
       { params: { page, size } }),
 
   getCycleCount: (warehouseId: number, sessionId: number) =>
-    client.get<ApiResponse<unknown>>(`/admin/warehouses/${warehouseId}/cycle-count/${sessionId}`),
+    client.get<ApiResponse<CycleCountSessionDetail>>(`/admin/warehouses/${warehouseId}/cycle-count/${sessionId}`),
 
   updateCycleCountLine: (warehouseId: number, lineId: number, countedQty?: number, note?: string) =>
-    client.put<ApiResponse<unknown>>(`/admin/warehouses/${warehouseId}/cycle-count/lines/${lineId}`,
+    client.put<ApiResponse<CycleCountLine>>(`/admin/warehouses/${warehouseId}/cycle-count/lines/${lineId}`,
       null, { params: { countedQty, note } }),
 
   completeCycleCount: (warehouseId: number, sessionId: number, applyAdjustments = true) =>
-    client.post<ApiResponse<unknown>>(`/admin/warehouses/${warehouseId}/cycle-count/${sessionId}/complete`,
+    client.post<ApiResponse<CycleCountSessionDetail>>(`/admin/warehouses/${warehouseId}/cycle-count/${sessionId}/complete`,
       null, { params: { applyAdjustments } }),
 };
+
+export interface ReceiveLineRequest {
+  packagingId: number;
+  receivedPackQty: number;
+  expDate?: string;
+  lotNo?: string;
+}
+
+export interface ReceiveRequest {
+  lines: ReceiveLineRequest[];
+}

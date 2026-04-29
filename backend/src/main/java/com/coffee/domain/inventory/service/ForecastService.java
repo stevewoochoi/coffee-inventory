@@ -27,8 +27,16 @@ public class ForecastService {
     public ForecastDto.Response getForecast(Long storeId, Long brandId) {
         // Current stock per item
         Map<Long, BigDecimal> stockMap = new HashMap<>();
-        snapshotRepository.findByStoreId(storeId)
-                .forEach(s -> stockMap.merge(s.getItemId(), s.getQtyBaseUnit(), BigDecimal::add));
+        // Nearest non-null expDate per item (= soonest to expire among lots)
+        Map<Long, java.time.LocalDate> nearestExpMap = new HashMap<>();
+        snapshotRepository.findByStoreId(storeId).forEach(s -> {
+            stockMap.merge(s.getItemId(), s.getQtyBaseUnit(), BigDecimal::add);
+            if (s.getExpDate() != null && s.getQtyBaseUnit() != null
+                    && s.getQtyBaseUnit().compareTo(BigDecimal.ZERO) > 0) {
+                nearestExpMap.merge(s.getItemId(), s.getExpDate(),
+                        (a, b) -> a.isBefore(b) ? a : b);
+            }
+        });
 
         // 14-day usage
         LocalDateTime since14 = LocalDateTime.now().minusDays(14);
@@ -82,6 +90,10 @@ public class ForecastService {
                 else if (change.compareTo(new BigDecimal("-0.1")) < 0) trend = "DOWN";
             }
 
+            BigDecimal stockValue = item.getPrice() != null
+                    ? currentStock.multiply(item.getPrice())
+                    : BigDecimal.ZERO;
+
             forecasts.add(ForecastDto.ItemForecast.builder()
                     .itemId(item.getId())
                     .itemName(item.getName())
@@ -93,6 +105,8 @@ public class ForecastService {
                     .daysUntilEmpty(daysUntilEmpty)
                     .fillPercentage(fillPercentage)
                     .trend(trend)
+                    .nearestExpDate(nearestExpMap.get(item.getId()))
+                    .stockValue(stockValue)
                     .build());
         }
 

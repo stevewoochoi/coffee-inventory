@@ -125,6 +125,10 @@ public class OrderingService {
         return toResponse(getOrThrow(id));
     }
 
+    public OrderPlanDto.DetailedResponse findDetailedById(Long id) {
+        return toDetailedResponse(getOrThrow(id));
+    }
+
     @Transactional
     public OrderPlanDto.Response create(OrderPlanDto.CreateRequest request) {
         // FIX-07: Validate supplier exists

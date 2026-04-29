@@ -54,6 +54,11 @@ import StoresPage from '@/pages/admin/StoresPage';
 import InventoryAdminPage from '@/pages/admin/InventoryAdminPage';
 import DeliveryPolicyPage from '@/pages/admin/DeliveryPolicyPage';
 import WarehouseInventoryPage from '@/pages/admin/WarehouseInventoryPage';
+import WarehouseOrderNewPage from '@/pages/admin/WarehouseOrderNewPage';
+import WarehouseOrderDetailPage from '@/pages/admin/WarehouseOrderDetailPage';
+import WarehouseReceivingDetailPage from '@/pages/admin/WarehouseReceivingDetailPage';
+import WarehouseCycleCountNewPage from '@/pages/admin/WarehouseCycleCountNewPage';
+import WarehouseCycleCountDetailPage from '@/pages/admin/WarehouseCycleCountDetailPage';
 import StoreInventoryViewPage from '@/pages/admin/StoreInventoryViewPage';
 
 function App() {
@@ -90,6 +95,11 @@ function App() {
             <Route path="/admin/inventory" element={<Navigate to="/admin/store-inventory" replace />} />
             <Route path="/admin/inventory-legacy" element={<InventoryAdminPage />} />
             <Route path="/admin/warehouse-inventory" element={<WarehouseInventoryPage />} />
+            <Route path="/admin/warehouse-inventory/order/new" element={<WarehouseOrderNewPage />} />
+            <Route path="/admin/warehouse-inventory/order/:id" element={<WarehouseOrderDetailPage />} />
+            <Route path="/admin/warehouse-inventory/receiving/:orderId" element={<WarehouseReceivingDetailPage />} />
+            <Route path="/admin/warehouse-inventory/cycle-count/new" element={<WarehouseCycleCountNewPage />} />
+            <Route path="/admin/warehouse-inventory/cycle-count/:id" element={<WarehouseCycleCountDetailPage />} />
             <Route path="/admin/store-inventory" element={<StoreInventoryViewPage />} />
             <Route path="/admin/settings/stores" element={<StoresPage />} />
             <Route path="/admin/settings/delivery-policy" element={<DeliveryPolicyPage />} />

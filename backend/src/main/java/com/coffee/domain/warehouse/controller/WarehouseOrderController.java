@@ -49,6 +49,15 @@ public class WarehouseOrderController {
                 warehouseOrderService.listOrders(warehouseId, user.getBrandId())));
     }
 
+    @GetMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<OrderPlanDto.DetailedResponse>> detail(
+            @PathVariable Long warehouseId,
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal CustomUserDetails user) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                warehouseOrderService.getOrderDetail(warehouseId, user.getBrandId(), orderId)));
+    }
+
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<ApiResponse<Void>> cancel(
             @PathVariable Long warehouseId,
