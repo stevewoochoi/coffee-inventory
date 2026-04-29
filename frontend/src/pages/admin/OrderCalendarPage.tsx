@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
@@ -18,6 +19,7 @@ interface DayOrders {
 
 export default function OrderCalendarPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const brandId = user?.brandId;
 
@@ -180,13 +182,17 @@ export default function OrderCalendarPage() {
               {selectedDayOrders && selectedDayOrders.orders.length > 0 ? (
                 <div className="space-y-3">
                   {selectedDayOrders.orders.map((order) => (
-                    <Card key={order.id}>
+                    <Card
+                      key={order.id}
+                      className="cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                      onClick={() => navigate(`/admin/ordering/${order.id}`, { state: { from: 'calendar' } })}
+                    >
                       <CardContent className="py-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-medium">#{order.id} - {order.supplierName}</p>
+                            <p className="font-medium text-blue-600 underline">#{order.id} - {order.supplierName}</p>
                             <p className="text-sm text-gray-500">
-                              {t('ordering.store')}: {order.storeId}
+                              {t('ordering.store')}: {order.storeName || `#${order.storeId}`}
                             </p>
                           </div>
                           <div className="text-right">

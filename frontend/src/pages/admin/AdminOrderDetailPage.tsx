@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -23,8 +23,11 @@ const statusColor: Record<string, string> = {
 
 export default function AdminOrderDetailPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const cameFrom = (location.state as { from?: string } | null)?.from;
+  const backTarget = cameFrom === 'calendar' ? '/admin/ordering/calendar' : '/admin/ordering';
   const [order, setOrder] = useState<OrderDetailedResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
@@ -91,7 +94,7 @@ export default function AdminOrderDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={() => navigate('/admin/ordering')}>
+          <Button variant="outline" onClick={() => navigate(backTarget)}>
             {t('common.back', { defaultValue: '뒤로' })}
           </Button>
           <h2 className="text-xl font-bold">{t('orderAdmin.orderDetail', { defaultValue: '발주 상세' })} #{order.id}</h2>

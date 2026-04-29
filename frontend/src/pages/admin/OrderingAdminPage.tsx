@@ -179,7 +179,7 @@ export default function OrderingAdminPage() {
                   </TableHeader>
                   <TableBody>
                     {filtered.map((plan) => (
-                      <TableRow key={plan.id} className="cursor-pointer hover:bg-gray-50" onClick={() => navigate(`/admin/ordering/${plan.id}`)}>
+                      <TableRow key={plan.id} className="cursor-pointer hover:bg-gray-50" onClick={() => navigate(`/admin/ordering/${plan.id}`, { state: { from: 'list' } })}>
                         <TableCell className="font-medium text-blue-600 underline">#{plan.id}</TableCell>
                         <TableCell>{plan.storeName || `#${plan.storeId}`}</TableCell>
                         <TableCell>{plan.supplierName || `#${plan.supplierId}`}</TableCell>
@@ -200,7 +200,7 @@ export default function OrderingAdminPage() {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
                 {filtered.map((plan) => (
-                  <div key={plan.id} className="bg-white rounded-lg border p-4 cursor-pointer active:bg-gray-50" onClick={() => navigate(`/admin/ordering/${plan.id}`)}>
+                  <div key={plan.id} className="bg-white rounded-lg border p-4 cursor-pointer active:bg-gray-50" onClick={() => navigate(`/admin/ordering/${plan.id}`, { state: { from: 'list' } })}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold text-blue-600 underline">#{plan.id}</span>
                       <Badge className={statusColor[plan.status] || ''}>
