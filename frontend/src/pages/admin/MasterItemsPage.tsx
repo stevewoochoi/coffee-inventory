@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import ImageUpload from '@/components/ImageUpload';
 import { getLocalizedName } from '@/lib/utils';
-import { formatCurrency, getCurrencySymbol } from '@/lib/currency';
+import { formatCurrency, getCurrencySymbol, SUPPORTED_CURRENCIES } from '@/lib/currency';
 
 export default function MasterItemsPage() {
   const { t } = useTranslation();
@@ -60,7 +60,7 @@ export default function MasterItemsPage() {
 
   const openCreate = () => {
     setEditItem(null);
-    setForm({ name: '', baseUnit: 'g', category: '', lossRate: 0, nameEn: '', nameJa: '', nameKo: '' });
+    setForm({ name: '', baseUnit: 'g', category: '', lossRate: 0, nameEn: '', nameJa: '', nameKo: '', price: undefined, currency: 'JPY', vatInclusive: true });
     setDialogOpen(true);
   };
 
@@ -77,6 +77,9 @@ export default function MasterItemsPage() {
       itemCode: item.itemCode ?? undefined,
       spec: item.spec ?? undefined,
       description: item.description ?? undefined,
+      price: item.price ?? undefined,
+      currency: item.currency || 'JPY',
+      vatInclusive: item.vatInclusive ?? true,
     });
     setDialogOpen(true);
   };
@@ -356,6 +359,37 @@ export default function MasterItemsPage() {
               <div className="space-y-2">
                 <Label>Spec</Label>
                 <Input value={form.spec || ''} onChange={(e) => setForm({ ...form, spec: e.target.value })} />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>{t('items.currency', { defaultValue: '통화' })}</Label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={form.currency || 'JPY'}
+                  onChange={(e) => setForm({ ...form, currency: e.target.value })}
+                >
+                  {SUPPORTED_CURRENCIES.map((c) => (
+                    <option key={c} value={c}>{`${getCurrencySymbol(c)} ${t(`currency.${c}`, { defaultValue: c })}`}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>{t('items.price')}</Label>
+                <Input type="number" step="0.01" value={form.price ?? ''}
+                  placeholder={getCurrencySymbol(form.currency)}
+                  onChange={(e) => setForm({ ...form, price: e.target.value ? parseFloat(e.target.value) : undefined })} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('items.vat')}</Label>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={form.vatInclusive ? 'true' : 'false'}
+                  onChange={(e) => setForm({ ...form, vatInclusive: e.target.value === 'true' })}
+                >
+                  <option value="true">{t('items.vatIncl')}</option>
+                  <option value="false">{t('items.vatExcl')}</option>
+                </select>
               </div>
             </div>
             <div className="space-y-2">
