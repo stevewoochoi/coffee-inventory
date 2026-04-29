@@ -10,8 +10,8 @@ RUN mvn package -DskipTests -B
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# Install CJK fonts for PDF generation
-RUN apt-get update && apt-get install -y --no-install-recommends fonts-noto-cjk && \
+# Install Japanese TTF font for PDF generation (IPA Gothic supports JP+ASCII)
+RUN apt-get update && apt-get install -y --no-install-recommends fonts-ipafont-gothic && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/target/*.jar app.jar

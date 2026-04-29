@@ -14,7 +14,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
-import org.apache.fontbox.ttf.TrueTypeCollection;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -43,13 +42,12 @@ public class PdfGeneratorService {
             PDPage page = new PDPage(PDRectangle.A4);
             document.addPage(page);
 
-            // CJK font - try system TTC first, then classpath TTF
+            // IPA Gothic TTF - Japanese + ASCII (system font or classpath)
             PDFont font;
             try {
-                java.io.File sysFontFile = new java.io.File("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc");
-                if (sysFontFile.exists()) {
-                    TrueTypeCollection ttc = new TrueTypeCollection(sysFontFile);
-                    font = PDType0Font.load(document, ttc.getFontByName("NotoSansCJKjp-Regular"), true);
+                java.io.File sysFont = new java.io.File("/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf");
+                if (sysFont.exists()) {
+                    font = PDType0Font.load(document, new java.io.FileInputStream(sysFont));
                 } else {
                     InputStream fontStream = new ClassPathResource("fonts/ipag.ttf").getInputStream();
                     font = PDType0Font.load(document, fontStream);
@@ -171,8 +169,26 @@ public class PdfGeneratorService {
         cs.beginText();
         cs.setFont(font, size);
         cs.newLineAtOffset(x, y);
-        cs.showText(text);
+        cs.showText(sanitizeForFont(text, font));
         cs.endText();
+    }
+
+    /**
+     * Remove characters that the font cannot encode (e.g. Korean in JP-only font)
+     */
+    private String sanitizeForFont(String text, PDFont font) {
+        if (text == null) return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            try {
+                font.encode(String.valueOf(c));
+                sb.append(c);
+            } catch (Exception e) {
+                sb.append('?');
+            }
+        }
+        return sb.toString();
     }
 
     private String truncate(String s, int max) {
