@@ -12,6 +12,7 @@ export default function InventoryAdminPage() {
   const brandId = user?.brandId;
 
   const [stores, setStores] = useState<Store[]>([]);
+  const [storesLoaded, setStoresLoaded] = useState(false);
   const [selectedStoreId, setSelectedStoreId] = useState<number | 'all'>('all');
   const [items, setItems] = useState<ItemForecast[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,8 @@ export default function InventoryAdminPage() {
       setStores(storeList);
     } catch {
       toast.error(t('stores.loadFailed'));
+    } finally {
+      setStoresLoaded(true);
     }
   }, [brandId, t]);
 
@@ -32,16 +35,16 @@ export default function InventoryAdminPage() {
     try {
       setLoading(true);
       if (selectedStoreId === 'all') {
+        const results = await Promise.allSettled(
+          stores.map(store => inventoryApi.getForecast(store.id, brandId)
+            .then(res => ({ store, items: res.data.data.items || [] })))
+        );
         const allItems: ItemForecast[] = [];
-        for (const store of stores) {
-          try {
-            const res = await inventoryApi.getForecast(store.id, brandId);
-            const storeItems = (res.data.data.items || []).map(item => ({
-              ...item,
-              itemName: `[${store.name}] ${item.itemName}`,
-            }));
-            allItems.push(...storeItems);
-          } catch { /* skip failed store */ }
+        for (const r of results) {
+          if (r.status !== 'fulfilled') continue;
+          for (const item of r.value.items) {
+            allItems.push({ ...item, itemName: `[${r.value.store.name}] ${item.itemName}` });
+          }
         }
         setItems(allItems);
       } else {
@@ -57,8 +60,13 @@ export default function InventoryAdminPage() {
 
   useEffect(() => { loadStores(); }, [loadStores]);
   useEffect(() => {
-    if (stores.length > 0) loadInventory();
-  }, [stores, selectedStoreId, loadInventory]);
+    if (!storesLoaded) return;
+    if (stores.length > 0) {
+      loadInventory();
+    } else {
+      setLoading(false);
+    }
+  }, [storesLoaded, stores, selectedStoreId, loadInventory]);
 
   const stockSummary = useMemo(() => {
     const total = items.length;
