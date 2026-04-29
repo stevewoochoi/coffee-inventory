@@ -236,10 +236,18 @@ public class OrderCartService {
             planRepository.save(plan);
 
             for (OrderCartItem cartItem : entry.getValue()) {
+                BigDecimal snapPrice = cartItem.getUnitPrice();
+                if (snapPrice == null) {
+                    snapPrice = supplierItemRepository
+                            .findBySupplierIdAndPackagingId(cartItem.getSupplierId(), cartItem.getPackagingId())
+                            .map(SupplierItem::getPrice)
+                            .orElse(BigDecimal.ZERO);
+                }
                 lineRepository.save(OrderLine.builder()
                         .orderPlanId(plan.getId())
                         .packagingId(cartItem.getPackagingId())
                         .packQty(cartItem.getPackQty())
+                        .unitPrice(snapPrice)
                         .build());
             }
 
@@ -277,6 +285,7 @@ public class OrderCartService {
                         .packagingId(line.getPackagingId())
                         .supplierId(plan.getSupplierId())
                         .packQty(line.getPackQty())
+                        .unitPrice(line.getUnitPrice())
                         .build());
             }
         }

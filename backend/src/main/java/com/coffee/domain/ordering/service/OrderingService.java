@@ -71,10 +71,19 @@ public class OrderingService {
         List<OrderPlanDto.HistoryLine> historyLines = lines.stream().map(line -> {
             Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
             Item item = pkg != null ? itemRepository.findById(pkg.getItemId()).orElse(null) : null;
-            BigDecimal price = supplierItemRepository
-                    .findBySupplierIdAndPackagingId(plan.getSupplierId(), line.getPackagingId())
-                    .map(SupplierItem::getPrice)
-                    .orElse(BigDecimal.ZERO);
+            // Price priority: order_line.unit_price (snapshot) -> supplier_item.price -> item.price * unitsPerPack
+            BigDecimal price = line.getUnitPrice();
+            if (price == null) {
+                price = supplierItemRepository
+                        .findBySupplierIdAndPackagingId(plan.getSupplierId(), line.getPackagingId())
+                        .map(SupplierItem::getPrice)
+                        .orElse(null);
+            }
+            if (price == null && item != null && item.getPrice() != null && pkg != null) {
+                BigDecimal upp = pkg.getUnitsPerPack() != null ? pkg.getUnitsPerPack() : BigDecimal.ONE;
+                price = item.getPrice().multiply(upp);
+            }
+            if (price == null) price = BigDecimal.ZERO;
             String lineCurrency = item != null && item.getCurrency() != null ? item.getCurrency() : "JPY";
             orderCurrencyRef.set(lineCurrency);
 
@@ -150,14 +159,16 @@ public class OrderingService {
                             HttpStatus.BAD_REQUEST);
                 }
 
+                BigDecimal unitPrice = supplierItem.getPrice() != null ? supplierItem.getPrice() : BigDecimal.ZERO;
                 lineRepository.save(OrderLine.builder()
                         .orderPlanId(plan.getId())
                         .packagingId(line.getPackagingId())
                         .packQty(line.getPackQty())
+                        .unitPrice(unitPrice)
                         .build());
 
                 // FIX-03: Calculate amount
-                totalAmount = totalAmount.add(supplierItem.getPrice().multiply(BigDecimal.valueOf(line.getPackQty())));
+                totalAmount = totalAmount.add(unitPrice.multiply(BigDecimal.valueOf(line.getPackQty())));
             }
         }
 
@@ -228,10 +239,18 @@ public class OrderingService {
                     List<OrderPlanDto.HistoryLine> historyLines = lines.stream().map(line -> {
                         Packaging pkg = packagingRepository.findById(line.getPackagingId()).orElse(null);
                         Item item = pkg != null ? itemRepository.findById(pkg.getItemId()).orElse(null) : null;
-                        BigDecimal price = supplierItemRepository
-                                .findBySupplierIdAndPackagingId(plan.getSupplierId(), line.getPackagingId())
-                                .map(SupplierItem::getPrice)
-                                .orElse(BigDecimal.ZERO);
+                        BigDecimal price = line.getUnitPrice();
+                        if (price == null) {
+                            price = supplierItemRepository
+                                    .findBySupplierIdAndPackagingId(plan.getSupplierId(), line.getPackagingId())
+                                    .map(SupplierItem::getPrice)
+                                    .orElse(null);
+                        }
+                        if (price == null && item != null && item.getPrice() != null && pkg != null) {
+                            BigDecimal upp = pkg.getUnitsPerPack() != null ? pkg.getUnitsPerPack() : BigDecimal.ONE;
+                            price = item.getPrice().multiply(upp);
+                        }
+                        if (price == null) price = BigDecimal.ZERO;
 
                         return OrderPlanDto.HistoryLine.builder()
                                 .packagingId(line.getPackagingId())

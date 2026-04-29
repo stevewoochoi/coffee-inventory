@@ -111,13 +111,17 @@ public class FulfillmentService {
             String itemName = null;
             Long itemId = null;
             String lineCurrency = "JPY";
-            BigDecimal price = BigDecimal.ZERO;
+            BigDecimal price = line.getUnitPrice() != null ? line.getUnitPrice() : BigDecimal.ZERO;
             if (pkg != null) {
                 itemId = pkg.getItemId();
                 var itemOpt = itemRepository.findById(pkg.getItemId());
                 if (itemOpt.isPresent()) {
                     itemName = itemOpt.get().getName();
                     if (itemOpt.get().getCurrency() != null) lineCurrency = itemOpt.get().getCurrency();
+                    if (price.compareTo(BigDecimal.ZERO) == 0 && itemOpt.get().getPrice() != null) {
+                        BigDecimal upp = pkg.getUnitsPerPack() != null ? pkg.getUnitsPerPack() : BigDecimal.ONE;
+                        price = itemOpt.get().getPrice().multiply(upp);
+                    }
                 }
             }
             return OrderPlanDto.HistoryLine.builder()

@@ -96,12 +96,20 @@ public class OrderConfirmService {
                     .build();
             planRepository.save(plan);
 
-            // Create OrderLines
+            // Create OrderLines (snapshot unit price from cart item, fallback to supplier_item)
             for (OrderCartItem ci : entry.getValue()) {
+                BigDecimal snapPrice = ci.getUnitPrice();
+                if (snapPrice == null) {
+                    snapPrice = supplierItemRepository
+                            .findBySupplierIdAndPackagingId(ci.getSupplierId(), ci.getPackagingId())
+                            .map(SupplierItem::getPrice)
+                            .orElse(BigDecimal.ZERO);
+                }
                 lineRepository.save(OrderLine.builder()
                         .orderPlanId(plan.getId())
                         .packagingId(ci.getPackagingId())
                         .packQty(ci.getPackQty())
+                        .unitPrice(snapPrice)
                         .build());
             }
 
@@ -192,6 +200,7 @@ public class OrderConfirmService {
                         .orderPlanId(planId)
                         .packagingId(lineDto.getPackagingId())
                         .packQty(lineDto.getPackQty())
+                        .unitPrice(linePrice)
                         .modificationVersion(nextVersion)
                         .build());
 
