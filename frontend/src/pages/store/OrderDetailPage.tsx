@@ -225,8 +225,8 @@ export default function OrderDetailPage() {
                   <p className="text-xs text-gray-500">{line.packName}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-medium">{line.packQty} x {'\u20A9'}{line.price.toLocaleString()}</p>
-                  <p className="text-xs text-gray-500">{'\u20A9'}{(line.packQty * line.price).toLocaleString()}</p>
+                  <p className="text-sm font-medium">{line.packQty} x {'\u00A5'}{line.price.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">{'\u00A5'}{(line.packQty * line.price).toLocaleString()}</p>
                 </div>
               </div>
             ))}
@@ -236,15 +236,15 @@ export default function OrderDetailPage() {
           <div className="border-t mt-3 pt-3 space-y-1">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">{t('ordering.cart.subtotal')}</span>
-              <span>{'\u20A9'}{lineTotal.toLocaleString()}</span>
+              <span>{'\u00A5'}{lineTotal.toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">{t('ordering.steps.vat')}</span>
-              <span>{'\u20A9'}{vat.toLocaleString()}</span>
+              <span>{'\u00A5'}{vat.toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-base font-bold">
               <span>{t('ordering.cart.total')}</span>
-              <span>{'\u20A9'}{total.toLocaleString()}</span>
+              <span>{'\u00A5'}{total.toLocaleString()}</span>
             </div>
           </div>
         </CardContent>

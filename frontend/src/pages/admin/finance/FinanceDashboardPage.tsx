@@ -83,7 +83,7 @@ export default function FinanceDashboardPage() {
               <CardContent className="py-6 text-center">
                 <p className="text-sm text-gray-500 mb-1">{t('finance.totalPurchase')}</p>
                 <p className="text-3xl font-bold text-[#343741]">
-                  {'\u20A9'}{totalPurchase.toLocaleString()}
+                  {'\u00A5'}{totalPurchase.toLocaleString()}
                 </p>
               </CardContent>
             </Card>
@@ -91,7 +91,7 @@ export default function FinanceDashboardPage() {
               <CardContent className="py-6 text-center">
                 <p className="text-sm text-gray-500 mb-1">{t('finance.totalInventoryValue')}</p>
                 <p className="text-3xl font-bold text-green-700">
-                  {'\u20A9'}{totalInventoryValue.toLocaleString()}
+                  {'\u00A5'}{totalInventoryValue.toLocaleString()}
                 </p>
               </CardContent>
             </Card>
@@ -108,7 +108,7 @@ export default function FinanceDashboardPage() {
                     <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${Math.round(v / 10000)}${t('finance.manUnit')}`} />
                     <Tooltip
-                      formatter={(value) => [`${'\u20A9'}${Number(value).toLocaleString()}`, '']}
+                      formatter={(value) => [`${'\u00A5'}${Number(value).toLocaleString()}`, '']}
                     />
                     <Legend />
                     <Line

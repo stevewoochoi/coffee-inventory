@@ -155,7 +155,7 @@ export default function SupplierOrderDetailPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500">{t('ordering.cart.total')}</p>
-              <p className="font-bold">{'\u20A9'}{(order.totalAmount ?? 0).toLocaleString()}</p>
+              <p className="font-bold">{'\u00A5'}{(order.totalAmount ?? 0).toLocaleString()}</p>
             </div>
           </div>
         </CardContent>
@@ -184,9 +184,9 @@ export default function SupplierOrderDetailPage() {
                     <TableCell className="font-medium">{line.itemName}</TableCell>
                     <TableCell>{line.packName}</TableCell>
                     <TableCell className="text-right">{line.packQty}</TableCell>
-                    <TableCell className="text-right">{'\u20A9'}{(line.price ?? 0).toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{'\u00A5'}{(line.price ?? 0).toLocaleString()}</TableCell>
                     <TableCell className="text-right font-medium">
-                      {'\u20A9'}{((line.price ?? 0) * line.packQty).toLocaleString()}
+                      {'\u00A5'}{((line.price ?? 0) * line.packQty).toLocaleString()}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -203,7 +203,7 @@ export default function SupplierOrderDetailPage() {
                   <p className="text-xs text-gray-500">{line.packName} x {line.packQty}</p>
                 </div>
                 <span className="font-medium text-sm">
-                  {'\u20A9'}{((line.price ?? 0) * line.packQty).toLocaleString()}
+                  {'\u00A5'}{((line.price ?? 0) * line.packQty).toLocaleString()}
                 </span>
               </div>
             ))}

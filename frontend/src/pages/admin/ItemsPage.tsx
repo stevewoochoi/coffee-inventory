@@ -366,11 +366,11 @@ export default function ItemsPage() {
                 <TableCell>{item.supplierName || '-'}</TableCell>
                 <TableCell>{item.baseUnit}</TableCell>
                 <TableCell>{(item.lossRate * 100).toFixed(1)}%</TableCell>
-                <TableCell>{item.price != null ? `₩${item.price.toLocaleString()}` : '-'}</TableCell>
+                <TableCell>{item.price != null ? `¥${item.price.toLocaleString()}` : '-'}</TableCell>
                 <TableCell>
                   {item.price != null && item.vatInclusive ? (
                     <span className="text-xs text-orange-600 font-medium">
-                      {t('items.vatIncl')} ₩{Math.round(item.price * 0.1).toLocaleString()}
+                      {t('items.vatIncl')} ¥{Math.round(item.price * 0.1).toLocaleString()}
                     </span>
                   ) : item.price != null && !item.vatInclusive ? (
                     <span className="text-xs text-gray-400">{t('items.vatExcl')}</span>
@@ -436,9 +436,9 @@ export default function ItemsPage() {
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
                   {item.category || '-'} · {item.supplierName || '-'} · {item.baseUnit} · {(item.lossRate * 100).toFixed(1)}%
-                  {item.price != null && ` · ₩${item.price.toLocaleString()}`}
+                  {item.price != null && ` · ¥${item.price.toLocaleString()}`}
                   {item.price != null && item.vatInclusive && (
-                    <span className="text-orange-600"> ({t('items.vatIncl')} ₩{Math.round(item.price * 0.1).toLocaleString()})</span>
+                    <span className="text-orange-600"> ({t('items.vatIncl')} ¥{Math.round(item.price * 0.1).toLocaleString()})</span>
                   )}
                 </div>
               </div>
@@ -610,7 +610,7 @@ export default function ItemsPage() {
               <div className="space-y-2">
                 <Label>{t('items.price')}</Label>
                 <Input type="number" step="0.01" value={form.price ?? ''}
-                  placeholder="₩"
+                  placeholder="¥"
                   onChange={(e) => setForm({ ...form, price: e.target.value ? parseFloat(e.target.value) : undefined })} />
               </div>
               <div className="space-y-2">
@@ -627,7 +627,7 @@ export default function ItemsPage() {
               <div className="space-y-2">
                 <Label>{t('items.vatAmount')}</Label>
                 <Input readOnly
-                  value={form.price && form.vatInclusive ? `₩${Math.round(form.price * 0.1).toLocaleString()}` : '-'}
+                  value={form.price && form.vatInclusive ? `¥${Math.round(form.price * 0.1).toLocaleString()}` : '-'}
                   className="bg-gray-50" />
               </div>
             </div>

@@ -268,7 +268,7 @@ export default function NewOrderPage() {
               )}
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">{t('ordering.cart.total')}</span>
-                <span className="font-bold">{'\u20A9'}{totalWithVat.toLocaleString()}</span>
+                <span className="font-bold">{'\u00A5'}{totalWithVat.toLocaleString()}</span>
               </div>
             </CardContent>
           </Card>
@@ -491,8 +491,8 @@ export default function NewOrderPage() {
                             )}
                           </div>
                           <div className="text-xs text-gray-400 mt-0.5">
-                            {pkg.label} / {'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}
-                            <span className="ml-1.5 text-[#69707d] font-medium">(1박스={formatPackUnit(pkg.unitsPerPack, item.unit)} ₩{pkg.unitPrice.toLocaleString()})</span>
+                            {pkg.label} / {'\u00A5'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}
+                            <span className="ml-1.5 text-[#69707d] font-medium">(1박스={formatPackUnit(pkg.unitsPerPack, item.unit)} ¥{pkg.unitPrice.toLocaleString()})</span>
                           </div>
                         </>
                       )}
@@ -543,7 +543,7 @@ export default function NewOrderPage() {
                       <p className="text-[10px] text-gray-400">{t('ordering.catalog.notOrderable')}</p>
                     ) : (
                       <>
-                        <p className="text-xs text-gray-500">{'\u20A9'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}</p>
+                        <p className="text-xs text-gray-500">{'\u00A5'}{Math.round(pkg.unitPrice / pkg.unitsPerPack).toLocaleString()}/{item.unit}</p>
                         <p className="text-xs text-[#69707d] font-medium">1박스={formatPackUnit(pkg.unitsPerPack, item.unit)}</p>
                       </>
                     )}
@@ -577,7 +577,7 @@ export default function NewOrderPage() {
               <span className="ml-2 text-slate-300">{t('ordering.cart.items', { count: totalCartItems })}</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="font-bold">{'\u20A9'}{totalCartAmount.toLocaleString()}</span>
+              <span className="font-bold">{'\u00A5'}{totalCartAmount.toLocaleString()}</span>
               <span className="text-lg">{'\u2192'}</span>
             </div>
           </div>
@@ -610,7 +610,7 @@ export default function NewOrderPage() {
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-semibold text-sm">{group.supplierName}</h4>
                   <span className="text-sm text-gray-500">
-                    {t('ordering.cart.subtotal')}: {'\u20A9'}{group.subtotal.toLocaleString()}
+                    {t('ordering.cart.subtotal')}: {'\u00A5'}{group.subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -619,7 +619,7 @@ export default function NewOrderPage() {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{item.itemName}</p>
                         <p className="text-xs text-gray-500">
-                          {item.packLabel} / {'\u20A9'}{item.unitPrice.toLocaleString()}{'\u00D7'}{item.quantity}박스
+                          {item.packLabel} / {'\u00A5'}{item.unitPrice.toLocaleString()}{'\u00D7'}{item.quantity}박스
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -638,7 +638,7 @@ export default function NewOrderPage() {
                             prev.map(c => c.itemId === item.itemId && c.packagingId === item.packagingId ? { ...c, quantity: c.quantity + 1 } : c)
                           )}>+</Button>
                         <span className="text-sm font-medium w-20 text-right">
-                          {'\u20A9'}{(item.unitPrice * item.quantity).toLocaleString()}
+                          {'\u00A5'}{(item.unitPrice * item.quantity).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -652,15 +652,15 @@ export default function NewOrderPage() {
             <CardContent className="py-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">{t('ordering.cart.subtotal')}</span>
-                <span>{'\u20A9'}{totalCartAmount.toLocaleString()}</span>
+                <span>{'\u00A5'}{totalCartAmount.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">{t('ordering.steps.vat')}</span>
-                <span>{'\u20A9'}{vatAmount.toLocaleString()}</span>
+                <span>{'\u00A5'}{vatAmount.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-base font-bold border-t pt-2">
                 <span>{t('ordering.cart.total')}</span>
-                <span>{'\u20A9'}{totalWithVat.toLocaleString()}</span>
+                <span>{'\u00A5'}{totalWithVat.toLocaleString()}</span>
               </div>
             </CardContent>
           </Card>

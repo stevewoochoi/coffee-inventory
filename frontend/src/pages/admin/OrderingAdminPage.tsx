@@ -93,7 +93,7 @@ export default function OrderingAdminPage() {
 
   const formatPrice = (n: number | null | undefined) => {
     if (n == null) return '-';
-    return `₩${n.toLocaleString()}`;
+    return `¥${n.toLocaleString()}`;
   };
 
   return (

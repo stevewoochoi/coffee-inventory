@@ -518,27 +518,35 @@ export default function ReceivingPage() {
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-3">{t('receiving.fromOrder.title')}</h3>
           <div className="space-y-2">
-            {pendingOrders.map((order) => (
-              <Card key={order.orderPlanId} className="border-slate-300 bg-slate-50 cursor-pointer" onClick={() => openOrderReceive(order)}>
-                <CardContent className="py-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <div>
-                      <span className="font-bold">#{order.orderPlanId}</span>
-                      <span className="text-gray-600 ml-2">{order.supplierName}</span>
+            {pendingOrders.map((order) => {
+              const canReceive = order.status === 'DISPATCHED' || order.status === 'PARTIALLY_RECEIVED';
+              return (
+                <Card key={order.orderPlanId} className={`border-slate-300 ${canReceive ? 'bg-slate-50 cursor-pointer' : 'bg-gray-50 opacity-70'}`}
+                  onClick={() => canReceive && openOrderReceive(order)}>
+                  <CardContent className="py-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <div>
+                        <span className="font-bold">#{order.orderPlanId}</span>
+                        <span className="text-gray-600 ml-2">{order.supplierName}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">{t(`ordering.status.${order.status}`)}</Badge>
+                        {canReceive ? (
+                          <Button size="sm" className="bg-[#0077cc] hover:bg-[#005ea3]">
+                            {t('receiving.fromOrder.receive')}
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-gray-400">발송 대기중</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{t(`ordering.status.${order.status}`)}</Badge>
-                      <Button size="sm" className="bg-[#0077cc] hover:bg-[#005ea3]">
-                        {t('receiving.fromOrder.receive')}
-                      </Button>
+                    <div className="text-sm text-gray-500">
+                      {order.lines.map(l => `${l.itemName} x${l.orderedPackQty}`).join(', ')}
                     </div>
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {order.lines.map(l => `${l.itemName} x${l.orderedPackQty}`).join(', ')}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       )}

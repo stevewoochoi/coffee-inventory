@@ -114,10 +114,10 @@ export default function ClosingPage() {
                     </TableCell>
                     <TableCell>{getStatusBadge(record.status)}</TableCell>
                     <TableCell className="text-right">
-                      {'\u20A9'}{(record.totalPurchase ?? 0).toLocaleString()}
+                      {'\u00A5'}{(record.totalPurchase ?? 0).toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      {'\u20A9'}{(record.totalInventory ?? 0).toLocaleString()}
+                      {'\u00A5'}{(record.totalInventory ?? 0).toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right text-sm text-gray-500">
                       {record.closedAt ? new Date(record.closedAt).toLocaleString() : '-'}
@@ -143,11 +143,11 @@ export default function ClosingPage() {
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-500">{t('finance.totalPurchase')}</span>
-                      <span>{'\u20A9'}{(record.totalPurchase ?? 0).toLocaleString()}</span>
+                      <span>{'\u00A5'}{(record.totalPurchase ?? 0).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">{t('finance.totalInventoryValue')}</span>
-                      <span>{'\u20A9'}{(record.totalInventory ?? 0).toLocaleString()}</span>
+                      <span>{'\u00A5'}{(record.totalInventory ?? 0).toLocaleString()}</span>
                     </div>
                     {record.closedAt && (
                       <div className="flex justify-between text-xs text-gray-400">

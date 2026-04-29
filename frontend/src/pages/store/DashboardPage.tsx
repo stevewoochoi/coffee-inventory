@@ -191,7 +191,7 @@ export default function StoreDashboardPage() {
           </div>
           <div className="flex flex-col">
             <span className="text-gray-500">{t('ordering.monthlyOrders')}</span>
-            <span className="font-medium">{data.monthlyOrderCount ?? 0}{t('dashboard.items2', { defaultValue: '건' })} / {'\u20A9'}{(data.monthlyOrderAmount ?? 0).toLocaleString()}</span>
+            <span className="font-medium">{data.monthlyOrderCount ?? 0}{t('dashboard.items2', { defaultValue: '건' })} / {'\u00A5'}{(data.monthlyOrderAmount ?? 0).toLocaleString()}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-gray-500">{t('ordering.nextDelivery')}</span>
@@ -266,7 +266,7 @@ export default function StoreDashboardPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">{'\u20A9'}{order.totalAmount.toLocaleString()}</span>
+                  <span className="text-sm font-medium">{'\u00A5'}{order.totalAmount.toLocaleString()}</span>
                   <Badge className={statusColor[order.status] || ''}>
                     {t(`ordering.status.${order.status}`)}
                   </Badge>

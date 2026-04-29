@@ -131,7 +131,7 @@ export default function PackagingsPage() {
 
   const formatPrice = (price: number | null) => {
     if (price == null) return '-';
-    return `₩${price.toLocaleString()}`;
+    return `¥${price.toLocaleString()}`;
   };
 
   const getUnitPrice = (pkg: Packaging) => {
@@ -215,7 +215,7 @@ export default function PackagingsPage() {
                 <TableCell>
                   {pkg.supplierItems?.[0]?.price != null && pkg.vatInclusive ? (
                     <span className="text-xs text-orange-600 font-medium">
-                      {t('items.vatIncl')} ₩{Math.round((pkg.supplierItems[0].price) * 0.1).toLocaleString()}
+                      {t('items.vatIncl')} ¥{Math.round((pkg.supplierItems[0].price) * 0.1).toLocaleString()}
                     </span>
                   ) : pkg.supplierItems?.[0]?.price != null && !pkg.vatInclusive ? (
                     <span className="text-xs text-gray-400">{t('items.vatExcl')}</span>
@@ -367,7 +367,7 @@ export default function PackagingsPage() {
                 <div className="space-y-2">
                   <Label>{t('packagings.boxPrice')}</Label>
                   <Input type="number" step="1" value={form.boxPrice ?? ''}
-                    placeholder="₩"
+                    placeholder="¥"
                     onChange={(e) => {
                       const val = e.target.value ? parseFloat(e.target.value) : undefined;
                       setBoxPriceOverridden(val != null);
@@ -380,7 +380,7 @@ export default function PackagingsPage() {
                 <div className="space-y-2">
                   <Label>{t('packagings.unitPriceCalc')}</Label>
                   <Input readOnly
-                    value={form.boxPrice && form.unitsPerPack ? `₩${Math.round(form.boxPrice / form.unitsPerPack).toLocaleString()}` : '-'} />
+                    value={form.boxPrice && form.unitsPerPack ? `¥${Math.round(form.boxPrice / form.unitsPerPack).toLocaleString()}` : '-'} />
                 </div>
               </div>
               {(() => {
@@ -389,10 +389,10 @@ export default function PackagingsPage() {
                 return form.boxPrice != null && isVat ? (
                   <div className="flex items-center gap-2 px-1">
                     <span className="text-xs text-orange-600 font-medium">
-                      {t('items.vatIncl')} 10%: ₩{Math.round(form.boxPrice * 0.1).toLocaleString()}
+                      {t('items.vatIncl')} 10%: ¥{Math.round(form.boxPrice * 0.1).toLocaleString()}
                     </span>
                     <span className="text-xs text-gray-400">
-                      ({t('packagings.vatTotal')}: ₩{Math.round(form.boxPrice * 1.1).toLocaleString()})
+                      ({t('packagings.vatTotal')}: ¥{Math.round(form.boxPrice * 1.1).toLocaleString()})
                     </span>
                   </div>
                 ) : null;

@@ -104,7 +104,7 @@ export default function SupplierOrdersPage() {
                   )}
                   <span>{order.lineCount} {t('supplierPortal.items')}</span>
                   <span className="font-medium text-gray-700">
-                    {'\u20A9'}{(order.totalAmount ?? 0).toLocaleString()}
+                    {'\u00A5'}{(order.totalAmount ?? 0).toLocaleString()}
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mt-1">

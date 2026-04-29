@@ -153,7 +153,7 @@ export default function CutoffPage() {
           <Card>
             <CardContent className="py-4 text-center">
               <p className="text-sm text-gray-500">{t('cutoff.totalAmount')}</p>
-              <p className="text-2xl font-bold">{'\u20A9'}{(cutoffSummary.totalAmount ?? 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold">{'\u00A5'}{(cutoffSummary.totalAmount ?? 0).toLocaleString()}</p>
             </CardContent>
           </Card>
           <Card>

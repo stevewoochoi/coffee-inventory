@@ -154,7 +154,7 @@ export default function OrderCalendarPage() {
                         }`} />
                       </div>
                       <div className="hidden sm:block text-[10px] text-gray-500 truncate">
-                        {'\u20A9'}{Math.round(dayData.totalAmount / 1000)}K
+                        {'\u00A5'}{Math.round(dayData.totalAmount / 1000)}K
                       </div>
                     </div>
                   )}
@@ -196,7 +196,7 @@ export default function OrderCalendarPage() {
                               {t(`ordering.status.${order.status}`)}
                             </Badge>
                             <p className="text-sm font-medium mt-1">
-                              {'\u20A9'}{(order.totalAmount || 0).toLocaleString()}
+                              {'\u00A5'}{(order.totalAmount || 0).toLocaleString()}
                             </p>
                           </div>
                         </div>

@@ -208,7 +208,7 @@ export default function OrderingPage() {
               <div>
                 <p className="font-semibold text-[#343741]">{t('ordering.main.cartPending')}</p>
                 <p className="text-sm text-[#69707d]">
-                  {t('ordering.cart.items', { count: cartInfo.totalItems })} | {'\u20A9'}{cartInfo.grandTotal.toLocaleString()}
+                  {t('ordering.cart.items', { count: cartInfo.totalItems })} | {'\u00A5'}{cartInfo.grandTotal.toLocaleString()}
                 </p>
               </div>
               <Button size="sm" className="bg-[#0077cc] hover:bg-[#005ea3] min-h-[44px]">
@@ -433,7 +433,7 @@ export default function OrderingPage() {
                           </Button>
                         </>
                       )}
-                      {plan.status === 'CONFIRMED' && (
+                      {plan.status === 'CONFIRMED' && user?.role !== 'STORE_MANAGER' && user?.role !== 'JP_ORDERER' && (
                         <Button
                           size="sm"
                           className="bg-[#0077cc] hover:bg-[#005ea3] min-h-[44px]"

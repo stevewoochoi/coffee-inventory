@@ -101,19 +101,19 @@ export default function PurchasePage() {
                   <TableRow key={row.supplierId}>
                     <TableCell className="font-medium">{row.supplierName}</TableCell>
                     <TableCell className="text-right">{row.orderCount}</TableCell>
-                    <TableCell className="text-right">{'\u20A9'}{row.totalAmount.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">{'\u20A9'}{row.vatAmount.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{'\u00A5'}{row.totalAmount.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{'\u00A5'}{row.vatAmount.toLocaleString()}</TableCell>
                     <TableCell className="text-right font-medium">
-                      {'\u20A9'}{(row.totalAmount + row.vatAmount).toLocaleString()}
+                      {'\u00A5'}{(row.totalAmount + row.vatAmount).toLocaleString()}
                     </TableCell>
                   </TableRow>
                 ))}
                 <TableRow className="bg-gray-50 font-bold">
                   <TableCell>{t('finance.grandTotal')}</TableCell>
                   <TableCell className="text-right">{data.reduce((s, r) => s + r.orderCount, 0)}</TableCell>
-                  <TableCell className="text-right">{'\u20A9'}{grandTotal.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{'\u20A9'}{grandVat.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{'\u20A9'}{(grandTotal + grandVat).toLocaleString()}</TableCell>
+                  <TableCell className="text-right">{'\u00A5'}{grandTotal.toLocaleString()}</TableCell>
+                  <TableCell className="text-right">{'\u00A5'}{grandVat.toLocaleString()}</TableCell>
+                  <TableCell className="text-right">{'\u00A5'}{(grandTotal + grandVat).toLocaleString()}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -130,11 +130,11 @@ export default function PurchasePage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">{t('finance.purchaseAmount')}</span>
-                    <span className="font-medium">{'\u20A9'}{row.totalAmount.toLocaleString()}</span>
+                    <span className="font-medium">{'\u00A5'}{row.totalAmount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">{t('finance.vatAmount')}</span>
-                    <span>{'\u20A9'}{row.vatAmount.toLocaleString()}</span>
+                    <span>{'\u00A5'}{row.vatAmount.toLocaleString()}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -143,7 +143,7 @@ export default function PurchasePage() {
               <CardContent className="py-3">
                 <div className="flex justify-between font-bold">
                   <span>{t('finance.grandTotal')}</span>
-                  <span>{'\u20A9'}{(grandTotal + grandVat).toLocaleString()}</span>
+                  <span>{'\u00A5'}{(grandTotal + grandVat).toLocaleString()}</span>
                 </div>
               </CardContent>
             </Card>

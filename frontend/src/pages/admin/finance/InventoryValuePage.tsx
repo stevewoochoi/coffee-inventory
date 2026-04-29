@@ -56,7 +56,7 @@ export default function InventoryValuePage() {
           <CardContent className="py-6 text-center">
             <p className="text-sm text-gray-500 mb-1">{t('finance.totalInventoryValue')}</p>
             <p className="text-3xl font-bold text-green-700">
-              {'\u20A9'}{(data.totalValue ?? 0).toLocaleString()}
+              {'\u00A5'}{(data.totalValue ?? 0).toLocaleString()}
             </p>
             <p className="text-sm text-gray-400 mt-1">
               {stores.length} {t('finance.storeCount')}
@@ -90,7 +90,7 @@ export default function InventoryValuePage() {
                       <Badge variant="secondary">{store.totalItems}</Badge>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {'\u20A9'}{store.totalValue.toLocaleString()}
+                      {'\u00A5'}{store.totalValue.toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right text-sm text-gray-500">
                       {store.lastUpdated ? new Date(store.lastUpdated).toLocaleDateString() : '-'}
@@ -112,7 +112,7 @@ export default function InventoryValuePage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">{t('finance.inventoryValue')}</span>
-                    <span className="font-bold text-green-700">{'\u20A9'}{store.totalValue.toLocaleString()}</span>
+                    <span className="font-bold text-green-700">{'\u00A5'}{store.totalValue.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-xs text-gray-400 mt-1">
                     <span>{t('finance.lastUpdated')}</span>
