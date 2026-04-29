@@ -23,6 +23,7 @@ import NewOrderPage from '@/pages/store/NewOrderPage';
 import OrderHistoryPage from '@/pages/store/OrderHistoryPage';
 import OrderDetailPage from '@/pages/store/OrderDetailPage';
 import OrderingAdminPage from '@/pages/admin/OrderingAdminPage';
+import AdminOrderDetailPage from '@/pages/admin/AdminOrderDetailPage';
 import CategoriesPage from '@/pages/admin/CategoriesPage';
 import AdminExpiryPage from '@/pages/admin/ExpiryPage';
 import StoreExpiryPage from '@/pages/store/ExpiryPage';
@@ -80,6 +81,7 @@ function App() {
             <Route path="/admin/suppliers" element={<SuppliersPage />} />
             <Route path="/admin/categories" element={<CategoriesPage />} />
             <Route path="/admin/ordering" element={<OrderingAdminPage />} />
+            <Route path="/admin/ordering/:id" element={<AdminOrderDetailPage />} />
             <Route path="/admin/expiry" element={<AdminExpiryPage />} />
             <Route path="/admin/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="/admin/settings/users" element={<UsersPage />} />

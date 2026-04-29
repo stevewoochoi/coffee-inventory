@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
@@ -35,6 +36,7 @@ export default function OrderingAdminPage() {
   const { user } = useAuthStore();
   const brandId = user?.brandId;
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const loadPlans = useCallback(async () => {
     setLoading(true);
@@ -177,8 +179,8 @@ export default function OrderingAdminPage() {
                   </TableHeader>
                   <TableBody>
                     {filtered.map((plan) => (
-                      <TableRow key={plan.id}>
-                        <TableCell className="font-medium">#{plan.id}</TableCell>
+                      <TableRow key={plan.id} className="cursor-pointer hover:bg-gray-50" onClick={() => navigate(`/admin/ordering/${plan.id}`)}>
+                        <TableCell className="font-medium text-blue-600 underline">#{plan.id}</TableCell>
                         <TableCell>{plan.storeName || `#${plan.storeId}`}</TableCell>
                         <TableCell>{plan.supplierName || `#${plan.supplierId}`}</TableCell>
                         <TableCell>
@@ -198,9 +200,9 @@ export default function OrderingAdminPage() {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
                 {filtered.map((plan) => (
-                  <div key={plan.id} className="bg-white rounded-lg border p-4">
+                  <div key={plan.id} className="bg-white rounded-lg border p-4 cursor-pointer active:bg-gray-50" onClick={() => navigate(`/admin/ordering/${plan.id}`)}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold">#{plan.id}</span>
+                      <span className="font-semibold text-blue-600 underline">#{plan.id}</span>
                       <Badge className={statusColor[plan.status] || ''}>
                         {t(`ordering.status.${plan.status}`, plan.status)}
                       </Badge>
