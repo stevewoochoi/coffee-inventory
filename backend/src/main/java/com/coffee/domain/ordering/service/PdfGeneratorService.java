@@ -42,13 +42,18 @@ public class PdfGeneratorService {
             PDPage page = new PDPage(PDRectangle.A4);
             document.addPage(page);
 
-            // CJK-capable font (IPA Gothic - Japanese/Korean/English)
+            // CJK font - try system font first, then classpath
             PDFont font;
             try {
-                InputStream fontStream = new ClassPathResource("fonts/ipag.ttf").getInputStream();
-                font = PDType0Font.load(document, fontStream);
+                java.io.File sysFont = new java.io.File("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc");
+                if (sysFont.exists()) {
+                    font = PDType0Font.load(document, new java.io.FileInputStream(sysFont));
+                } else {
+                    InputStream fontStream = new ClassPathResource("fonts/ipag.ttf").getInputStream();
+                    font = PDType0Font.load(document, fontStream);
+                }
             } catch (IOException e) {
-                throw new RuntimeException("Font loading failed", e);
+                throw new RuntimeException("Font loading failed: " + e.getMessage(), e);
             }
             PDFont fontBold = font;
             PDFont fontRegular = font;
