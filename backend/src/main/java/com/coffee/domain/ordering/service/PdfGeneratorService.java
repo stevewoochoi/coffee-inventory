@@ -14,6 +14,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.fontbox.ttf.TrueTypeCollection;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -42,12 +43,13 @@ public class PdfGeneratorService {
             PDPage page = new PDPage(PDRectangle.A4);
             document.addPage(page);
 
-            // CJK font - try system font first, then classpath
+            // CJK font - try system TTC first, then classpath TTF
             PDFont font;
             try {
-                java.io.File sysFont = new java.io.File("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc");
-                if (sysFont.exists()) {
-                    font = PDType0Font.load(document, new java.io.FileInputStream(sysFont));
+                java.io.File sysFontFile = new java.io.File("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc");
+                if (sysFontFile.exists()) {
+                    TrueTypeCollection ttc = new TrueTypeCollection(sysFontFile);
+                    font = PDType0Font.load(document, ttc.getFontByName("NotoSansCJKjp-Regular"), true);
                 } else {
                     InputStream fontStream = new ClassPathResource("fonts/ipag.ttf").getInputStream();
                     font = PDType0Font.load(document, fontStream);
