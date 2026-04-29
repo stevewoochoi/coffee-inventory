@@ -50,6 +50,14 @@ export default function NewOrderPage() {
   const [deliveryData, setDeliveryData] = useState<AvailableDateResponse | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedDateInfo, setSelectedDateInfo] = useState<AvailableDate | null>(null);
+  const [dateView, setDateView] = useState<'calendar' | 'list'>(() => {
+    const saved = typeof window !== 'undefined' ? window.localStorage.getItem('store.orderDateView') : null;
+    return saved === 'list' ? 'list' : 'calendar';
+  });
+  const [calendarMonth, setCalendarMonth] = useState<{ year: number; month: number }>(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
 
   // Step 2
   const [categories, setCategories] = useState<CategoryNode[]>([]);
@@ -212,6 +220,25 @@ export default function NewOrderPage() {
     }
   }
 
+  // Persist view preference
+  useEffect(() => {
+    try { window.localStorage.setItem('store.orderDateView', dateView); } catch { /* storage disabled */ }
+  }, [dateView]);
+
+  // When delivery data loads, jump calendar to first available date's month if current month has none
+  useEffect(() => {
+    if (!deliveryData || deliveryData.availableDates.length === 0) return;
+    const now = new Date();
+    const hasInCurrent = deliveryData.availableDates.some(d => {
+      const dd = new Date(d.date + 'T00:00:00');
+      return dd.getFullYear() === now.getFullYear() && dd.getMonth() === now.getMonth();
+    });
+    if (!hasInCurrent) {
+      const first = new Date(deliveryData.availableDates[0].date + 'T00:00:00');
+      setCalendarMonth({ year: first.getFullYear(), month: first.getMonth() });
+    }
+  }, [deliveryData]);
+
   function formatDate(dateStr: string) {
     const d = new Date(dateStr + 'T00:00:00');
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', weekday: 'short' });
@@ -294,62 +321,204 @@ export default function NewOrderPage() {
   const renderStep1 = () => {
     if (!deliveryData) return <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>;
 
+    const availableMap = new Map<string, AvailableDate>();
+    for (const d of deliveryData.availableDates) availableMap.set(d.date, d);
+
     return (
       <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold mb-1">{t('ordering.steps.selectDate')}</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Badge variant="outline">{deliveryData.storeDeliveryType.replace(/_/g, ' / ')}</Badge>
-            <span>{t('ordering.steps.cutoff')}: {deliveryData.cutoffTime}</span>
+        <div className="flex items-start justify-between gap-2 flex-wrap">
+          <div>
+            <h3 className="text-lg font-semibold mb-1">{t('ordering.steps.selectDate')}</h3>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Badge variant="outline">{deliveryData.storeDeliveryType.replace(/_/g, ' / ')}</Badge>
+              <span>{t('ordering.steps.cutoff')}: {deliveryData.cutoffTime}</span>
+            </div>
+          </div>
+          <div className="inline-flex rounded-lg border bg-white overflow-hidden text-sm">
+            <button
+              type="button"
+              className={`px-3 py-1.5 ${dateView === 'calendar' ? 'bg-[#0077cc] text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+              onClick={() => setDateView('calendar')}
+            >
+              {t('ordering.steps.calendarView', { defaultValue: '\ub2ec\ub825' })}
+            </button>
+            <button
+              type="button"
+              className={`px-3 py-1.5 border-l ${dateView === 'list' ? 'bg-[#0077cc] text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+              onClick={() => setDateView('list')}
+            >
+              {t('ordering.steps.listView', { defaultValue: '\ub9ac\uc2a4\ud2b8' })}
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-2">
-          {deliveryData.availableDates.map((dateInfo) => {
-            const isSelected = selectedDate === dateInfo.date;
-            return (
-              <Card
-                key={dateInfo.date}
-                className={`cursor-pointer transition-all border-2 ${
-                  isSelected ? 'border-slate-700 bg-slate-50' : 'border-gray-200 hover:border-slate-400'
-                }`}
-                onClick={() => { setSelectedDate(dateInfo.date); setSelectedDateInfo(dateInfo); }}
-              >
-                <CardContent className="py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center text-sm font-bold ${
-                        isSelected ? 'bg-[#0077cc] text-white' : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        <span className="text-xs">{dateInfo.dayOfWeek}</span>
-                        <span>{new Date(dateInfo.date + 'T00:00:00').getDate()}</span>
-                      </div>
-                      <div>
-                        <p className="font-medium">{formatDate(dateInfo.date)}</p>
-                        <p className="text-xs text-gray-500">
-                          {t('ordering.steps.deadlineBy')} {formatDateTime(dateInfo.orderDeadline)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {dateInfo.isRecommended && (
-                        <Badge className="bg-green-100 text-green-800">{t('ordering.steps.recommended')}</Badge>
-                      )}
-                      {isSelected && (
-                        <div className="w-6 h-6 bg-[#0077cc] rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs">{'\u2713'}</span>
+        {dateView === 'calendar' ? (
+          renderCalendar(availableMap)
+        ) : (
+          <div className="grid grid-cols-1 gap-2">
+            {deliveryData.availableDates.map((dateInfo) => {
+              const isSelected = selectedDate === dateInfo.date;
+              return (
+                <Card
+                  key={dateInfo.date}
+                  className={`cursor-pointer transition-all border-2 ${
+                    isSelected ? 'border-slate-700 bg-slate-50' : 'border-gray-200 hover:border-slate-400'
+                  }`}
+                  onClick={() => { setSelectedDate(dateInfo.date); setSelectedDateInfo(dateInfo); }}
+                >
+                  <CardContent className="py-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-lg flex flex-col items-center justify-center text-sm font-bold ${
+                          isSelected ? 'bg-[#0077cc] text-white' : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          <span className="text-xs">{dateInfo.dayOfWeek}</span>
+                          <span>{new Date(dateInfo.date + 'T00:00:00').getDate()}</span>
                         </div>
-                      )}
+                        <div>
+                          <p className="font-medium">{formatDate(dateInfo.date)}</p>
+                          <p className="text-xs text-gray-500">
+                            {t('ordering.steps.deadlineBy')} {formatDateTime(dateInfo.orderDeadline)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {dateInfo.isRecommended && (
+                          <Badge className="bg-green-100 text-green-800">{t('ordering.steps.recommended')}</Badge>
+                        )}
+                        {isSelected && (
+                          <div className="w-6 h-6 bg-[#0077cc] rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs">{'\u2713'}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
 
         {deliveryData.availableDates.length === 0 && (
           <div className="text-center py-12 text-gray-400">{t('ordering.steps.noDates')}</div>
+        )}
+      </div>
+    );
+  };
+
+  const renderCalendar = (availableMap: Map<string, AvailableDate>) => {
+    const { year, month } = calendarMonth;
+    const firstDay = new Date(year, month, 1);
+    const startWeekday = firstDay.getDay(); // 0=Sun
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    const cells: Array<{ key: string; day: number | null; dateStr?: string; info?: AvailableDate; isToday?: boolean }> = [];
+    for (let i = 0; i < startWeekday; i++) cells.push({ key: `pad-${i}`, day: null });
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      cells.push({
+        key: dateStr,
+        day: d,
+        dateStr,
+        info: availableMap.get(dateStr),
+        isToday: dateStr === todayKey,
+      });
+    }
+    while (cells.length % 7 !== 0) cells.push({ key: `tail-${cells.length}`, day: null });
+
+    const monthLabel = new Date(year, month, 1).toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
+    const weekdayKeys = ['days.sun', 'days.mon', 'days.tue', 'days.wed', 'days.thu', 'days.fri', 'days.sat'];
+
+    const goPrev = () => {
+      const m = month - 1;
+      if (m < 0) setCalendarMonth({ year: year - 1, month: 11 });
+      else setCalendarMonth({ year, month: m });
+    };
+    const goNext = () => {
+      const m = month + 1;
+      if (m > 11) setCalendarMonth({ year: year + 1, month: 0 });
+      else setCalendarMonth({ year, month: m });
+    };
+
+    return (
+      <div className="bg-white border rounded-xl p-3">
+        <div className="flex items-center justify-between mb-3">
+          <button type="button" onClick={goPrev} className="px-3 py-1.5 rounded hover:bg-gray-100 text-lg" aria-label="prev">{'\u2039'}</button>
+          <span className="font-semibold">{monthLabel}</span>
+          <button type="button" onClick={goNext} className="px-3 py-1.5 rounded hover:bg-gray-100 text-lg" aria-label="next">{'\u203a'}</button>
+        </div>
+        <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-500 mb-1">
+          {weekdayKeys.map((k, i) => (
+            <div key={k} className={`py-1 ${i === 0 ? 'text-red-500' : i === 6 ? 'text-blue-500' : ''}`}>
+              {t(k, { defaultValue: ['\uc77c', '\uc6d4', '\ud654', '\uc218', '\ubaa9', '\uae08', '\ud1a0'][i] })}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-1">
+          {cells.map(cell => {
+            if (cell.day === null) return <div key={cell.key} className="h-12" />;
+            const available = !!cell.info;
+            const isSelected = cell.dateStr === selectedDate;
+            const isRecommended = cell.info?.isRecommended;
+            const dow = new Date(cell.dateStr + 'T00:00:00').getDay();
+            const baseTextColor = dow === 0 ? 'text-red-500' : dow === 6 ? 'text-blue-500' : '';
+
+            return (
+              <button
+                key={cell.key}
+                type="button"
+                disabled={!available}
+                onClick={() => {
+                  if (!cell.info || !cell.dateStr) return;
+                  setSelectedDate(cell.dateStr);
+                  setSelectedDateInfo(cell.info);
+                }}
+                className={`h-12 rounded-lg flex flex-col items-center justify-center text-sm transition-colors relative
+                  ${isSelected
+                    ? 'bg-[#0077cc] text-white font-bold'
+                    : available
+                      ? `bg-blue-50 hover:bg-blue-100 ${baseTextColor || 'text-gray-900'} cursor-pointer font-medium`
+                      : `bg-gray-50 ${baseTextColor || 'text-gray-300'} cursor-not-allowed`}
+                  ${cell.isToday && !isSelected ? 'ring-2 ring-[#0077cc] ring-inset' : ''}
+                `}
+              >
+                <span>{cell.day}</span>
+                {available && isRecommended && !isSelected && (
+                  <span className="absolute bottom-0.5 w-1 h-1 rounded-full bg-green-500" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500">
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 rounded bg-blue-50 border border-blue-100 inline-block" />
+            {t('ordering.steps.calendarLegendAvailable', { defaultValue: '\ubc1c\uc8fc \uac00\ub2a5' })}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 rounded bg-[#0077cc] inline-block" />
+            {t('ordering.steps.calendarLegendSelected', { defaultValue: '\uc120\ud0dd' })}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+            {t('ordering.steps.recommended')}
+          </span>
+        </div>
+        {selectedDateInfo && (
+          <div className="mt-3 bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">{formatDate(selectedDate!)}</span>
+              {selectedDateInfo.isRecommended && (
+                <Badge className="bg-green-100 text-green-800">{t('ordering.steps.recommended')}</Badge>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {t('ordering.steps.deadlineBy')} {formatDateTime(selectedDateInfo.orderDeadline)}
+            </p>
+          </div>
         )}
       </div>
     );
