@@ -45,6 +45,18 @@ public class Store {
     @Column(columnDefinition = "TEXT")
     private String memo;
 
+    @Column(name = "store_type", nullable = false, length = 20)
+    @Builder.Default
+    private String storeType = "STORE";
+
+    @Column(name = "is_internal_warehouse", nullable = false)
+    @Builder.Default
+    private Boolean isInternalWarehouse = false;
+
+    public boolean isWarehouse() {
+        return "WAREHOUSE".equals(storeType);
+    }
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

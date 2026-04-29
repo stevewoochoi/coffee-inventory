@@ -53,6 +53,8 @@
       "settings": "Settings"
     },
     "inventory": "Inventory",
+    "warehouseInventory": "Warehouse Inventory",
+    "storeInventory": "Store Inventory",
     "receiving": "Receiving",
     "waste": "Waste",
     "ordering": "Orders",

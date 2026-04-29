@@ -5,5 +5,6 @@ public enum LedgerType {
     SELL,
     WASTE,
     DAMAGE_RECEIVE,
-    ADJUST
+    ADJUST,
+    SHIP_OUT
 }

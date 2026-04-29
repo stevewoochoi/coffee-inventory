@@ -53,6 +53,8 @@
       "settings": "설정"
     },
     "inventory": "재고 현황",
+    "warehouseInventory": "본사 창고 재고",
+    "storeInventory": "매장 재고 현황",
     "receiving": "입고",
     "waste": "폐기",
     "ordering": "발주 현황",

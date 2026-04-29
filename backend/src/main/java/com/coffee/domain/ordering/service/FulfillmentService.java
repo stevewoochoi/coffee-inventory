@@ -16,6 +16,7 @@ import com.coffee.domain.ordering.repository.OrderLineRepository;
 import com.coffee.domain.ordering.repository.OrderPlanRepository;
 import com.coffee.domain.org.entity.Store;
 import com.coffee.domain.org.repository.StoreRepository;
+import com.coffee.domain.warehouse.service.WarehouseShipmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class FulfillmentService {
     private final SupplierRepository supplierRepository;
     private final PackagingRepository packagingRepository;
     private final ItemRepository itemRepository;
+    private final WarehouseShipmentService warehouseShipmentService;
 
     public FulfillmentDto.AdminPlanListResponse getAdminPlans(String status, String fulfillmentStatus) {
         List<OrderPlan> plans;
@@ -95,8 +97,17 @@ public class FulfillmentService {
             }
         }
 
+        // V7: when transitioning INTO shipping state, deduct from internal warehouse
+        // (no-op for external suppliers via WarehouseShipmentService guard)
+        boolean isEnteringShipped = ("SHIPPED".equals(newStatus) || "SHIPPING".equals(newStatus))
+                && !"SHIPPED".equals(currentStatus) && !"SHIPPING".equals(currentStatus);
+
         plan.setFulfillmentStatus(newStatus);
         planRepository.save(plan);
+
+        if (isEnteringShipped) {
+            warehouseShipmentService.shipFromWarehouse(plan, null);
+        }
 
         return toAdminResponse(plan);
     }

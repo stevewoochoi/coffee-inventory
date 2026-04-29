@@ -63,7 +63,8 @@ export const adminNavGroups: NavGroup[] = [
     icon: Warehouse,
     roles: ['SUPER_ADMIN', 'BRAND_ADMIN', 'KR_INVENTORY'],
     children: [
-      { key: 'nav.inventory', to: '/admin/inventory', icon: BarChart },
+      { key: 'nav.warehouseInventory', to: '/admin/warehouse-inventory', icon: Warehouse },
+      { key: 'nav.storeInventory', to: '/admin/store-inventory', icon: BarChart },
       { key: 'nav.expiry', to: '/admin/expiry', icon: Timer },
       { key: 'nav.bulkUpload', to: '/admin/bulk-upload', icon: Upload },
     ],

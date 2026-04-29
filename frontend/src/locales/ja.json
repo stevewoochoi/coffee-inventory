@@ -53,6 +53,8 @@
       "settings": "設定"
     },
     "inventory": "在庫状況",
+    "warehouseInventory": "本社倉庫在庫",
+    "storeInventory": "店舗在庫状況",
     "receiving": "入荷",
     "waste": "廃棄",
     "ordering": "発注一覧",

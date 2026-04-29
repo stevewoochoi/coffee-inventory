@@ -53,6 +53,8 @@ import CycleCountDetailPage from '@/pages/store/CycleCountDetailPage';
 import StoresPage from '@/pages/admin/StoresPage';
 import InventoryAdminPage from '@/pages/admin/InventoryAdminPage';
 import DeliveryPolicyPage from '@/pages/admin/DeliveryPolicyPage';
+import WarehouseInventoryPage from '@/pages/admin/WarehouseInventoryPage';
+import StoreInventoryViewPage from '@/pages/admin/StoreInventoryViewPage';
 
 function App() {
   const { initialize } = useAuthStore();
@@ -85,7 +87,10 @@ function App() {
             <Route path="/admin/expiry" element={<AdminExpiryPage />} />
             <Route path="/admin/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="/admin/settings/users" element={<UsersPage />} />
-            <Route path="/admin/inventory" element={<InventoryAdminPage />} />
+            <Route path="/admin/inventory" element={<Navigate to="/admin/store-inventory" replace />} />
+            <Route path="/admin/inventory-legacy" element={<InventoryAdminPage />} />
+            <Route path="/admin/warehouse-inventory" element={<WarehouseInventoryPage />} />
+            <Route path="/admin/store-inventory" element={<StoreInventoryViewPage />} />
             <Route path="/admin/settings/stores" element={<StoresPage />} />
             <Route path="/admin/settings/delivery-policy" element={<DeliveryPolicyPage />} />
           </Route>

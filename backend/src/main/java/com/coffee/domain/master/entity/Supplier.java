@@ -47,6 +47,13 @@ public class Supplier {
     @Builder.Default
     private OrderMethod orderMethod = OrderMethod.EMAIL;
 
+    @Column(name = "internal_warehouse_store_id")
+    private Long internalWarehouseStoreId;
+
+    public boolean isInternalSupplier() {
+        return internalWarehouseStoreId != null;
+    }
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
