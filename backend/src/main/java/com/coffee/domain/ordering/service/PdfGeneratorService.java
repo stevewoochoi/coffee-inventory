@@ -42,17 +42,16 @@ public class PdfGeneratorService {
             PDPage page = new PDPage(PDRectangle.A4);
             document.addPage(page);
 
-            // CJK-capable font (Japanese/Korean/English)
-            PDFont fontBold;
-            PDFont fontRegular;
+            // CJK-capable font (IPA Gothic - Japanese/Korean/English)
+            PDFont font;
             try {
-                InputStream boldStream = new ClassPathResource("fonts/NotoSansJP-Bold.otf").getInputStream();
-                InputStream regularStream = new ClassPathResource("fonts/NotoSansJP-Regular.otf").getInputStream();
-                fontBold = PDType0Font.load(document, boldStream);
-                fontRegular = PDType0Font.load(document, regularStream);
+                InputStream fontStream = new ClassPathResource("fonts/ipag.ttf").getInputStream();
+                font = PDType0Font.load(document, fontStream);
             } catch (IOException e) {
                 throw new RuntimeException("Font loading failed", e);
             }
+            PDFont fontBold = font;
+            PDFont fontRegular = font;
 
             float pageWidth = page.getMediaBox().getWidth();
             float margin = 50;
