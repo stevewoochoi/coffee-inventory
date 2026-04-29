@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { claimsApi, type ClaimLineInput } from '@/api/claims';
 import { orderingApi, type OrderHistory } from '@/api/ordering';
+import { uploadApi } from '@/api/upload';
+import axios from 'axios';
 
 const CLAIM_TYPES = ['DEFECTIVE', 'WRONG_ITEM', 'SHORTAGE', 'DAMAGE', 'QUALITY', 'OTHER'] as const;
 
@@ -31,11 +33,19 @@ interface SelectedItem {
   reason: string;
 }
 
+interface PhotoFile {
+  file: File;
+  preview: string;
+  uploading: boolean;
+  uploadedUrl?: string;
+}
+
 export default function NewClaimPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const storeId = user?.storeId;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(1);
   const [recentOrders, setRecentOrders] = useState<OrderHistory[]>([]);
@@ -44,7 +54,7 @@ export default function NewClaimPage() {
   const [description, setDescription] = useState('');
   const [requestedAction, setRequestedAction] = useState('');
   const [items, setItems] = useState<SelectedItem[]>([]);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<PhotoFile[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -55,9 +65,7 @@ export default function NewClaimPage() {
     try {
       const res = await orderingApi.getOrderHistory(storeId, 10);
       setRecentOrders(res.data.data);
-    } catch {
-      // silently fail
-    }
+    } catch { /* silently fail */ }
   }
 
   function handleSelectOrder(order: OrderHistory) {
@@ -81,10 +89,28 @@ export default function NewClaimPage() {
     setStep(2);
   }
 
-  function updateItem(idx: number, field: keyof SelectedItem, value: string | number) {
+  function updateItemQty(idx: number, value: string) {
+    const parsed = parseInt(value, 10);
+    const qty = isNaN(parsed) ? 0 : Math.max(0, parsed);
     setItems((prev) => {
       const updated = [...prev];
-      updated[idx] = { ...updated[idx], [field]: value };
+      updated[idx] = { ...updated[idx], claimedQty: qty };
+      return updated;
+    });
+  }
+
+  function updateItemReason(idx: number, value: string) {
+    setItems((prev) => {
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], reason: value };
+      return updated;
+    });
+  }
+
+  function updateItemName(idx: number, value: string) {
+    setItems((prev) => {
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], itemName: value };
       return updated;
     });
   }
@@ -98,6 +124,54 @@ export default function NewClaimPage() {
       ...prev,
       { itemId: 0, itemName: '', claimedQty: 1, reason: '' },
     ]);
+  }
+
+  // Photo handling
+  function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const newPhotos: PhotoFile[] = Array.from(files).map(file => ({
+      file,
+      preview: URL.createObjectURL(file),
+      uploading: false,
+    }));
+    setPhotos(prev => [...prev, ...newPhotos]);
+    e.target.value = '';
+  }
+
+  function removePhoto(idx: number) {
+    setPhotos(prev => {
+      URL.revokeObjectURL(prev[idx].preview);
+      return prev.filter((_, i) => i !== idx);
+    });
+  }
+
+  async function uploadPhotos(): Promise<string[]> {
+    const urls: string[] = [];
+    for (let i = 0; i < photos.length; i++) {
+      const photo = photos[i];
+      if (photo.uploadedUrl) {
+        urls.push(photo.uploadedUrl);
+        continue;
+      }
+      try {
+        setPhotos(prev => prev.map((p, idx) => idx === i ? { ...p, uploading: true } : p));
+        const ext = photo.file.name.split('.').pop() || 'jpg';
+        const fileName = `claim_${Date.now()}_${i}.${ext}`;
+        const contentType = photo.file.type || 'image/jpeg';
+        const presigned = await uploadApi.getPresignedUrl(fileName, contentType);
+        const { uploadUrl, fileUrl } = presigned.data.data;
+        await axios.put(uploadUrl, photo.file, {
+          headers: { 'Content-Type': contentType },
+        });
+        urls.push(fileUrl);
+        setPhotos(prev => prev.map((p, idx) => idx === i ? { ...p, uploading: false, uploadedUrl: fileUrl } : p));
+      } catch {
+        setPhotos(prev => prev.map((p, idx) => idx === i ? { ...p, uploading: false } : p));
+        throw new Error(`사진 ${i + 1} 업로드 실패`);
+      }
+    }
+    return urls;
   }
 
   async function handleSubmit() {
@@ -114,6 +188,18 @@ export default function NewClaimPage() {
 
     setSubmitting(true);
     try {
+      // Upload photos first
+      let uploadedUrls: string[] = [];
+      if (photos.length > 0) {
+        try {
+          uploadedUrls = await uploadPhotos();
+        } catch (e: any) {
+          toast.error(e.message || '사진 업로드 실패');
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const lines: ClaimLineInput[] = validItems.map((item) => ({
         itemId: item.itemId,
         packagingId: item.packagingId,
@@ -130,9 +216,8 @@ export default function NewClaimPage() {
         lines,
       });
 
-      // Upload images if any
       const claimId = res.data.data.id;
-      for (const url of imageUrls) {
+      for (const url of uploadedUrls) {
         await claimsApi.addImage(claimId, url);
       }
 
@@ -176,37 +261,25 @@ export default function NewClaimPage() {
         </span>
       </div>
 
-      {/* Step 1: Select order (optional) */}
+      {/* Step 1: Select order */}
       {step === 1 && (
         <div className="space-y-3">
           <p className="text-sm text-gray-600">{t('claims.new.selectOrderDesc')}</p>
-
-          <Button
-            variant="outline"
-            className="w-full min-h-[48px] border-dashed"
-            onClick={handleSkipOrder}
-          >
+          <Button variant="outline" className="w-full min-h-[48px] border-dashed" onClick={handleSkipOrder}>
             {t('claims.new.skipOrder')}
           </Button>
-
           {recentOrders.length > 0 && (
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-gray-500">{t('claims.new.recentOrders')}</h3>
               {recentOrders.map((order) => (
-                <Card
-                  key={order.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => handleSelectOrder(order)}
-                >
+                <Card key={order.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleSelectOrder(order)}>
                   <CardContent className="py-3">
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="font-bold">#{order.id}</span>
                         <span className="text-gray-500 ml-2">{order.supplierName}</span>
                       </div>
-                      <Badge className="bg-slate-100 text-[#343741]">
-                        {t(`ordering.status.${order.status}`)}
-                      </Badge>
+                      <Badge className="bg-slate-100 text-[#343741]">{t(`ordering.status.${order.status}`)}</Badge>
                     </div>
                     <div className="text-sm text-gray-500 mt-1">
                       {order.lines.map((l) => l.itemName).join(', ')}
@@ -222,7 +295,6 @@ export default function NewClaimPage() {
       {/* Step 2: Claim type & items */}
       {step === 2 && (
         <div className="space-y-4">
-          {/* Claim type */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">{t('claims.new.claimType')}</CardTitle>
@@ -235,7 +307,7 @@ export default function NewClaimPage() {
                     onClick={() => setClaimType(type)}
                     className={`p-3 rounded-lg text-sm font-medium border-2 transition-colors min-h-[48px] ${
                       claimType === type
-                        ? 'border-slate-700 bg-slate-50 text-[#343741]'
+                        ? 'border-[#0077cc] bg-[rgba(0,119,204,0.04)] text-[#0077cc]'
                         : 'border-gray-200 text-gray-600 hover:border-gray-300'
                     }`}
                   >
@@ -246,16 +318,13 @@ export default function NewClaimPage() {
             </CardContent>
           </Card>
 
-          {/* Items */}
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">{t('claims.new.items')}</CardTitle>
-                {!selectedOrderId && (
-                  <Button size="sm" variant="outline" onClick={addManualItem}>
-                    + {t('claims.new.addItem')}
-                  </Button>
-                )}
+                <Button size="sm" variant="outline" onClick={addManualItem}>
+                  + {t('claims.new.addItem')}
+                </Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -266,10 +335,20 @@ export default function NewClaimPage() {
                   {items.map((item, idx) => (
                     <div key={idx} className="border rounded-lg p-3 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-sm">
-                          {item.itemName || t('claims.new.manualItem')}
-                          {item.packName && <span className="text-gray-400 ml-1">({item.packName})</span>}
-                        </span>
+                        {item.itemId > 0 ? (
+                          <span className="font-medium text-sm">
+                            {item.itemName}
+                            {item.packName && <span className="text-gray-400 ml-1">({item.packName})</span>}
+                          </span>
+                        ) : (
+                          <input
+                            type="text"
+                            placeholder="품목명 입력"
+                            value={item.itemName}
+                            onChange={(e) => updateItemName(idx, e.target.value)}
+                            className="flex-1 border rounded-lg px-3 py-2 text-sm mr-2"
+                          />
+                        )}
                         <button
                           onClick={() => removeItem(idx)}
                           className="text-red-500 text-sm hover:text-red-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -281,30 +360,29 @@ export default function NewClaimPage() {
                         <label className="text-xs text-gray-500">{t('claims.new.qty')}</label>
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => updateItem(idx, 'claimedQty', Math.max(0, item.claimedQty - 1))}
+                            onClick={() => updateItemQty(idx, String(Math.max(0, item.claimedQty - 1)))}
                             className="w-10 h-10 rounded-lg bg-gray-100 text-lg font-bold hover:bg-gray-200"
-                          >
-                            -
-                          </button>
+                          >-</button>
                           <input
                             type="number"
-                            value={item.claimedQty}
-                            onChange={(e) => updateItem(idx, 'claimedQty', Math.max(0, parseInt(e.target.value) || 0))}
+                            inputMode="numeric"
+                            value={item.claimedQty || ''}
+                            onFocus={(e) => { if (item.claimedQty === 0) e.target.value = ''; }}
+                            onChange={(e) => updateItemQty(idx, e.target.value)}
                             className="w-16 text-center border rounded-lg h-10 text-sm"
+                            min={0}
                           />
                           <button
-                            onClick={() => updateItem(idx, 'claimedQty', item.claimedQty + 1)}
+                            onClick={() => updateItemQty(idx, String(item.claimedQty + 1))}
                             className="w-10 h-10 rounded-lg bg-gray-100 text-lg font-bold hover:bg-gray-200"
-                          >
-                            +
-                          </button>
+                          >+</button>
                         </div>
                       </div>
                       <input
                         type="text"
                         placeholder={t('claims.new.reasonPlaceholder')}
                         value={item.reason}
-                        onChange={(e) => updateItem(idx, 'reason', e.target.value)}
+                        onChange={(e) => updateItemReason(idx, e.target.value)}
                         className="w-full border rounded-lg px-3 py-2 text-sm"
                       />
                     </div>
@@ -319,12 +397,9 @@ export default function NewClaimPage() {
               {t('common.back')}
             </Button>
             <Button
-              className="flex-1 bg-[#0077cc] hover:bg-[#005ea3] min-h-[48px]"
+              className="flex-1 min-h-[48px]"
               onClick={() => {
-                if (!claimType) {
-                  toast.error(t('claims.new.selectType'));
-                  return;
-                }
+                if (!claimType) { toast.error(t('claims.new.selectType')); return; }
                 setStep(3);
               }}
             >
@@ -337,7 +412,6 @@ export default function NewClaimPage() {
       {/* Step 3: Description, photos & submit */}
       {step === 3 && (
         <div className="space-y-4">
-          {/* Description */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">{t('claims.new.description')}</CardTitle>
@@ -352,7 +426,6 @@ export default function NewClaimPage() {
             </CardContent>
           </Card>
 
-          {/* Requested action */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">{t('claims.new.requestedAction')}</CardTitle>
@@ -368,55 +441,66 @@ export default function NewClaimPage() {
             </CardContent>
           </Card>
 
-          {/* Photo URLs (simplified - URL input instead of camera) */}
+          {/* Photo upload */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">{t('claims.new.photos')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {imageUrls.map((url, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={url}
-                      onChange={(e) => {
-                        const updated = [...imageUrls];
-                        updated[idx] = e.target.value;
-                        setImageUrls(updated);
-                      }}
-                      className="flex-1 border rounded-lg px-3 py-2 text-sm"
-                    />
-                    <button
-                      onClick={() => setImageUrls((prev) => prev.filter((_, i) => i !== idx))}
-                      className="text-red-500 text-sm min-w-[44px] min-h-[44px] flex items-center justify-center"
-                    >
-                      {t('common.delete')}
-                    </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                capture="environment"
+                className="hidden"
+                onChange={handlePhotoSelect}
+              />
+              <div className="space-y-3">
+                {photos.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {photos.map((photo, idx) => (
+                      <div key={idx} className="relative">
+                        <img src={photo.preview} alt={`photo-${idx}`} className="w-full h-24 object-cover rounded-lg border" />
+                        {photo.uploading && (
+                          <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                            <span className="text-white text-xs">업로드중...</span>
+                          </div>
+                        )}
+                        {photo.uploadedUrl && (
+                          <div className="absolute top-1 left-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs">✓</span>
+                          </div>
+                        )}
+                        <button
+                          onClick={() => removePhoto(idx)}
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                        >×</button>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
                 <Button
                   variant="outline"
-                  size="sm"
-                  className="w-full min-h-[44px]"
-                  onClick={() => setImageUrls((prev) => [...prev, ''])}
+                  className="w-full min-h-[48px] border-dashed"
+                  onClick={() => fileInputRef.current?.click()}
                 >
-                  + {t('claims.new.addPhoto')}
+                  📷 사진 촬영 / 갤러리에서 선택
                 </Button>
               </div>
             </CardContent>
           </Card>
 
           {/* Summary */}
-          <Card className="border-slate-300 bg-slate-50">
+          <Card className="border-[#e8eaf0] bg-[#f7f8fc]">
             <CardContent className="py-4">
               <h3 className="font-semibold text-[#343741] mb-2">{t('claims.new.summary')}</h3>
               <div className="space-y-1 text-sm">
                 <p><span className="text-gray-500">{t('claims.new.claimType')}:</span> {t(`claims.type.${claimType}`)}</p>
                 {selectedOrderId && <p><span className="text-gray-500">{t('claims.new.relatedOrder')}:</span> #{selectedOrderId}</p>}
                 <p><span className="text-gray-500">{t('claims.new.items')}:</span> {items.filter(i => i.claimedQty > 0).length} {t('claims.itemCount')}</p>
-                {imageUrls.filter(u => u).length > 0 && (
-                  <p><span className="text-gray-500">{t('claims.new.photos')}:</span> {imageUrls.filter(u => u).length} {t('claims.photoCount')}</p>
+                {photos.length > 0 && (
+                  <p><span className="text-gray-500">{t('claims.new.photos')}:</span> {photos.length}장</p>
                 )}
               </div>
             </CardContent>
@@ -428,10 +512,7 @@ export default function NewClaimPage() {
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button
-                  className="flex-1 bg-[#0077cc] hover:bg-[#005ea3] min-h-[48px]"
-                  disabled={submitting}
-                >
+                <Button className="flex-1 min-h-[48px]" disabled={submitting}>
                   {submitting ? t('common.loading') : t('claims.new.submit')}
                 </Button>
               </AlertDialogTrigger>
@@ -442,9 +523,7 @@ export default function NewClaimPage() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleSubmit}>
-                    {t('claims.new.submit')}
-                  </AlertDialogAction>
+                  <AlertDialogAction onClick={handleSubmit}>{t('claims.new.submit')}</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
