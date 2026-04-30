@@ -29,7 +29,7 @@ public class WarehouseCycleCountController {
             @RequestParam(required = false) String zoneFilter,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(cycleCountService.start(
-                warehouseId, user.getBrandId(), gradeFilter, zoneFilter, user.getId())));
+                warehouseId, user.getEffectiveBrandId(), gradeFilter, zoneFilter, user.getId())));
     }
 
     @GetMapping("/active")
@@ -37,7 +37,7 @@ public class WarehouseCycleCountController {
             @PathVariable Long warehouseId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                cycleCountService.listActive(warehouseId, user.getBrandId())));
+                cycleCountService.listActive(warehouseId, user.getEffectiveBrandId())));
     }
 
     @GetMapping
@@ -46,7 +46,7 @@ public class WarehouseCycleCountController {
             Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                cycleCountService.getHistory(warehouseId, user.getBrandId(), pageable)));
+                cycleCountService.getHistory(warehouseId, user.getEffectiveBrandId(), pageable)));
     }
 
     @GetMapping("/{sessionId}")
@@ -55,7 +55,7 @@ public class WarehouseCycleCountController {
             @PathVariable Long sessionId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                cycleCountService.getSession(warehouseId, user.getBrandId(), sessionId)));
+                cycleCountService.getSession(warehouseId, user.getEffectiveBrandId(), sessionId)));
     }
 
     @PutMapping("/lines/{lineId}")
@@ -66,7 +66,7 @@ public class WarehouseCycleCountController {
             @RequestParam(required = false) String note,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                cycleCountService.updateLine(warehouseId, user.getBrandId(), lineId, countedQty, note)));
+                cycleCountService.updateLine(warehouseId, user.getEffectiveBrandId(), lineId, countedQty, note)));
     }
 
     @PostMapping("/{sessionId}/complete")
@@ -76,6 +76,6 @@ public class WarehouseCycleCountController {
             @RequestParam(defaultValue = "true") Boolean applyAdjustments,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                cycleCountService.complete(warehouseId, user.getBrandId(), sessionId, applyAdjustments)));
+                cycleCountService.complete(warehouseId, user.getEffectiveBrandId(), sessionId, applyAdjustments)));
     }
 }

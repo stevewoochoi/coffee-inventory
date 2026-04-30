@@ -29,7 +29,7 @@ public class WarehouseOrderController {
             @PathVariable Long warehouseId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                warehouseOrderService.getExternalSuppliers(warehouseId, user.getBrandId())));
+                warehouseOrderService.getExternalSuppliers(warehouseId, user.getEffectiveBrandId())));
     }
 
     @PostMapping
@@ -38,7 +38,7 @@ public class WarehouseOrderController {
             @Valid @RequestBody OrderPlanDto.CreateRequest request,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                warehouseOrderService.createOrder(warehouseId, user.getBrandId(), request)));
+                warehouseOrderService.createOrder(warehouseId, user.getEffectiveBrandId(), request)));
     }
 
     @GetMapping
@@ -46,7 +46,7 @@ public class WarehouseOrderController {
             @PathVariable Long warehouseId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                warehouseOrderService.listOrders(warehouseId, user.getBrandId())));
+                warehouseOrderService.listOrders(warehouseId, user.getEffectiveBrandId())));
     }
 
     @GetMapping("/{orderId}")
@@ -55,7 +55,7 @@ public class WarehouseOrderController {
             @PathVariable Long orderId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                warehouseOrderService.getOrderDetail(warehouseId, user.getBrandId(), orderId)));
+                warehouseOrderService.getOrderDetail(warehouseId, user.getEffectiveBrandId(), orderId)));
     }
 
     @PostMapping("/{orderId}/cancel")
@@ -63,7 +63,7 @@ public class WarehouseOrderController {
             @PathVariable Long warehouseId,
             @PathVariable Long orderId,
             @AuthenticationPrincipal CustomUserDetails user) {
-        warehouseOrderService.cancel(warehouseId, user.getBrandId(), orderId);
+        warehouseOrderService.cancel(warehouseId, user.getEffectiveBrandId(), orderId);
         return ResponseEntity.ok(ApiResponse.ok(null, "Order cancelled"));
     }
 }

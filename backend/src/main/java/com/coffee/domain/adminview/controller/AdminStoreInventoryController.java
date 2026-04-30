@@ -32,7 +32,7 @@ public class AdminStoreInventoryController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<Store>>> listStores(
             @AuthenticationPrincipal CustomUserDetails user) {
-        return ResponseEntity.ok(ApiResponse.ok(service.listStores(user.getBrandId())));
+        return ResponseEntity.ok(ApiResponse.ok(service.listStores(user.getEffectiveBrandId())));
     }
 
     @GetMapping("/{storeId}/inventory")
@@ -40,7 +40,7 @@ public class AdminStoreInventoryController {
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                service.getInventory(storeId, user.getBrandId())));
+                service.getInventory(storeId, user.getEffectiveBrandId())));
     }
 
     @GetMapping("/{storeId}/inventory/ledger")
@@ -50,7 +50,7 @@ public class AdminStoreInventoryController {
             Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                service.getLedger(storeId, user.getBrandId(), itemId, pageable)));
+                service.getLedger(storeId, user.getEffectiveBrandId(), itemId, pageable)));
     }
 
     @GetMapping(value = "/{storeId}/inventory/export",
@@ -58,7 +58,7 @@ public class AdminStoreInventoryController {
     public ResponseEntity<byte[]> exportExcel(
             @PathVariable Long storeId,
             @AuthenticationPrincipal CustomUserDetails user) {
-        byte[] data = service.exportExcel(storeId, user.getBrandId());
+        byte[] data = service.exportExcel(storeId, user.getEffectiveBrandId());
         String fname = URLEncoder.encode("store-inventory-" + storeId + ".xlsx", StandardCharsets.UTF_8);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,

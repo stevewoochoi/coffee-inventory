@@ -284,6 +284,9 @@ public class OrderingService {
         List<Long> storeIds;
         if (storeId != null) {
             storeIds = List.of(storeId);
+        } else if (brandId == null) {
+            // SUPER_ADMIN: all stores across all brands
+            storeIds = storeRepository.findAll().stream().map(Store::getId).toList();
         } else {
             storeIds = storeRepository.findByBrandId(brandId).stream().map(Store::getId).toList();
         }
@@ -310,7 +313,9 @@ public class OrderingService {
     }
 
     public List<OrderPlanDto.SummaryResponse> getSupplierSummary(Long brandId) {
-        List<Store> stores = storeRepository.findByBrandId(brandId);
+        List<Store> stores = brandId == null
+                ? storeRepository.findAll()
+                : storeRepository.findByBrandId(brandId);
         List<Long> storeIds = stores.stream().map(Store::getId).toList();
         if (storeIds.isEmpty()) {
             return List.of();

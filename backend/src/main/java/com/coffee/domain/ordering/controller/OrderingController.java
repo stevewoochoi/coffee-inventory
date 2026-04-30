@@ -39,17 +39,22 @@ public class OrderingController {
 
     @GetMapping("/plans/all")
     public ResponseEntity<ApiResponse<List<OrderPlanDto.DetailedResponse>>> findAllByBrandId(
-            @RequestParam Long brandId,
+            @RequestParam(required = false) Long brandId,
             @RequestParam(required = false) Long supplierId,
             @RequestParam(required = false) Long storeId,
-            @RequestParam(required = false) String status) {
-        return ResponseEntity.ok(ApiResponse.ok(orderingService.findAllByBrandId(brandId, supplierId, storeId, status)));
+            @RequestParam(required = false) String status,
+            @AuthenticationPrincipal CustomUserDetails user) {
+        // SUPER_ADMIN sees all brands; others restricted to their brand
+        Long effectiveBrandId = user != null && user.isSuperAdmin() ? brandId : user != null ? user.getBrandId() : brandId;
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.findAllByBrandId(effectiveBrandId, supplierId, storeId, status)));
     }
 
     @GetMapping("/summary")
     public ResponseEntity<ApiResponse<List<OrderPlanDto.SummaryResponse>>> getSupplierSummary(
-            @RequestParam Long brandId) {
-        return ResponseEntity.ok(ApiResponse.ok(orderingService.getSupplierSummary(brandId)));
+            @RequestParam(required = false) Long brandId,
+            @AuthenticationPrincipal CustomUserDetails user) {
+        Long effectiveBrandId = user != null && user.isSuperAdmin() ? brandId : user != null ? user.getBrandId() : brandId;
+        return ResponseEntity.ok(ApiResponse.ok(orderingService.getSupplierSummary(effectiveBrandId)));
     }
 
     @GetMapping("/plans")

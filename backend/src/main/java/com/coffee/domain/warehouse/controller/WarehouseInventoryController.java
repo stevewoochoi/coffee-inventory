@@ -33,7 +33,8 @@ public class WarehouseInventoryController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<WarehouseDto>>> list(
             @AuthenticationPrincipal CustomUserDetails user) {
-        List<Store> stores = warehouseService.getWarehousesForBrand(user.getBrandId());
+        Long effectiveBrandId = user.getEffectiveBrandId();
+        List<Store> stores = warehouseService.getWarehousesForBrand(effectiveBrandId);
         return ResponseEntity.ok(ApiResponse.ok(stores.stream().map(WarehouseDto::from).toList()));
     }
 
@@ -42,7 +43,7 @@ public class WarehouseInventoryController {
             @PathVariable Long warehouseId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                inventoryService.getInventory(warehouseId, user.getBrandId())));
+                inventoryService.getInventory(warehouseId, (user.getEffectiveBrandId()))));
     }
 
     @GetMapping("/{warehouseId}/inventory/lots")
@@ -51,7 +52,7 @@ public class WarehouseInventoryController {
             @RequestParam Long itemId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                inventoryService.getLots(warehouseId, itemId, user.getBrandId())));
+                inventoryService.getLots(warehouseId, itemId, (user.getEffectiveBrandId()))));
     }
 
     @GetMapping("/{warehouseId}/inventory/ledger")
@@ -61,7 +62,7 @@ public class WarehouseInventoryController {
             Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                inventoryService.getLedger(warehouseId, itemId, user.getBrandId(), pageable)));
+                inventoryService.getLedger(warehouseId, itemId, (user.getEffectiveBrandId()), pageable)));
     }
 
     @PostMapping("/{warehouseId}/inventory/adjust")
@@ -70,7 +71,7 @@ public class WarehouseInventoryController {
             @PathVariable Long warehouseId,
             @Valid @RequestBody WarehouseAdjustRequest req,
             @AuthenticationPrincipal CustomUserDetails user) {
-        inventoryService.adjust(warehouseId, user.getBrandId(), req, user.getId());
+        inventoryService.adjust(warehouseId, (user.getEffectiveBrandId()), req, user.getId());
         return ResponseEntity.ok(ApiResponse.ok(null, "Adjustment applied"));
     }
 }

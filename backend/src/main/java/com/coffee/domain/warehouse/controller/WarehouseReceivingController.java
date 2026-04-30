@@ -27,7 +27,7 @@ public class WarehouseReceivingController {
             @PathVariable Long warehouseId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                receivingService.getPending(warehouseId, user.getBrandId())));
+                receivingService.getPending(warehouseId, user.getEffectiveBrandId())));
     }
 
     @PostMapping("/from-order/{orderId}")
@@ -37,7 +37,7 @@ public class WarehouseReceivingController {
             @Valid @RequestBody OrderReceivingDto.ReceiveRequest request,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                receivingService.receiveFromOrder(warehouseId, user.getBrandId(), orderId, request, user.getId())));
+                receivingService.receiveFromOrder(warehouseId, user.getEffectiveBrandId(), orderId, request, user.getId())));
     }
 
     @PostMapping("/deliveries/{deliveryId}/confirm")
@@ -46,6 +46,6 @@ public class WarehouseReceivingController {
             @PathVariable Long deliveryId,
             @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(ApiResponse.ok(
-                receivingService.confirm(warehouseId, user.getBrandId(), deliveryId, user.getId())));
+                receivingService.confirm(warehouseId, user.getEffectiveBrandId(), deliveryId, user.getId())));
     }
 }

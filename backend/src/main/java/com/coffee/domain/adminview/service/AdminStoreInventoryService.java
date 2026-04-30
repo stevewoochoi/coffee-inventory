@@ -32,13 +32,19 @@ public class AdminStoreInventoryService {
     @Transactional(readOnly = true)
     public List<Store> listStores(Long brandId) {
         // STORE type only — exclude WAREHOUSE
+        if (brandId == null) {
+            // SUPER_ADMIN: all brands
+            return storeRepository.findAll().stream()
+                    .filter(s -> "STORE".equals(s.getStoreType()) && "ACTIVE".equals(s.getStatus()))
+                    .toList();
+        }
         return storeRepository.findByBrandIdAndStoreTypeAndStatus(brandId, "STORE", "ACTIVE");
     }
 
     private Store assertStoreAccess(Long storeId, Long brandId) {
         Store s = storeRepository.findById(storeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Store", storeId));
-        if (!s.getBrandId().equals(brandId)) {
+        if (brandId != null && !brandId.equals(s.getBrandId())) {
             throw new BusinessException("Forbidden: store belongs to another brand", HttpStatus.FORBIDDEN);
         }
         if ("WAREHOUSE".equals(s.getStoreType())) {

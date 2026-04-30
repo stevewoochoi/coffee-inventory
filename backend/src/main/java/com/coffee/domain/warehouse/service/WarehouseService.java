@@ -18,11 +18,17 @@ public class WarehouseService {
 
     private final StoreRepository storeRepository;
 
+    /** brandId=null returns ALL active WAREHOUSE stores (SUPER_ADMIN scope). */
     public List<Store> getWarehousesForBrand(Long brandId) {
+        if (brandId == null) {
+            return storeRepository.findAll().stream()
+                    .filter(s -> "WAREHOUSE".equals(s.getStoreType()) && "ACTIVE".equals(s.getStatus()))
+                    .toList();
+        }
         return storeRepository.findByBrandIdAndStoreTypeAndStatus(brandId, "WAREHOUSE", "ACTIVE");
     }
 
-    /** Validate that warehouseId exists, is WAREHOUSE type, and belongs to caller's brand. */
+    /** Validate that warehouseId exists, is WAREHOUSE type, and (when brandId != null) belongs to caller's brand. */
     public Store getWarehouse(Long warehouseId, Long brandId) {
         Store s = storeRepository.findById(warehouseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", warehouseId));

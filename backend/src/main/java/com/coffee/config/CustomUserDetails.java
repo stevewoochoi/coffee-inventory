@@ -49,6 +49,15 @@ public class CustomUserDetails implements UserDetails {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
+    /** SUPER_ADMIN sees all brands; others scoped to their brandId. */
+    public Long getEffectiveBrandId() {
+        return "SUPER_ADMIN".equals(role) ? null : brandId;
+    }
+
+    public boolean isSuperAdmin() {
+        return "SUPER_ADMIN".equals(role);
+    }
+
     @Override
     public String getUsername() {
         return email;
